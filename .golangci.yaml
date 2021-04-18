@@ -1,0 +1,9 @@
+linters:
+  enable:
+    - errorlint
+    - gocritic
+    - godox
+    - gofmt
+    - gosec
+    - misspell
+    - nilerr
