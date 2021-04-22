@@ -17,7 +17,7 @@ type Flow struct {
 	flowNodeMapping *flow_node.FlowNodeMapping
 }
 
-// Creates a new flow from an  flow node
+// Creates a new flow from a flow node
 //
 // The flow does nothing until it is explicitly started.
 func NewFlow(current flow_node.FlowNodeInterface, tracer *tracing.Tracer, flowNodeMapping *flow_node.FlowNodeMapping) *Flow {
