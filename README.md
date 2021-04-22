@@ -1,3 +1,5 @@
+<img src="https://github.com/bpxe/bpxe/blob/master/logo.svg" width="100%" height="150">
+
 # BPXE: Business Process eXecution Engine
 
 BPMN 2.0 based business process execution engine implemented in Go. BPMN stands
