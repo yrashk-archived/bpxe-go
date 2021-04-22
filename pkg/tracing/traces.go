@@ -28,3 +28,7 @@ type ErrorTrace struct {
 }
 
 func (t ErrorTrace) TraceInterface() {}
+
+type CeaseFlowTrace struct{}
+
+func (t CeaseFlowTrace) TraceInterface() {}
