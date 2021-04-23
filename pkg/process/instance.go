@@ -1,6 +1,10 @@
 package process
 
 import (
+	"context"
+	"sync"
+
+	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/events"
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/flow_node/event/end_event"
@@ -13,6 +17,8 @@ type ProcessInstance struct {
 	eventConsumers  []events.ProcessEventConsumer
 	Tracer          *tracing.Tracer
 	flowNodeMapping *flow_node.FlowNodeMapping
+	flowWaitGroup   sync.WaitGroup
+	complete        sync.RWMutex
 }
 
 func NewProcessInstance(process *Process) (instance *ProcessInstance, err error) {
@@ -28,7 +34,7 @@ func NewProcessInstance(process *Process) (instance *ProcessInstance, err error)
 		element := &(*process.Element.StartEvents())[i]
 		var startEvent *start_event.StartEvent
 		startEvent, err = start_event.NewStartEvent(process.Element, process.Definitions,
-			element, instance, instance, tracer, instance.flowNodeMapping)
+			element, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
 		if err != nil {
 			return
 		}
@@ -41,7 +47,7 @@ func NewProcessInstance(process *Process) (instance *ProcessInstance, err error)
 		element := &(*process.Element.EndEvents())[i]
 		var endEvent *end_event.EndEvent
 		endEvent, err = end_event.NewEndEvent(process.Element, process.Definitions,
-			element, instance, instance, tracer, instance.flowNodeMapping)
+			element, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
 		if err != nil {
 			return
 		}
@@ -67,10 +73,83 @@ func (instance *ProcessInstance) RegisterProcessEventConsumer(ev events.ProcessE
 }
 
 func (instance *ProcessInstance) Run() (err error) {
+	lockChan := make(chan bool)
+	go func() {
+		instance.complete.Lock()
+		lockChan <- true
+		/* 13.4.6 End Events:
+
+		The Process instance is [...] completed, if
+		and only if the following two conditions
+		hold:
+
+		(1) All start nodes of the Process have been
+		visited. More precisely, all Start Events
+		have been triggered (1.1), and for all
+		starting Event-Based Gateways, one of the
+		associated Events has been triggered (1.2).
+
+		(2) There is no token remaining within the
+		Process instance
+		*/
+		startEventsActivated := make([]*bpmn.StartEvent, 0)
+		traces := instance.Tracer.Subscribe()
+
+		// So, at first, we wait for (1.1) to occur
+		// [(1.2) will be addded when we actually support them]
+
+		for {
+			if len(startEventsActivated) == len(*instance.process.Element.StartEvents()) {
+				break
+			}
+			trace := <-traces
+			switch t := trace.(type) {
+			case tracing.FlowTrace:
+				for _, sequenceFlow := range t.SequenceFlows {
+					if source, err := sequenceFlow.Source(); err == nil {
+						switch flowNode := source.(type) {
+						case *bpmn.StartEvent:
+							startEventsActivated = append(startEventsActivated, flowNode)
+						default:
+						}
+					}
+				}
+			default:
+			}
+		}
+
+		instance.Tracer.Unsubscribe(traces)
+
+		// Then, we're waiting for (2) to occur
+		instance.flowWaitGroup.Wait()
+		// Send out a cease flow trace
+		instance.Tracer.Trace(tracing.CeaseFlowTrace{})
+		instance.complete.Unlock()
+	}()
+	<-lockChan
+	close(lockChan)
 	event := events.MakeStartEvent()
 	_, err = instance.ConsumeProcessEvent(&event)
 	if err != nil {
 		return
+	}
+	return
+}
+
+// Waits until the instance is complete. Returns true if the instance was complete,
+// false if the context signalled `Done`
+func (instance *ProcessInstance) WaitUntilComplete(ctx context.Context) (complete bool) {
+	signal := make(chan bool)
+	go func() {
+		instance.complete.Lock()
+		signal <- true
+		instance.complete.Unlock()
+	}()
+	select {
+	case <-ctx.Done():
+		complete = false
+	case <-signal:
+		complete = true
 	}
 	return
 }

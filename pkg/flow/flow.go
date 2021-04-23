@@ -2,6 +2,7 @@ package flow
 
 import (
 	"fmt"
+	"sync"
 
 	"bpxe.org/pkg/errors"
 	"bpxe.org/pkg/flow_node"
@@ -15,16 +16,19 @@ type Flow struct {
 	index           *int
 	tracer          *tracing.Tracer
 	flowNodeMapping *flow_node.FlowNodeMapping
+	flowWaitGroup   *sync.WaitGroup
 }
 
 // Creates a new flow from a flow node
 //
 // The flow does nothing until it is explicitly started.
-func NewFlow(current flow_node.FlowNodeInterface, tracer *tracing.Tracer, flowNodeMapping *flow_node.FlowNodeMapping) *Flow {
+func NewFlow(current flow_node.FlowNodeInterface, tracer *tracing.Tracer,
+	flowNodeMapping *flow_node.FlowNodeMapping, flowWaitGroup *sync.WaitGroup) *Flow {
 	return &Flow{
 		current:         current,
 		tracer:          tracer,
 		flowNodeMapping: flowNodeMapping,
+		flowWaitGroup:   flowWaitGroup,
 	}
 }
 
@@ -56,7 +60,7 @@ func (flow *Flow) handleAdditionalSequenceFlow(sequenceFlow *sequence_flow.Seque
 	if err == nil {
 		if flowNode, found := flow.flowNodeMapping.ResolveElementToFlowNode(target); found {
 			var index int
-			newFlow := NewFlow(flowNode, flow.tracer, flow.flowNodeMapping)
+			newFlow := NewFlow(flowNode, flow.tracer, flow.flowNodeMapping, flow.flowWaitGroup)
 			index, err = sequenceFlow.TargetIndex()
 			if err != nil {
 				flow.tracer.Trace(tracing.ErrorTrace{Error: err})
@@ -77,7 +81,9 @@ func (flow *Flow) handleAdditionalSequenceFlow(sequenceFlow *sequence_flow.Seque
 
 // Starts the flow
 func (flow *Flow) Start() {
+	flow.flowWaitGroup.Add(1)
 	go func() {
+		defer flow.flowWaitGroup.Done()
 		var action flow_node.Action
 		for {
 			if flow.index != nil {

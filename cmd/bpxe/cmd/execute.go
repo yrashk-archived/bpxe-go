@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
@@ -16,10 +17,7 @@ import (
 var executeCmd = &cobra.Command{
 	Use:   "execute [file.bpmn]",
 	Short: "Execute BPMN model",
-	Long: `This command will execute processes in a BPMN model.
-
-	Currently, it won't finish until interrupted with Ctrl-C, since there's no direct way
-	to detect that process has ended.`,
+	Long:  `This command will execute processes in a BPMN model.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		file := args[0]
 		var document bpmn.Definitions
@@ -48,30 +46,39 @@ var executeCmd = &cobra.Command{
 				if err != nil {
 					fmt.Printf("failed to run the instance: %s\n", err)
 				}
-				for {
-					trace := <-traces
-					switch trace := trace.(type) {
-					case tracing.FlowTrace:
-						sourceId, present := trace.Source.Id()
-						if !present {
-							sourceId = new(string)
-							*sourceId = "unnamed"
-						}
-						for _, sequenceFlow := range trace.SequenceFlows {
-							target, err := sequenceFlow.Target()
-							if err != nil {
-								fmt.Printf("Can't find target in a flow")
-							}
-							targetId, present := target.Id()
+				done := make(chan bool)
+				go func() {
+					for {
+						trace := <-traces
+						switch trace := trace.(type) {
+						case tracing.FlowTrace:
+							sourceId, present := trace.Source.Id()
 							if !present {
-								targetId = new(string)
-								*targetId = "unnamed"
+								sourceId = new(string)
+								*sourceId = "unnamed"
 							}
-							fmt.Printf("| %s -> %s\n", *sourceId, *targetId)
+							for _, sequenceFlow := range trace.SequenceFlows {
+								target, err := sequenceFlow.Target()
+								if err != nil {
+									fmt.Printf("Can't find target in a flow")
+								}
+								targetId, present := target.Id()
+								if !present {
+									targetId = new(string)
+									*targetId = "unnamed"
+								}
+								fmt.Printf("Flow %s -> %s\n", *sourceId, *targetId)
+							}
+						case tracing.CeaseFlowTrace:
+							done <- true
+							return
+						default:
 						}
-					default:
+
 					}
-				}
+				}()
+				instance.WaitUntilComplete(context.Background())
+				<-done
 			} else {
 				fmt.Printf("failed to instantiate the process: %s\n", err)
 			}

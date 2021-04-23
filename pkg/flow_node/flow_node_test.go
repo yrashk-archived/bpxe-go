@@ -2,6 +2,7 @@ package flow_node
 
 import (
 	"encoding/xml"
+	"sync"
 	"testing"
 
 	"bpxe.org/pkg/bpmn"
@@ -25,6 +26,7 @@ func TestNewFlowNode(t *testing.T) {
 		t.Fatalf("XML unmarshalling error: %v", err)
 	}
 
+	var waitGroup sync.WaitGroup
 	if proc, found := sampleDoc.FindBy(bpmn.ExactId("sample")); found {
 		if flowNode, found := sampleDoc.FindBy(bpmn.ExactId("either")); found {
 			node, err := NewFlowNode(proc.(*bpmn.Process),
@@ -33,6 +35,7 @@ func TestNewFlowNode(t *testing.T) {
 				events.VoidProcessEventConsumer{},
 				events.VoidProcessEventSource{},
 				tracing.NewTracer(), NewLockedFlowNodeMapping(),
+				&waitGroup,
 			)
 			assert.Nil(t, err)
 			assert.Equal(t, 1, len(node.Incoming))

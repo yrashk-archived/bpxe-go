@@ -1,6 +1,8 @@
 package flow_node
 
 import (
+	"sync"
+
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/errors"
 	"bpxe.org/pkg/events"
@@ -16,6 +18,7 @@ type FlowNode struct {
 	Tracer       *tracing.Tracer
 	Process      *bpmn.Process
 	*FlowNodeMapping
+	FlowWaitGroup *sync.WaitGroup
 }
 
 func sequenceFlows(process *bpmn.Process,
@@ -45,6 +48,7 @@ func NewFlowNode(process *bpmn.Process,
 	eventEgress events.ProcessEventSource,
 	tracer *tracing.Tracer,
 	flowNodeMapping *FlowNodeMapping,
+	flowWaitGroup *sync.WaitGroup,
 ) (node *FlowNode, err error) {
 	incoming, err := sequenceFlows(process, definitions, flow_node.Incomings())
 	if err != nil {
@@ -62,6 +66,7 @@ func NewFlowNode(process *bpmn.Process,
 		Tracer:          tracer,
 		Process:         process,
 		FlowNodeMapping: flowNodeMapping,
+		FlowWaitGroup:   flowWaitGroup,
 	}
 	return
 }

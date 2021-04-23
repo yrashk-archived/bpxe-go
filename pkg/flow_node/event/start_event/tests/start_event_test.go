@@ -48,6 +48,7 @@ func TestStartEvent(t *testing.T) {
 				t.Logf("%#v", trace)
 			}
 		}
+		instance.Tracer.Unsubscribe(traces)
 	} else {
 		t.Fatalf("failed to instantiate the process: %s", err)
 	}

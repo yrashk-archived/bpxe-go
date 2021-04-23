@@ -1,5 +1,9 @@
 package events
 
+import (
+	"bpxe.org/pkg/bpmn"
+)
+
 // Marker trait for process events
 type ProcessEvent interface {
 	processEvent()
@@ -15,10 +19,12 @@ func MakeStartEvent() StartEvent {
 func (ev StartEvent) processEvent() {}
 
 // Process has ended
-type EndEvent struct{}
+type EndEvent struct {
+	Element *bpmn.EndEvent
+}
 
-func MakeEndEvent() EndEvent {
-	return EndEvent{}
+func MakeEndEvent(element *bpmn.EndEvent) EndEvent {
+	return EndEvent{Element: element}
 }
 
 func (ev EndEvent) processEvent() {}
