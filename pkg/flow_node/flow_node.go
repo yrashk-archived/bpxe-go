@@ -11,6 +11,7 @@ import (
 )
 
 type FlowNode struct {
+	Definitions  *bpmn.Definitions
 	Incoming     []sequence_flow.SequenceFlow
 	Outgoing     []sequence_flow.SequenceFlow
 	EventIngress events.ProcessEventConsumer
@@ -59,6 +60,7 @@ func NewFlowNode(process *bpmn.Process,
 		return
 	}
 	node = &FlowNode{
+		Definitions:     definitions,
 		Incoming:        incoming,
 		Outgoing:        outgoing,
 		EventIngress:    eventIngress,

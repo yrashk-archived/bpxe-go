@@ -102,17 +102,21 @@ func (instance *ProcessInstance) Run() (err error) {
 			if len(startEventsActivated) == len(*instance.process.Element.StartEvents()) {
 				break
 			}
+
 			trace := <-traces
+
 			switch t := trace.(type) {
+			case tracing.FlowTerminationTrace:
+				switch flowNode := t.Source.(type) {
+				case *bpmn.StartEvent:
+					startEventsActivated = append(startEventsActivated, flowNode)
+				default:
+				}
 			case tracing.FlowTrace:
-				for _, sequenceFlow := range t.SequenceFlows {
-					if source, err := sequenceFlow.Source(); err == nil {
-						switch flowNode := source.(type) {
-						case *bpmn.StartEvent:
-							startEventsActivated = append(startEventsActivated, flowNode)
-						default:
-						}
-					}
+				switch flowNode := t.Source.(type) {
+				case *bpmn.StartEvent:
+					startEventsActivated = append(startEventsActivated, flowNode)
+				default:
 				}
 			default:
 			}

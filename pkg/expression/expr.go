@@ -17,6 +17,11 @@ func MakeExpr() Expr {
 	return Expr{}
 }
 
+func NewExpr() *Expr {
+	engine := MakeExpr()
+	return &engine
+}
+
 func (engine *Expr) CompileExpression(source string) (result CompiledExpression, err error) {
 	result, err = expr.Compile(source)
 	return

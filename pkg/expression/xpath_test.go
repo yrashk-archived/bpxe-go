@@ -6,7 +6,7 @@ import (
 )
 
 func TestXPath(t *testing.T) {
-	engine := MakeXPath()
+	var engine Engine = NewXPath()
 	compiled, err := engine.CompileExpression("a > 1")
 	assert.Nil(t, err)
 	result, err := engine.EvaluateExpression(compiled, map[string]interface{}{

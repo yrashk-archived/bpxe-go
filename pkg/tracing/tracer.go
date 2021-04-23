@@ -1,5 +1,10 @@
 package tracing
 
+type subscription struct {
+	channel chan Trace
+	ok      chan bool
+}
+
 type unsubscription struct {
 	channel chan Trace
 	ok      chan bool
@@ -7,7 +12,7 @@ type unsubscription struct {
 
 type Tracer struct {
 	traces         chan Trace
-	subscription   chan chan Trace
+	subscription   chan subscription
 	unsubscription chan unsubscription
 	subscribers    []chan Trace
 }
@@ -16,7 +21,7 @@ func NewTracer() *Tracer {
 	tracer := Tracer{
 		subscribers:    make([]chan Trace, 0),
 		traces:         make(chan Trace),
-		subscription:   make(chan chan Trace),
+		subscription:   make(chan subscription),
 		unsubscription: make(chan unsubscription),
 	}
 	go tracer.runner()
@@ -27,21 +32,24 @@ func (t *Tracer) runner() {
 	for {
 		select {
 		case subscription := <-t.subscription:
-			t.subscribers = append(t.subscribers, subscription)
+			t.subscribers = append(t.subscribers, subscription.channel)
+			subscription.ok <- true
 		case unsubscription := <-t.unsubscription:
-			pos := 0
+			pos := -1
 			for i := range t.subscribers {
 				if t.subscribers[i] == unsubscription.channel {
-					pos = i + 1
+					pos = i
 					break
 				}
 			}
-			if pos > 0 {
-				end := pos
-				if pos == len(t.subscribers) {
-					pos--
-				}
-				t.subscribers = append(t.subscribers[:pos], t.subscribers[end:]...)
+			if pos >= 0 {
+				l := len(t.subscribers) - 1
+				// remove subscriber by replacing it with the last one
+				t.subscribers[pos] = t.subscribers[l]
+				t.subscribers[l] = nil
+				// and truncating the list of subscribers
+				t.subscribers = t.subscribers[:l]
+				// (as we don't care about the order)
 				unsubscription.ok <- true
 			}
 		case trace := <-t.traces:
@@ -54,7 +62,10 @@ func (t *Tracer) runner() {
 
 func (t *Tracer) Subscribe() chan Trace {
 	channel := make(chan Trace)
-	t.subscription <- channel
+	okChan := make(chan bool)
+	sub := subscription{channel: channel, ok: okChan}
+	t.subscription <- sub
+	<-okChan
 	return channel
 }
 
