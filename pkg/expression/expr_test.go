@@ -6,7 +6,7 @@ import (
 )
 
 func TestExpr(t *testing.T) {
-	engine := MakeExpr()
+	var engine Engine = NewExpr()
 	compiled, err := engine.CompileExpression("a > 1")
 	assert.Nil(t, err)
 	result, err := engine.EvaluateExpression(compiled, map[string]interface{}{

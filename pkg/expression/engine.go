@@ -11,3 +11,8 @@ type Evaluator interface {
 }
 
 type Result interface{}
+
+type Engine interface {
+	Compiler
+	Evaluator
+}

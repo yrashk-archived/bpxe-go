@@ -1,6 +1,7 @@
 package bpmn
 
 import (
+	"encoding/xml"
 	"reflect"
 )
 
@@ -86,6 +87,65 @@ func (matcher ElementPredicate) Or(andMatcher ElementPredicate) ElementPredicate
 	return func(e Element) bool {
 		return matcher(e) || andMatcher(e)
 	}
+}
+
+// Special case for handling expressions being substituted for formal expression
+// as per "BPMN 2.0 by Example":
+//
+// ```
+//   <conditionExpression xsi:type="tFormalExpression">
+//     ${getDataObject("TicketDataObject").status == "Resolved"}
+//   </conditionExpression>
+// ```
+//
+// Technically speaking, any type can be "patched" this way, but it seems impractical to
+// do so broadly. Even within the confines of expressions, we don't want to support changing
+// the type to an arbitrary one. Only specifying expressions as formal expressions will be
+// possible for practicality.
+
+// For this, a special type called AnExpression will be added and schema generator will
+// replace Expression type with it.
+
+// Expression family container
+//
+// Expression field can be type-switched between Expression and FormalExpression
+type AnExpression struct {
+	Expression ExpressionInterface
+}
+
+func (e *AnExpression) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err error) {
+	formal := false
+	for i := range start.Attr {
+		if start.Attr[i].Name.Space == "http://www.w3.org/2001/XMLSchema-instance" &&
+			start.Attr[i].Name.Local == "type" && start.Attr[i].Value == "tFormalExpression" {
+			formal = true
+			break
+		}
+	}
+	if !formal {
+		expr := DefaultExpression()
+		err = d.DecodeElement(&expr, &start)
+		if err != nil {
+			return
+		}
+		e.Expression = &expr
+	} else {
+		expr := DefaultFormalExpression()
+		err = d.DecodeElement(&expr, &start)
+		if err != nil {
+			return
+		}
+		e.Expression = &expr
+	}
+	return
+}
+
+func (e *AnExpression) FindBy(pred ElementPredicate) (result Element, found bool) {
+	if e.Expression == nil {
+		found = false
+		return
+	}
+	return e.Expression.FindBy(pred)
 }
 
 // Generate schema files:

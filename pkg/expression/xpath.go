@@ -19,6 +19,11 @@ func MakeXPath() XPath {
 	return XPath{}
 }
 
+func NewXPath() *XPath {
+	engine := MakeXPath()
+	return &engine
+}
+
 func (engine *XPath) CompileExpression(source string) (result CompiledExpression, err error) {
 	result, err = xpath.Compile(source)
 	return

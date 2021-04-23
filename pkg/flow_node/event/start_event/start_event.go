@@ -80,7 +80,8 @@ func (node *StartEvent) ConsumeProcessEvent(
 ) (result events.EventConsumptionResult, err error) {
 	switch ev.(type) {
 	case *events.StartEvent:
-		newFlow := flow.NewFlow(node, node.FlowNode.Tracer, node.FlowNode.FlowNodeMapping, node.FlowNode.FlowWaitGroup)
+		newFlow := flow.NewFlow(node.FlowNode.Definitions, node, node.FlowNode.Tracer,
+			node.FlowNode.FlowNodeMapping, node.FlowNode.FlowWaitGroup)
 		newFlow.Start()
 	default:
 	}

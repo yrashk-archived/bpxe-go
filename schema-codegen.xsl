@@ -108,6 +108,7 @@
                 <xsl:otherwise/>
             </xsl:choose>
         </xsl:for-each>
+        <xsl:text>TextPayloadField string `xml:",chardata"`</xsl:text>
         <xsl:text xml:space="preserve"> }
         </xsl:text>
         <!-- Constructor -->
@@ -201,6 +202,10 @@
             Element
         </xsl:text>
         
+        <xsl:text>
+            TextPayload() *string
+        </xsl:text>
+        
         <xsl:if test="exists(./xs:complexContent/xs:extension[@base])">
             <xsl:value-of select="local:struct-case(./xs:complexContent/xs:extension/@base)"/>
             <xsl:text xml:space="preserve">Interface
@@ -280,6 +285,12 @@
         <!-- Interface implementation -->
         <xsl:text xml:space="preserve">
             func (t *</xsl:text><xsl:value-of select="local:struct-case($type/@name)"/>
+        <xsl:text xml:space="preserve">) TextPayload() *string {
+            return &amp;t.TextPayloadField
+         }
+        </xsl:text>
+        
+        <xsl:text xml:space="preserve">func (t *</xsl:text><xsl:value-of select="local:struct-case($type/@name)"/>
         <xsl:text xml:space="preserve">) FindBy(f ElementPredicate) (result Element, found bool) {
             if f(t) {
             result = t
@@ -591,6 +602,7 @@
             <xsl:when test="$el/@maxOccurs = 'unbounded'">
                 <xsl:sequence select="concat('[]', local:type($name))"/>
             </xsl:when>
+            <xsl:when test="$name = 'tExpression'"><xsl:text>AnExpression</xsl:text></xsl:when>
             <xsl:when test="$name = 'xsd:boolean'"><xsl:text>bool</xsl:text></xsl:when>
             <xsl:when test="$name = 'xsd:string'"><xsl:text>string</xsl:text></xsl:when>
             <xsl:when test="$name = 'xsd:QName'"><xsl:text>QName</xsl:text></xsl:when>
@@ -621,6 +633,7 @@
             <xsl:when test="$el/@maxOccurs = 'unbounded'">
                 <xsl:sequence select="concat('*[]', local:type($ref))"/>
             </xsl:when>
+            <xsl:when test="$ref= 'tExpression'"><xsl:text>*AnExpression</xsl:text></xsl:when>
             <xsl:when test="$ref = 'xsd:boolean'"><xsl:text>bool</xsl:text></xsl:when>
             <xsl:when test="$ref = 'xsd:int'"><xsl:text>int32</xsl:text></xsl:when>
             <xsl:when test="$ref = 'xsd:string'"><xsl:text>*string</xsl:text></xsl:when>

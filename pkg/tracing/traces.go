@@ -17,6 +17,12 @@ type FlowTrace struct {
 
 func (t FlowTrace) TraceInterface() {}
 
+type FlowTerminationTrace struct {
+	Source bpmn.FlowNodeInterface
+}
+
+func (t FlowTerminationTrace) TraceInterface() {}
+
 type CompletionTrace struct {
 	Node bpmn.FlowNodeInterface
 }
