@@ -90,6 +90,7 @@ func (instance *ProcessInstance) RegisterProcessEventConsumer(ev events.ProcessE
 func (instance *ProcessInstance) Run() (err error) {
 	lockChan := make(chan bool)
 	go func() {
+		traces := instance.Tracer.Subscribe()
 		instance.complete.Lock()
 		lockChan <- true
 		/* 13.4.6 End Events:
@@ -108,7 +109,6 @@ func (instance *ProcessInstance) Run() (err error) {
 		Process instance
 		*/
 		startEventsActivated := make([]*bpmn.StartEvent, 0)
-		traces := instance.Tracer.Subscribe()
 
 		// So, at first, we wait for (1.1) to occur
 		// [(1.2) will be addded when we actually support them]
