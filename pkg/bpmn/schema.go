@@ -3,6 +3,7 @@ package bpmn
 import (
 	"encoding/xml"
 	"reflect"
+	"strings"
 )
 
 // Base types
@@ -117,7 +118,14 @@ func (e *AnExpression) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err
 	formal := false
 	for i := range start.Attr {
 		if start.Attr[i].Name.Space == "http://www.w3.org/2001/XMLSchema-instance" &&
-			start.Attr[i].Name.Local == "type" && start.Attr[i].Value == "tFormalExpression" {
+			start.Attr[i].Name.Local == "type" &&
+			// here we're check for suffix instead of equality because
+			// there doesn't seem to be a way to get a mapping between
+			// bpmn schema and its namespace, so `bpmn:tFormalExpression`
+			// equality check will fail if a different namespace name will
+			// be used.
+			(strings.HasSuffix(start.Attr[i].Value, ":tFormalExpression") ||
+				start.Attr[i].Value == "tFormalExpression") {
 			formal = true
 			break
 		}

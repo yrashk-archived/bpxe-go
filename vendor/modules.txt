@@ -47,6 +47,10 @@ github.com/magiconair/properties
 github.com/mitchellh/go-homedir
 # github.com/mitchellh/mapstructure v1.1.2
 github.com/mitchellh/mapstructure
+# github.com/muyo/sno v1.1.1-0.20200406142550-e5d36f06b5d6
+## explicit
+github.com/muyo/sno
+github.com/muyo/sno/internal
 # github.com/pelletier/go-toml v1.2.0
 github.com/pelletier/go-toml
 # github.com/pmezard/go-difflib v1.0.0

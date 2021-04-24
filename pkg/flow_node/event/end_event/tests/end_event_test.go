@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"bpxe.org/pkg/bpmn"
+	"bpxe.org/pkg/flow"
 	"bpxe.org/pkg/process"
 	"bpxe.org/pkg/tracing"
 
@@ -34,7 +35,7 @@ func TestEndEvent(t *testing.T) {
 		for {
 			trace := <-traces
 			switch trace := trace.(type) {
-			case tracing.CompletionTrace:
+			case flow.CompletionTrace:
 				if id, present := trace.Node.Id(); present {
 					if *id == "end" {
 						// success!

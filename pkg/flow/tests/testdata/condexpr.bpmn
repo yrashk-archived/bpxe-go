@@ -8,6 +8,9 @@
       <bpmn:incoming>Flow_0kc7g8j</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0kc7g8j" sourceRef="start" targetRef="end">
+            <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">
+                    true
+            </bpmn:conditionExpression>
     </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
