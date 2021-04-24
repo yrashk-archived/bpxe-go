@@ -7,6 +7,7 @@ import (
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/events"
 	"bpxe.org/pkg/flow_node"
+	"bpxe.org/pkg/flow_node/activity/task"
 	"bpxe.org/pkg/flow_node/event/end_event"
 	"bpxe.org/pkg/flow_node/event/start_event"
 	"bpxe.org/pkg/tracing"
@@ -52,6 +53,20 @@ func NewProcessInstance(process *Process) (instance *ProcessInstance, err error)
 			return
 		}
 		err = instance.flowNodeMapping.RegisterElementToFlowNode(element, endEvent)
+		if err != nil {
+			return
+		}
+	}
+
+	for i := range *process.Element.Tasks() {
+		element := &(*process.Element.Tasks())[i]
+		var aTask *task.Task
+		aTask, err = task.NewTask(process.Element, process.Definitions,
+			element, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
+		if err != nil {
+			return
+		}
+		err = instance.flowNodeMapping.RegisterElementToFlowNode(element, aTask)
 		if err != nil {
 			return
 		}
