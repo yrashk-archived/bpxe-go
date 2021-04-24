@@ -64,8 +64,6 @@ func DefaultDefinitions() Definitions {
 
 type DefinitionsInterface interface {
 	Element
-
-	TextPayload() *string
 	Id() (result *Id, present bool)
 	Name() (result *string)
 	TargetNamespace() (result *AnyURI)
@@ -128,6 +126,8 @@ type DefinitionsInterface interface {
 	SetResources(value []Resource)
 	SetSignals(value []Signal)
 	SetRelationships(value []Relationship)
+
+	TextPayload() *string
 }
 
 func (t *Definitions) TextPayload() *string {
@@ -526,14 +526,14 @@ func DefaultImport() Import {
 
 type ImportInterface interface {
 	Element
-
-	TextPayload() *string
 	Namespace() (result *AnyURI)
 	Location() (result *string)
 	ImportType() (result *AnyURI)
 	SetNamespace(value AnyURI)
 	SetLocation(value string)
 	SetImportType(value AnyURI)
+
+	TextPayload() *string
 }
 
 func (t *Import) TextPayload() *string {
@@ -601,8 +601,6 @@ func DefaultActivity() Activity {
 
 type ActivityInterface interface {
 	Element
-
-	TextPayload() *string
 	FlowNodeInterface
 	IsForCompensation() (result bool)
 	StartQuantity() (result *big.Int)
@@ -626,6 +624,8 @@ type ActivityInterface interface {
 	SetResourceRoles(value []ResourceRole)
 	SetMultiInstanceLoopCharacteristics(value MultiInstanceLoopCharacteristics)
 	SetStandardLoopCharacteristics(value StandardLoopCharacteristics)
+
+	TextPayload() *string
 }
 
 func (t *Activity) TextPayload() *string {
@@ -784,8 +784,6 @@ func DefaultAdHocSubProcess() AdHocSubProcess {
 
 type AdHocSubProcessInterface interface {
 	Element
-
-	TextPayload() *string
 	SubProcessInterface
 	CancelRemainingInstances() (result bool)
 	Ordering() (result *AdHocOrdering)
@@ -793,6 +791,8 @@ type AdHocSubProcessInterface interface {
 	SetCancelRemainingInstances(value bool)
 	SetOrdering(value AdHocOrdering)
 	SetCompletionCondition(value AnExpression)
+
+	TextPayload() *string
 }
 
 func (t *AdHocSubProcess) TextPayload() *string {
@@ -854,9 +854,9 @@ func DefaultArtifact() Artifact {
 
 type ArtifactInterface interface {
 	Element
+	BaseElementInterface
 
 	TextPayload() *string
-	BaseElementInterface
 }
 
 func (t *Artifact) TextPayload() *string {
@@ -890,13 +890,13 @@ func DefaultAssignment() Assignment {
 
 type AssignmentInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	From() (result *AnExpression)
 	To() (result *AnExpression)
 	SetFrom(value AnExpression)
 	SetTo(value AnExpression)
+
+	TextPayload() *string
 }
 
 func (t *Assignment) TextPayload() *string {
@@ -956,8 +956,6 @@ func DefaultAssociation() Association {
 
 type AssociationInterface interface {
 	Element
-
-	TextPayload() *string
 	ArtifactInterface
 	SourceRef() (result *QName)
 	TargetRef() (result *QName)
@@ -965,6 +963,8 @@ type AssociationInterface interface {
 	SetSourceRef(value QName)
 	SetTargetRef(value QName)
 	SetAssociationDirection(value AssociationDirection)
+
+	TextPayload() *string
 }
 
 func (t *Association) TextPayload() *string {
@@ -1017,9 +1017,9 @@ func DefaultAuditing() Auditing {
 
 type AuditingInterface interface {
 	Element
+	BaseElementInterface
 
 	TextPayload() *string
-	BaseElementInterface
 }
 
 func (t *Auditing) TextPayload() *string {
@@ -1051,14 +1051,14 @@ func DefaultBaseElement() BaseElement {
 
 type BaseElementInterface interface {
 	Element
-
-	TextPayload() *string
 	Id() (result *Id, present bool)
 	Documentations() (result *[]Documentation)
 	ExtensionElements() (result *ExtensionElements, present bool)
 	SetId(value Id)
 	SetDocumentations(value []Documentation)
 	SetExtensionElements(value *ExtensionElements)
+
+	TextPayload() *string
 }
 
 func (t *BaseElement) TextPayload() *string {
@@ -1126,14 +1126,14 @@ func DefaultBaseElementWithMixedContent() BaseElementWithMixedContent {
 
 type BaseElementWithMixedContentInterface interface {
 	Element
-
-	TextPayload() *string
 	Id() (result *Id, present bool)
 	Documentations() (result *[]Documentation)
 	ExtensionElements() (result *ExtensionElements, present bool)
 	SetId(value Id)
 	SetDocumentations(value []Documentation)
 	SetExtensionElements(value *ExtensionElements)
+
+	TextPayload() *string
 }
 
 func (t *BaseElementWithMixedContent) TextPayload() *string {
@@ -1206,13 +1206,13 @@ func DefaultBoundaryEvent() BoundaryEvent {
 
 type BoundaryEventInterface interface {
 	Element
-
-	TextPayload() *string
 	CatchEventInterface
 	CancelActivity() (result bool)
 	AttachedToRef() (result *QName)
 	SetCancelActivity(value bool)
 	SetAttachedToRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *BoundaryEvent) TextPayload() *string {
@@ -1259,11 +1259,11 @@ func DefaultBusinessRuleTask() BusinessRuleTask {
 
 type BusinessRuleTaskInterface interface {
 	Element
-
-	TextPayload() *string
 	TaskInterface
 	Implementation() (result *Implementation)
 	SetImplementation(value Implementation)
+
+	TextPayload() *string
 }
 
 func (t *BusinessRuleTask) TextPayload() *string {
@@ -1306,8 +1306,6 @@ func DefaultCallableElement() CallableElement {
 
 type CallableElementInterface interface {
 	Element
-
-	TextPayload() *string
 	RootElementInterface
 	Name() (result *string)
 	SupportedInterfaceRefs() (result *[]QName)
@@ -1317,6 +1315,8 @@ type CallableElementInterface interface {
 	SetSupportedInterfaceRefs(value []QName)
 	SetIoSpecification(value *InputOutputSpecification)
 	SetIoBindings(value []InputOutputBinding)
+
+	TextPayload() *string
 }
 
 func (t *CallableElement) TextPayload() *string {
@@ -1392,11 +1392,11 @@ func DefaultCallActivity() CallActivity {
 
 type CallActivityInterface interface {
 	Element
-
-	TextPayload() *string
 	ActivityInterface
 	CalledElement() (result *QName, present bool)
 	SetCalledElement(value QName)
+
+	TextPayload() *string
 }
 
 func (t *CallActivity) TextPayload() *string {
@@ -1440,13 +1440,13 @@ func DefaultCallChoreography() CallChoreography {
 
 type CallChoreographyInterface interface {
 	Element
-
-	TextPayload() *string
 	ChoreographyActivityInterface
 	CalledChoreographyRef() (result *QName, present bool)
 	ParticipantAssociations() (result *[]ParticipantAssociation)
 	SetCalledChoreographyRef(value QName)
 	SetParticipantAssociations(value []ParticipantAssociation)
+
+	TextPayload() *string
 }
 
 func (t *CallChoreography) TextPayload() *string {
@@ -1503,13 +1503,13 @@ func DefaultCallConversation() CallConversation {
 
 type CallConversationInterface interface {
 	Element
-
-	TextPayload() *string
 	ConversationNodeInterface
 	CalledCollaborationRef() (result *QName, present bool)
 	ParticipantAssociations() (result *[]ParticipantAssociation)
 	SetCalledCollaborationRef(value QName)
 	SetParticipantAssociations(value []ParticipantAssociation)
+
+	TextPayload() *string
 }
 
 func (t *CallConversation) TextPayload() *string {
@@ -1564,9 +1564,9 @@ func DefaultCancelEventDefinition() CancelEventDefinition {
 
 type CancelEventDefinitionInterface interface {
 	Element
+	EventDefinitionInterface
 
 	TextPayload() *string
-	EventDefinitionInterface
 }
 
 func (t *CancelEventDefinition) TextPayload() *string {
@@ -1616,8 +1616,6 @@ func DefaultCatchEvent() CatchEvent {
 
 type CatchEventInterface interface {
 	Element
-
-	TextPayload() *string
 	EventInterface
 	ParallelMultiple() (result bool)
 	DataOutputs() (result *[]DataOutput)
@@ -1649,6 +1647,8 @@ type CatchEventInterface interface {
 	SetTerminateEventDefinitions(value []TerminateEventDefinition)
 	SetTimerEventDefinitions(value []TimerEventDefinition)
 	SetEventDefinitionRefs(value []QName)
+
+	TextPayload() *string
 }
 
 func (t *CatchEvent) TextPayload() *string {
@@ -1868,13 +1868,13 @@ func DefaultCategory() Category {
 
 type CategoryInterface interface {
 	Element
-
-	TextPayload() *string
 	RootElementInterface
 	Name() (result *string)
 	CategoryValues() (result *[]CategoryValue)
 	SetName(value string)
 	SetCategoryValues(value []CategoryValue)
+
+	TextPayload() *string
 }
 
 func (t *Category) TextPayload() *string {
@@ -1927,11 +1927,11 @@ func DefaultCategoryValue() CategoryValue {
 
 type CategoryValueInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Value() (result *string, present bool)
 	SetValue(value string)
+
+	TextPayload() *string
 }
 
 func (t *CategoryValue) TextPayload() *string {
@@ -2004,8 +2004,6 @@ func DefaultChoreography() Choreography {
 
 type ChoreographyInterface interface {
 	Element
-
-	TextPayload() *string
 	CollaborationInterface
 	AdHocSubProcesses() (result *[]AdHocSubProcess)
 	BoundaryEvents() (result *[]BoundaryEvent)
@@ -2069,6 +2067,8 @@ type ChoreographyInterface interface {
 	SetTasks(value []Task)
 	SetTransactions(value []Transaction)
 	SetUserTasks(value []UserTask)
+
+	TextPayload() *string
 }
 
 func (t *Choreography) TextPayload() *string {
@@ -2510,8 +2510,6 @@ func DefaultChoreographyActivity() ChoreographyActivity {
 
 type ChoreographyActivityInterface interface {
 	Element
-
-	TextPayload() *string
 	FlowNodeInterface
 	InitiatingParticipantRef() (result *QName)
 	LoopType() (result *ChoreographyLoopType)
@@ -2521,6 +2519,8 @@ type ChoreographyActivityInterface interface {
 	SetLoopType(value ChoreographyLoopType)
 	SetParticipantRefs(value []QName)
 	SetCorrelationKeys(value []CorrelationKey)
+
+	TextPayload() *string
 }
 
 func (t *ChoreographyActivity) TextPayload() *string {
@@ -2587,11 +2587,11 @@ func DefaultChoreographyTask() ChoreographyTask {
 
 type ChoreographyTaskInterface interface {
 	Element
-
-	TextPayload() *string
 	ChoreographyActivityInterface
 	MessageFlowRef() (result *QName)
 	SetMessageFlowRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *ChoreographyTask) TextPayload() *string {
@@ -2649,8 +2649,6 @@ func DefaultCollaboration() Collaboration {
 
 type CollaborationInterface interface {
 	Element
-
-	TextPayload() *string
 	RootElementInterface
 	Name() (result *string)
 	IsClosed() (result bool)
@@ -2684,6 +2682,8 @@ type CollaborationInterface interface {
 	SetCorrelationKeys(value []CorrelationKey)
 	SetChoreographyRefs(value []QName)
 	SetConversationLinks(value []ConversationLink)
+
+	TextPayload() *string
 }
 
 func (t *Collaboration) TextPayload() *string {
@@ -2907,13 +2907,13 @@ func DefaultCompensateEventDefinition() CompensateEventDefinition {
 
 type CompensateEventDefinitionInterface interface {
 	Element
-
-	TextPayload() *string
 	EventDefinitionInterface
 	WaitForCompletion() (result bool)
 	ActivityRef() (result *QName)
 	SetWaitForCompletion(value bool)
 	SetActivityRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *CompensateEventDefinition) TextPayload() *string {
@@ -2961,13 +2961,13 @@ func DefaultComplexBehaviorDefinition() ComplexBehaviorDefinition {
 
 type ComplexBehaviorDefinitionInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Condition() (result *FormalExpression)
 	Event() (result *ImplicitThrowEvent, present bool)
 	SetCondition(value FormalExpression)
 	SetEvent(value ImplicitThrowEvent)
+
+	TextPayload() *string
 }
 
 func (t *ComplexBehaviorDefinition) TextPayload() *string {
@@ -3028,13 +3028,13 @@ func DefaultComplexGateway() ComplexGateway {
 
 type ComplexGatewayInterface interface {
 	Element
-
-	TextPayload() *string
 	GatewayInterface
 	Default() (result *IdRef)
 	ActivationCondition() (result *AnExpression, present bool)
 	SetDefault(value IdRef)
 	SetActivationCondition(value AnExpression)
+
+	TextPayload() *string
 }
 
 func (t *ComplexGateway) TextPayload() *string {
@@ -3090,11 +3090,11 @@ func DefaultConditionalEventDefinition() ConditionalEventDefinition {
 
 type ConditionalEventDefinitionInterface interface {
 	Element
-
-	TextPayload() *string
 	EventDefinitionInterface
 	Condition() (result *AnExpression)
 	SetCondition(value AnExpression)
+
+	TextPayload() *string
 }
 
 func (t *ConditionalEventDefinition) TextPayload() *string {
@@ -3137,9 +3137,9 @@ func DefaultConversation() Conversation {
 
 type ConversationInterface interface {
 	Element
+	ConversationNodeInterface
 
 	TextPayload() *string
-	ConversationNodeInterface
 }
 
 func (t *Conversation) TextPayload() *string {
@@ -3173,13 +3173,13 @@ func DefaultConversationAssociation() ConversationAssociation {
 
 type ConversationAssociationInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	InnerConversationNodeRef() (result *QName)
 	OuterConversationNodeRef() (result *QName)
 	SetInnerConversationNodeRef(value QName)
 	SetOuterConversationNodeRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *ConversationAssociation) TextPayload() *string {
@@ -3228,8 +3228,6 @@ func DefaultConversationLink() ConversationLink {
 
 type ConversationLinkInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Name() (result *string, present bool)
 	SourceRef() (result *QName)
@@ -3237,6 +3235,8 @@ type ConversationLinkInterface interface {
 	SetName(value string)
 	SetSourceRef(value QName)
 	SetTargetRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *ConversationLink) TextPayload() *string {
@@ -3296,8 +3296,6 @@ func DefaultConversationNode() ConversationNode {
 
 type ConversationNodeInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Name() (result *string)
 	ParticipantRefs() (result *[]QName)
@@ -3307,6 +3305,8 @@ type ConversationNodeInterface interface {
 	SetParticipantRefs(value []QName)
 	SetMessageFlowRefs(value []QName)
 	SetCorrelationKeys(value []CorrelationKey)
+
+	TextPayload() *string
 }
 
 func (t *ConversationNode) TextPayload() *string {
@@ -3374,13 +3374,13 @@ func DefaultCorrelationKey() CorrelationKey {
 
 type CorrelationKeyInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Name() (result *string, present bool)
 	CorrelationPropertyRefs() (result *[]QName)
 	SetName(value string)
 	SetCorrelationPropertyRefs(value []QName)
+
+	TextPayload() *string
 }
 
 func (t *CorrelationKey) TextPayload() *string {
@@ -3432,8 +3432,6 @@ func DefaultCorrelationProperty() CorrelationProperty {
 
 type CorrelationPropertyInterface interface {
 	Element
-
-	TextPayload() *string
 	RootElementInterface
 	Name() (result *string, present bool)
 	Type() (result *QName)
@@ -3441,6 +3439,8 @@ type CorrelationPropertyInterface interface {
 	SetName(value string)
 	SetType(value QName)
 	SetCorrelationPropertyRetrievalExpressions(value []CorrelationPropertyRetrievalExpression)
+
+	TextPayload() *string
 }
 
 func (t *CorrelationProperty) TextPayload() *string {
@@ -3504,13 +3504,13 @@ func DefaultCorrelationPropertyBinding() CorrelationPropertyBinding {
 
 type CorrelationPropertyBindingInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	CorrelationPropertyRef() (result *QName)
 	DataPath() (result *FormalExpression)
 	SetCorrelationPropertyRef(value QName)
 	SetDataPath(value FormalExpression)
+
+	TextPayload() *string
 }
 
 func (t *CorrelationPropertyBinding) TextPayload() *string {
@@ -3562,13 +3562,13 @@ func DefaultCorrelationPropertyRetrievalExpression() CorrelationPropertyRetrieva
 
 type CorrelationPropertyRetrievalExpressionInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	MessageRef() (result *QName)
 	MessagePath() (result *FormalExpression)
 	SetMessageRef(value QName)
 	SetMessagePath(value FormalExpression)
+
+	TextPayload() *string
 }
 
 func (t *CorrelationPropertyRetrievalExpression) TextPayload() *string {
@@ -3620,13 +3620,13 @@ func DefaultCorrelationSubscription() CorrelationSubscription {
 
 type CorrelationSubscriptionInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	CorrelationKeyRef() (result *QName)
 	CorrelationPropertyBindings() (result *[]CorrelationPropertyBinding)
 	SetCorrelationKeyRef(value QName)
 	SetCorrelationPropertyBindings(value []CorrelationPropertyBinding)
+
+	TextPayload() *string
 }
 
 func (t *CorrelationSubscription) TextPayload() *string {
@@ -3682,8 +3682,6 @@ func DefaultDataAssociation() DataAssociation {
 
 type DataAssociationInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	SourceRefs() (result *[]IdRef)
 	TargetRef() (result *IdRef)
@@ -3693,6 +3691,8 @@ type DataAssociationInterface interface {
 	SetTargetRef(value IdRef)
 	SetTransformation(value FormalExpression)
 	SetAssignments(value []Assignment)
+
+	TextPayload() *string
 }
 
 func (t *DataAssociation) TextPayload() *string {
@@ -3774,8 +3774,6 @@ func DefaultDataInput() DataInput {
 
 type DataInputInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Name() (result *string, present bool)
 	ItemSubjectRef() (result *QName)
@@ -3785,6 +3783,8 @@ type DataInputInterface interface {
 	SetItemSubjectRef(value QName)
 	SetIsCollection(value bool)
 	SetDataState(value *DataState)
+
+	TextPayload() *string
 }
 
 func (t *DataInput) TextPayload() *string {
@@ -3856,9 +3856,9 @@ func DefaultDataInputAssociation() DataInputAssociation {
 
 type DataInputAssociationInterface interface {
 	Element
+	DataAssociationInterface
 
 	TextPayload() *string
-	DataAssociationInterface
 }
 
 func (t *DataInputAssociation) TextPayload() *string {
@@ -3896,8 +3896,6 @@ func DefaultDataObject() DataObject {
 
 type DataObjectInterface interface {
 	Element
-
-	TextPayload() *string
 	FlowElementInterface
 	ItemSubjectRef() (result *QName)
 	IsCollection() (result bool)
@@ -3905,6 +3903,8 @@ type DataObjectInterface interface {
 	SetItemSubjectRef(value QName)
 	SetIsCollection(value bool)
 	SetDataState(value *DataState)
+
+	TextPayload() *string
 }
 
 func (t *DataObject) TextPayload() *string {
@@ -3969,8 +3969,6 @@ func DefaultDataObjectReference() DataObjectReference {
 
 type DataObjectReferenceInterface interface {
 	Element
-
-	TextPayload() *string
 	FlowElementInterface
 	ItemSubjectRef() (result *QName)
 	DataObjectRef() (result *IdRef)
@@ -3978,6 +3976,8 @@ type DataObjectReferenceInterface interface {
 	SetItemSubjectRef(value QName)
 	SetDataObjectRef(value IdRef)
 	SetDataState(value *DataState)
+
+	TextPayload() *string
 }
 
 func (t *DataObjectReference) TextPayload() *string {
@@ -4046,8 +4046,6 @@ func DefaultDataOutput() DataOutput {
 
 type DataOutputInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Name() (result *string, present bool)
 	ItemSubjectRef() (result *QName)
@@ -4057,6 +4055,8 @@ type DataOutputInterface interface {
 	SetItemSubjectRef(value QName)
 	SetIsCollection(value bool)
 	SetDataState(value *DataState)
+
+	TextPayload() *string
 }
 
 func (t *DataOutput) TextPayload() *string {
@@ -4128,9 +4128,9 @@ func DefaultDataOutputAssociation() DataOutputAssociation {
 
 type DataOutputAssociationInterface interface {
 	Element
+	DataAssociationInterface
 
 	TextPayload() *string
-	DataAssociationInterface
 }
 
 func (t *DataOutputAssociation) TextPayload() *string {
@@ -4163,11 +4163,11 @@ func DefaultDataState() DataState {
 
 type DataStateInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Name() (result *string)
 	SetName(value string)
+
+	TextPayload() *string
 }
 
 func (t *DataState) TextPayload() *string {
@@ -4214,8 +4214,6 @@ func DefaultDataStore() DataStore {
 
 type DataStoreInterface interface {
 	Element
-
-	TextPayload() *string
 	RootElementInterface
 	Name() (result *string)
 	Capacity() (result *big.Int)
@@ -4227,6 +4225,8 @@ type DataStoreInterface interface {
 	SetIsUnlimited(value bool)
 	SetItemSubjectRef(value QName)
 	SetDataState(value *DataState)
+
+	TextPayload() *string
 }
 
 func (t *DataStore) TextPayload() *string {
@@ -4305,8 +4305,6 @@ func DefaultDataStoreReference() DataStoreReference {
 
 type DataStoreReferenceInterface interface {
 	Element
-
-	TextPayload() *string
 	FlowElementInterface
 	ItemSubjectRef() (result *QName)
 	DataStoreRef() (result *QName)
@@ -4314,6 +4312,8 @@ type DataStoreReferenceInterface interface {
 	SetItemSubjectRef(value QName)
 	SetDataStoreRef(value QName)
 	SetDataState(value *DataState)
+
+	TextPayload() *string
 }
 
 func (t *DataStoreReference) TextPayload() *string {
@@ -4378,12 +4378,12 @@ func DefaultDocumentation() Documentation {
 
 type DocumentationInterface interface {
 	Element
-
-	TextPayload() *string
 	Id() (result *Id, present bool)
 	TextFormat() (result *string)
 	SetId(value Id)
 	SetTextFormat(value string)
+
+	TextPayload() *string
 }
 
 func (t *Documentation) TextPayload() *string {
@@ -4429,9 +4429,9 @@ func DefaultEndEvent() EndEvent {
 
 type EndEventInterface interface {
 	Element
+	ThrowEventInterface
 
 	TextPayload() *string
-	ThrowEventInterface
 }
 
 func (t *EndEvent) TextPayload() *string {
@@ -4463,9 +4463,9 @@ func DefaultEndPoint() EndPoint {
 
 type EndPointInterface interface {
 	Element
+	RootElementInterface
 
 	TextPayload() *string
-	RootElementInterface
 }
 
 func (t *EndPoint) TextPayload() *string {
@@ -4500,8 +4500,6 @@ func DefaultError() Error {
 
 type ErrorInterface interface {
 	Element
-
-	TextPayload() *string
 	RootElementInterface
 	Name() (result *string)
 	ErrorCode() (result *string)
@@ -4509,6 +4507,8 @@ type ErrorInterface interface {
 	SetName(value string)
 	SetErrorCode(value string)
 	SetStructureRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *Error) TextPayload() *string {
@@ -4562,11 +4562,11 @@ func DefaultErrorEventDefinition() ErrorEventDefinition {
 
 type ErrorEventDefinitionInterface interface {
 	Element
-
-	TextPayload() *string
 	EventDefinitionInterface
 	ErrorRef() (result *QName)
 	SetErrorRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *ErrorEventDefinition) TextPayload() *string {
@@ -4608,8 +4608,6 @@ func DefaultEscalation() Escalation {
 
 type EscalationInterface interface {
 	Element
-
-	TextPayload() *string
 	RootElementInterface
 	Name() (result *string)
 	EscalationCode() (result *string)
@@ -4617,6 +4615,8 @@ type EscalationInterface interface {
 	SetName(value string)
 	SetEscalationCode(value string)
 	SetStructureRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *Escalation) TextPayload() *string {
@@ -4670,11 +4670,11 @@ func DefaultEscalationEventDefinition() EscalationEventDefinition {
 
 type EscalationEventDefinitionInterface interface {
 	Element
-
-	TextPayload() *string
 	EventDefinitionInterface
 	EscalationRef() (result *QName)
 	SetEscalationRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *EscalationEventDefinition) TextPayload() *string {
@@ -4714,11 +4714,11 @@ func DefaultEvent() Event {
 
 type EventInterface interface {
 	Element
-
-	TextPayload() *string
 	FlowNodeInterface
 	Properties() (result *[]Property)
 	SetProperties(value []Property)
+
+	TextPayload() *string
 }
 
 func (t *Event) TextPayload() *string {
@@ -4770,13 +4770,13 @@ func DefaultEventBasedGateway() EventBasedGateway {
 
 type EventBasedGatewayInterface interface {
 	Element
-
-	TextPayload() *string
 	GatewayInterface
 	Instantiate() (result bool)
 	EventGatewayType() (result *EventBasedGatewayType)
 	SetInstantiate(value bool)
 	SetEventGatewayType(value EventBasedGatewayType)
+
+	TextPayload() *string
 }
 
 func (t *EventBasedGateway) TextPayload() *string {
@@ -4822,9 +4822,9 @@ func DefaultEventDefinition() EventDefinition {
 
 type EventDefinitionInterface interface {
 	Element
+	RootElementInterface
 
 	TextPayload() *string
-	RootElementInterface
 }
 
 func (t *EventDefinition) TextPayload() *string {
@@ -4857,11 +4857,11 @@ func DefaultExclusiveGateway() ExclusiveGateway {
 
 type ExclusiveGatewayInterface interface {
 	Element
-
-	TextPayload() *string
 	GatewayInterface
 	Default() (result *IdRef, present bool)
 	SetDefault(value IdRef)
+
+	TextPayload() *string
 }
 
 func (t *ExclusiveGateway) TextPayload() *string {
@@ -4903,9 +4903,9 @@ func DefaultExpression() Expression {
 
 type ExpressionInterface interface {
 	Element
+	BaseElementWithMixedContentInterface
 
 	TextPayload() *string
-	BaseElementWithMixedContentInterface
 }
 
 func (t *Expression) TextPayload() *string {
@@ -4941,14 +4941,14 @@ func DefaultExtension() Extension {
 
 type ExtensionInterface interface {
 	Element
-
-	TextPayload() *string
 	Definition() (result *QName)
 	MustUnderstand() (result *bool, present bool)
 	Documentations() (result *[]Documentation)
 	SetDefinition(value QName)
 	SetMustUnderstand(value bool)
 	SetDocumentations(value []Documentation)
+
+	TextPayload() *string
 }
 
 func (t *Extension) TextPayload() *string {
@@ -5038,8 +5038,6 @@ func DefaultFlowElement() FlowElement {
 
 type FlowElementInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Name() (result *string)
 	Auditing() (result *Auditing, present bool)
@@ -5049,6 +5047,8 @@ type FlowElementInterface interface {
 	SetAuditing(value *Auditing)
 	SetMonitoring(value *Monitoring)
 	SetCategoryValueRefs(value []QName)
+
+	TextPayload() *string
 }
 
 func (t *FlowElement) TextPayload() *string {
@@ -5128,13 +5128,13 @@ func DefaultFlowNode() FlowNode {
 
 type FlowNodeInterface interface {
 	Element
-
-	TextPayload() *string
 	FlowElementInterface
 	Incomings() (result *[]QName)
 	Outgoings() (result *[]QName)
 	SetIncomings(value []QName)
 	SetOutgoings(value []QName)
+
+	TextPayload() *string
 }
 
 func (t *FlowNode) TextPayload() *string {
@@ -5182,13 +5182,13 @@ func DefaultFormalExpression() FormalExpression {
 
 type FormalExpressionInterface interface {
 	Element
-
-	TextPayload() *string
 	ExpressionInterface
 	Language() (result *AnyURI, present bool)
 	EvaluatesToTypeRef() (result *QName)
 	SetLanguage(value AnyURI)
 	SetEvaluatesToTypeRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *FormalExpression) TextPayload() *string {
@@ -5241,11 +5241,11 @@ func DefaultGateway() Gateway {
 
 type GatewayInterface interface {
 	Element
-
-	TextPayload() *string
 	FlowNodeInterface
 	GatewayDirection() (result *GatewayDirection)
 	SetGatewayDirection(value GatewayDirection)
+
+	TextPayload() *string
 }
 
 func (t *Gateway) TextPayload() *string {
@@ -5285,11 +5285,11 @@ func DefaultGlobalBusinessRuleTask() GlobalBusinessRuleTask {
 
 type GlobalBusinessRuleTaskInterface interface {
 	Element
-
-	TextPayload() *string
 	GlobalTaskInterface
 	Implementation() (result *Implementation)
 	SetImplementation(value Implementation)
+
+	TextPayload() *string
 }
 
 func (t *GlobalBusinessRuleTask) TextPayload() *string {
@@ -5329,11 +5329,11 @@ func DefaultGlobalChoreographyTask() GlobalChoreographyTask {
 
 type GlobalChoreographyTaskInterface interface {
 	Element
-
-	TextPayload() *string
 	ChoreographyInterface
 	InitiatingParticipantRef() (result *QName)
 	SetInitiatingParticipantRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *GlobalChoreographyTask) TextPayload() *string {
@@ -5372,9 +5372,9 @@ func DefaultGlobalConversation() GlobalConversation {
 
 type GlobalConversationInterface interface {
 	Element
+	CollaborationInterface
 
 	TextPayload() *string
-	CollaborationInterface
 }
 
 func (t *GlobalConversation) TextPayload() *string {
@@ -5406,9 +5406,9 @@ func DefaultGlobalManualTask() GlobalManualTask {
 
 type GlobalManualTaskInterface interface {
 	Element
+	GlobalTaskInterface
 
 	TextPayload() *string
-	GlobalTaskInterface
 }
 
 func (t *GlobalManualTask) TextPayload() *string {
@@ -5442,13 +5442,13 @@ func DefaultGlobalScriptTask() GlobalScriptTask {
 
 type GlobalScriptTaskInterface interface {
 	Element
-
-	TextPayload() *string
 	GlobalTaskInterface
 	ScriptLanguage() (result *AnyURI)
 	Script() (result *Script, present bool)
 	SetScriptLanguage(value AnyURI)
 	SetScript(value *Script)
+
+	TextPayload() *string
 }
 
 func (t *GlobalScriptTask) TextPayload() *string {
@@ -5504,11 +5504,11 @@ func DefaultGlobalTask() GlobalTask {
 
 type GlobalTaskInterface interface {
 	Element
-
-	TextPayload() *string
 	CallableElementInterface
 	ResourceRoles() (result *[]ResourceRole)
 	SetResourceRoles(value []ResourceRole)
+
+	TextPayload() *string
 }
 
 func (t *GlobalTask) TextPayload() *string {
@@ -5555,13 +5555,13 @@ func DefaultGlobalUserTask() GlobalUserTask {
 
 type GlobalUserTaskInterface interface {
 	Element
-
-	TextPayload() *string
 	GlobalTaskInterface
 	Implementation() (result *Implementation)
 	Renderings() (result *[]Rendering)
 	SetImplementation(value Implementation)
 	SetRenderings(value []Rendering)
+
+	TextPayload() *string
 }
 
 func (t *GlobalUserTask) TextPayload() *string {
@@ -5614,11 +5614,11 @@ func DefaultGroup() Group {
 
 type GroupInterface interface {
 	Element
-
-	TextPayload() *string
 	ArtifactInterface
 	CategoryValueRef() (result *QName, present bool)
 	SetCategoryValueRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *Group) TextPayload() *string {
@@ -5660,9 +5660,9 @@ func DefaultHumanPerformer() HumanPerformer {
 
 type HumanPerformerInterface interface {
 	Element
+	PerformerInterface
 
 	TextPayload() *string
-	PerformerInterface
 }
 
 func (t *HumanPerformer) TextPayload() *string {
@@ -5694,9 +5694,9 @@ func DefaultImplicitThrowEvent() ImplicitThrowEvent {
 
 type ImplicitThrowEventInterface interface {
 	Element
+	ThrowEventInterface
 
 	TextPayload() *string
-	ThrowEventInterface
 }
 
 func (t *ImplicitThrowEvent) TextPayload() *string {
@@ -5729,11 +5729,11 @@ func DefaultInclusiveGateway() InclusiveGateway {
 
 type InclusiveGatewayInterface interface {
 	Element
-
-	TextPayload() *string
 	GatewayInterface
 	Default() (result *IdRef, present bool)
 	SetDefault(value IdRef)
+
+	TextPayload() *string
 }
 
 func (t *InclusiveGateway) TextPayload() *string {
@@ -5780,8 +5780,6 @@ func DefaultInputSet() InputSet {
 
 type InputSetInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Name() (result *string)
 	DataInputRefses() (result *[]IdRef)
@@ -5793,6 +5791,8 @@ type InputSetInterface interface {
 	SetOptionalInputRefses(value []IdRef)
 	SetWhileExecutingInputRefses(value []IdRef)
 	SetOutputSetRefses(value []IdRef)
+
+	TextPayload() *string
 }
 
 func (t *InputSet) TextPayload() *string {
@@ -5862,8 +5862,6 @@ func DefaultInterface() Interface {
 
 type InterfaceInterface interface {
 	Element
-
-	TextPayload() *string
 	RootElementInterface
 	Name() (result *string)
 	ImplementationRef() (result *QName)
@@ -5871,6 +5869,8 @@ type InterfaceInterface interface {
 	SetName(value string)
 	SetImplementationRef(value QName)
 	SetOperations(value []Operation)
+
+	TextPayload() *string
 }
 
 func (t *Interface) TextPayload() *string {
@@ -5929,9 +5929,9 @@ func DefaultIntermediateCatchEvent() IntermediateCatchEvent {
 
 type IntermediateCatchEventInterface interface {
 	Element
+	CatchEventInterface
 
 	TextPayload() *string
-	CatchEventInterface
 }
 
 func (t *IntermediateCatchEvent) TextPayload() *string {
@@ -5963,9 +5963,9 @@ func DefaultIntermediateThrowEvent() IntermediateThrowEvent {
 
 type IntermediateThrowEventInterface interface {
 	Element
+	ThrowEventInterface
 
 	TextPayload() *string
-	ThrowEventInterface
 }
 
 func (t *IntermediateThrowEvent) TextPayload() *string {
@@ -6000,8 +6000,6 @@ func DefaultInputOutputBinding() InputOutputBinding {
 
 type InputOutputBindingInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	OperationRef() (result *QName)
 	InputDataRef() (result *IdRef)
@@ -6009,6 +6007,8 @@ type InputOutputBindingInterface interface {
 	SetOperationRef(value QName)
 	SetInputDataRef(value IdRef)
 	SetOutputDataRef(value IdRef)
+
+	TextPayload() *string
 }
 
 func (t *InputOutputBinding) TextPayload() *string {
@@ -6065,8 +6065,6 @@ func DefaultInputOutputSpecification() InputOutputSpecification {
 
 type InputOutputSpecificationInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	DataInputs() (result *[]DataInput)
 	DataOutputs() (result *[]DataOutput)
@@ -6076,6 +6074,8 @@ type InputOutputSpecificationInterface interface {
 	SetDataOutputs(value []DataOutput)
 	SetInputSets(value []InputSet)
 	SetOutputSets(value []OutputSet)
+
+	TextPayload() *string
 }
 
 func (t *InputOutputSpecification) TextPayload() *string {
@@ -6167,8 +6167,6 @@ func DefaultItemDefinition() ItemDefinition {
 
 type ItemDefinitionInterface interface {
 	Element
-
-	TextPayload() *string
 	RootElementInterface
 	StructureRef() (result *QName)
 	IsCollection() (result bool)
@@ -6176,6 +6174,8 @@ type ItemDefinitionInterface interface {
 	SetStructureRef(value QName)
 	SetIsCollection(value bool)
 	SetItemKind(value ItemKind)
+
+	TextPayload() *string
 }
 
 func (t *ItemDefinition) TextPayload() *string {
@@ -6233,8 +6233,6 @@ func DefaultLane() Lane {
 
 type LaneInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Name() (result *string)
 	PartitionElementRef() (result *QName)
@@ -6246,6 +6244,8 @@ type LaneInterface interface {
 	SetPartitionElement(value BaseElement)
 	SetFlowNodeRefs(value []IdRef)
 	SetChildLaneSet(value LaneSet)
+
+	TextPayload() *string
 }
 
 func (t *Lane) TextPayload() *string {
@@ -6332,13 +6332,13 @@ func DefaultLaneSet() LaneSet {
 
 type LaneSetInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Name() (result *string)
 	Lanes() (result *[]Lane)
 	SetName(value string)
 	SetLanes(value []Lane)
+
+	TextPayload() *string
 }
 
 func (t *LaneSet) TextPayload() *string {
@@ -6393,8 +6393,6 @@ func DefaultLinkEventDefinition() LinkEventDefinition {
 
 type LinkEventDefinitionInterface interface {
 	Element
-
-	TextPayload() *string
 	EventDefinitionInterface
 	Name() (result *string)
 	Sources() (result *[]QName)
@@ -6402,6 +6400,8 @@ type LinkEventDefinitionInterface interface {
 	SetName(value string)
 	SetSources(value []QName)
 	SetTarget(value QName)
+
+	TextPayload() *string
 }
 
 func (t *LinkEventDefinition) TextPayload() *string {
@@ -6457,9 +6457,9 @@ func DefaultLoopCharacteristics() LoopCharacteristics {
 
 type LoopCharacteristicsInterface interface {
 	Element
+	BaseElementInterface
 
 	TextPayload() *string
-	BaseElementInterface
 }
 
 func (t *LoopCharacteristics) TextPayload() *string {
@@ -6491,9 +6491,9 @@ func DefaultManualTask() ManualTask {
 
 type ManualTaskInterface interface {
 	Element
+	TaskInterface
 
 	TextPayload() *string
-	TaskInterface
 }
 
 func (t *ManualTask) TextPayload() *string {
@@ -6527,13 +6527,13 @@ func DefaultMessage() Message {
 
 type MessageInterface interface {
 	Element
-
-	TextPayload() *string
 	RootElementInterface
 	Name() (result *string)
 	ItemRef() (result *QName)
 	SetName(value string)
 	SetItemRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *Message) TextPayload() *string {
@@ -6581,13 +6581,13 @@ func DefaultMessageEventDefinition() MessageEventDefinition {
 
 type MessageEventDefinitionInterface interface {
 	Element
-
-	TextPayload() *string
 	EventDefinitionInterface
 	MessageRef() (result *QName)
 	OperationRef() (result *QName, present bool)
 	SetMessageRef(value QName)
 	SetOperationRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *MessageEventDefinition) TextPayload() *string {
@@ -6640,8 +6640,6 @@ func DefaultMessageFlow() MessageFlow {
 
 type MessageFlowInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Name() (result *string, present bool)
 	SourceRef() (result *QName)
@@ -6651,6 +6649,8 @@ type MessageFlowInterface interface {
 	SetSourceRef(value QName)
 	SetTargetRef(value QName)
 	SetMessageRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *MessageFlow) TextPayload() *string {
@@ -6715,13 +6715,13 @@ func DefaultMessageFlowAssociation() MessageFlowAssociation {
 
 type MessageFlowAssociationInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	InnerMessageFlowRef() (result *QName)
 	OuterMessageFlowRef() (result *QName)
 	SetInnerMessageFlowRef(value QName)
 	SetOuterMessageFlowRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *MessageFlowAssociation) TextPayload() *string {
@@ -6767,9 +6767,9 @@ func DefaultMonitoring() Monitoring {
 
 type MonitoringInterface interface {
 	Element
+	BaseElementInterface
 
 	TextPayload() *string
-	BaseElementInterface
 }
 
 func (t *Monitoring) TextPayload() *string {
@@ -6817,8 +6817,6 @@ func DefaultMultiInstanceLoopCharacteristics() MultiInstanceLoopCharacteristics 
 
 type MultiInstanceLoopCharacteristicsInterface interface {
 	Element
-
-	TextPayload() *string
 	LoopCharacteristicsInterface
 	IsSequential() (result bool)
 	Behavior() (result *MultiInstanceFlowCondition)
@@ -6842,6 +6840,8 @@ type MultiInstanceLoopCharacteristicsInterface interface {
 	SetOutputDataItem(value DataOutput)
 	SetComplexBehaviorDefinitions(value []ComplexBehaviorDefinition)
 	SetCompletionCondition(value AnExpression)
+
+	TextPayload() *string
 }
 
 func (t *MultiInstanceLoopCharacteristics) TextPayload() *string {
@@ -7009,8 +7009,6 @@ func DefaultOperation() Operation {
 
 type OperationInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Name() (result *string)
 	ImplementationRef() (result *QName)
@@ -7022,6 +7020,8 @@ type OperationInterface interface {
 	SetInMessageRef(value QName)
 	SetOutMessageRef(value QName)
 	SetErrorRefs(value []QName)
+
+	TextPayload() *string
 }
 
 func (t *Operation) TextPayload() *string {
@@ -7096,8 +7096,6 @@ func DefaultOutputSet() OutputSet {
 
 type OutputSetInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Name() (result *string)
 	DataOutputRefses() (result *[]IdRef)
@@ -7109,6 +7107,8 @@ type OutputSetInterface interface {
 	SetOptionalOutputRefses(value []IdRef)
 	SetWhileExecutingOutputRefses(value []IdRef)
 	SetInputSetRefses(value []IdRef)
+
+	TextPayload() *string
 }
 
 func (t *OutputSet) TextPayload() *string {
@@ -7175,9 +7175,9 @@ func DefaultParallelGateway() ParallelGateway {
 
 type ParallelGatewayInterface interface {
 	Element
+	GatewayInterface
 
 	TextPayload() *string
-	GatewayInterface
 }
 
 func (t *ParallelGateway) TextPayload() *string {
@@ -7214,8 +7214,6 @@ func DefaultParticipant() Participant {
 
 type ParticipantInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Name() (result *string)
 	ProcessRef() (result *QName, present bool)
@@ -7227,6 +7225,8 @@ type ParticipantInterface interface {
 	SetInterfaceRefs(value []QName)
 	SetEndPointRefs(value []QName)
 	SetParticipantMultiplicity(value *ParticipantMultiplicity)
+
+	TextPayload() *string
 }
 
 func (t *Participant) TextPayload() *string {
@@ -7307,13 +7307,13 @@ func DefaultParticipantAssociation() ParticipantAssociation {
 
 type ParticipantAssociationInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	InnerParticipantRef() (result *QName)
 	OuterParticipantRef() (result *QName)
 	SetInnerParticipantRef(value QName)
 	SetOuterParticipantRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *ParticipantAssociation) TextPayload() *string {
@@ -7366,13 +7366,13 @@ func DefaultParticipantMultiplicity() ParticipantMultiplicity {
 
 type ParticipantMultiplicityInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Minimum() (result int32)
 	Maximum() (result int32)
 	SetMinimum(value int32)
 	SetMaximum(value int32)
+
+	TextPayload() *string
 }
 
 func (t *ParticipantMultiplicity) TextPayload() *string {
@@ -7420,13 +7420,13 @@ func DefaultPartnerEntity() PartnerEntity {
 
 type PartnerEntityInterface interface {
 	Element
-
-	TextPayload() *string
 	RootElementInterface
 	Name() (result *string)
 	ParticipantRefs() (result *[]QName)
 	SetName(value string)
 	SetParticipantRefs(value []QName)
+
+	TextPayload() *string
 }
 
 func (t *PartnerEntity) TextPayload() *string {
@@ -7474,13 +7474,13 @@ func DefaultPartnerRole() PartnerRole {
 
 type PartnerRoleInterface interface {
 	Element
-
-	TextPayload() *string
 	RootElementInterface
 	Name() (result *string)
 	ParticipantRefs() (result *[]QName)
 	SetName(value string)
 	SetParticipantRefs(value []QName)
+
+	TextPayload() *string
 }
 
 func (t *PartnerRole) TextPayload() *string {
@@ -7526,9 +7526,9 @@ func DefaultPerformer() Performer {
 
 type PerformerInterface interface {
 	Element
+	ResourceRoleInterface
 
 	TextPayload() *string
-	ResourceRoleInterface
 }
 
 func (t *Performer) TextPayload() *string {
@@ -7560,9 +7560,9 @@ func DefaultPotentialOwner() PotentialOwner {
 
 type PotentialOwnerInterface interface {
 	Element
+	HumanPerformerInterface
 
 	TextPayload() *string
-	HumanPerformerInterface
 }
 
 func (t *PotentialOwner) TextPayload() *string {
@@ -7644,8 +7644,6 @@ func DefaultProcess() Process {
 
 type ProcessInterface interface {
 	Element
-
-	TextPayload() *string
 	CallableElementInterface
 	ProcessType() (result *ProcessType)
 	IsClosed() (result bool)
@@ -7737,6 +7735,8 @@ type ProcessInterface interface {
 	SetResourceRoles(value []ResourceRole)
 	SetCorrelationSubscriptions(value []CorrelationSubscription)
 	SetSupportses(value []QName)
+
+	TextPayload() *string
 }
 
 func (t *Process) TextPayload() *string {
@@ -8335,8 +8335,6 @@ func DefaultProperty() Property {
 
 type PropertyInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Name() (result *string)
 	ItemSubjectRef() (result *QName)
@@ -8344,6 +8342,8 @@ type PropertyInterface interface {
 	SetName(value string)
 	SetItemSubjectRef(value QName)
 	SetDataState(value *DataState)
+
+	TextPayload() *string
 }
 
 func (t *Property) TextPayload() *string {
@@ -8412,8 +8412,6 @@ func DefaultReceiveTask() ReceiveTask {
 
 type ReceiveTaskInterface interface {
 	Element
-
-	TextPayload() *string
 	TaskInterface
 	Implementation() (result *Implementation)
 	Instantiate() (result bool)
@@ -8423,6 +8421,8 @@ type ReceiveTaskInterface interface {
 	SetInstantiate(value bool)
 	SetMessageRef(value QName)
 	SetOperationRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *ReceiveTask) TextPayload() *string {
@@ -8492,8 +8492,6 @@ func DefaultRelationship() Relationship {
 
 type RelationshipInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Type() (result *string)
 	Direction() (result *RelationshipDirection)
@@ -8503,6 +8501,8 @@ type RelationshipInterface interface {
 	SetDirection(value RelationshipDirection)
 	SetSources(value []QName)
 	SetTargets(value []QName)
+
+	TextPayload() *string
 }
 
 func (t *Relationship) TextPayload() *string {
@@ -8562,9 +8562,9 @@ func DefaultRendering() Rendering {
 
 type RenderingInterface interface {
 	Element
+	BaseElementInterface
 
 	TextPayload() *string
-	BaseElementInterface
 }
 
 func (t *Rendering) TextPayload() *string {
@@ -8598,13 +8598,13 @@ func DefaultResource() Resource {
 
 type ResourceInterface interface {
 	Element
-
-	TextPayload() *string
 	RootElementInterface
 	Name() (result *string)
 	ResourceParameters() (result *[]ResourceParameter)
 	SetName(value string)
 	SetResourceParameters(value []ResourceParameter)
+
+	TextPayload() *string
 }
 
 func (t *Resource) TextPayload() *string {
@@ -8657,11 +8657,11 @@ func DefaultResourceAssignmentExpression() ResourceAssignmentExpression {
 
 type ResourceAssignmentExpressionInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Expression() (result *Expression)
 	SetExpression(value Expression)
+
+	TextPayload() *string
 }
 
 func (t *ResourceAssignmentExpression) TextPayload() *string {
@@ -8707,8 +8707,6 @@ func DefaultResourceParameter() ResourceParameter {
 
 type ResourceParameterInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Name() (result *string)
 	Type() (result *QName)
@@ -8716,6 +8714,8 @@ type ResourceParameterInterface interface {
 	SetName(value string)
 	SetType(value QName)
 	SetIsRequired(value bool)
+
+	TextPayload() *string
 }
 
 func (t *ResourceParameter) TextPayload() *string {
@@ -8770,13 +8770,13 @@ func DefaultResourceParameterBinding() ResourceParameterBinding {
 
 type ResourceParameterBindingInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	ParameterRef() (result *QName)
 	Expression() (result *Expression)
 	SetParameterRef(value QName)
 	SetExpression(value Expression)
+
+	TextPayload() *string
 }
 
 func (t *ResourceParameterBinding) TextPayload() *string {
@@ -8830,8 +8830,6 @@ func DefaultResourceRole() ResourceRole {
 
 type ResourceRoleInterface interface {
 	Element
-
-	TextPayload() *string
 	BaseElementInterface
 	Name() (result *string)
 	ResourceRef() (result *QName)
@@ -8841,6 +8839,8 @@ type ResourceRoleInterface interface {
 	SetResourceRef(value QName)
 	SetResourceParameterBindings(value []ResourceParameterBinding)
 	SetResourceAssignmentExpression(value *ResourceAssignmentExpression)
+
+	TextPayload() *string
 }
 
 func (t *ResourceRole) TextPayload() *string {
@@ -8915,9 +8915,9 @@ func DefaultRootElement() RootElement {
 
 type RootElementInterface interface {
 	Element
+	BaseElementInterface
 
 	TextPayload() *string
-	BaseElementInterface
 }
 
 func (t *RootElement) TextPayload() *string {
@@ -8951,13 +8951,13 @@ func DefaultScriptTask() ScriptTask {
 
 type ScriptTaskInterface interface {
 	Element
-
-	TextPayload() *string
 	TaskInterface
 	ScriptFormat() (result *string)
 	Script() (result *Script, present bool)
 	SetScriptFormat(value string)
 	SetScript(value *Script)
+
+	TextPayload() *string
 }
 
 func (t *ScriptTask) TextPayload() *string {
@@ -9042,8 +9042,6 @@ func DefaultSendTask() SendTask {
 
 type SendTaskInterface interface {
 	Element
-
-	TextPayload() *string
 	TaskInterface
 	Implementation() (result *Implementation)
 	MessageRef() (result *QName, present bool)
@@ -9051,6 +9049,8 @@ type SendTaskInterface interface {
 	SetImplementation(value Implementation)
 	SetMessageRef(value QName)
 	SetOperationRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *SendTask) TextPayload() *string {
@@ -9113,8 +9113,6 @@ func DefaultSequenceFlow() SequenceFlow {
 
 type SequenceFlowInterface interface {
 	Element
-
-	TextPayload() *string
 	FlowElementInterface
 	SourceRef() (result *IdRef)
 	TargetRef() (result *IdRef)
@@ -9124,6 +9122,8 @@ type SequenceFlowInterface interface {
 	SetTargetRef(value IdRef)
 	SetIsImmediate(value bool)
 	SetConditionExpression(value AnExpression)
+
+	TextPayload() *string
 }
 
 func (t *SequenceFlow) TextPayload() *string {
@@ -9197,13 +9197,13 @@ func DefaultServiceTask() ServiceTask {
 
 type ServiceTaskInterface interface {
 	Element
-
-	TextPayload() *string
 	TaskInterface
 	Implementation() (result *Implementation)
 	OperationRef() (result *QName, present bool)
 	SetImplementation(value Implementation)
 	SetOperationRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *ServiceTask) TextPayload() *string {
@@ -9254,13 +9254,13 @@ func DefaultSignal() Signal {
 
 type SignalInterface interface {
 	Element
-
-	TextPayload() *string
 	RootElementInterface
 	Name() (result *string)
 	StructureRef() (result *QName)
 	SetName(value string)
 	SetStructureRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *Signal) TextPayload() *string {
@@ -9307,11 +9307,11 @@ func DefaultSignalEventDefinition() SignalEventDefinition {
 
 type SignalEventDefinitionInterface interface {
 	Element
-
-	TextPayload() *string
 	EventDefinitionInterface
 	SignalRef() (result *QName)
 	SetSignalRef(value QName)
+
+	TextPayload() *string
 }
 
 func (t *SignalEventDefinition) TextPayload() *string {
@@ -9356,8 +9356,6 @@ func DefaultStandardLoopCharacteristics() StandardLoopCharacteristics {
 
 type StandardLoopCharacteristicsInterface interface {
 	Element
-
-	TextPayload() *string
 	LoopCharacteristicsInterface
 	TestBefore() (result bool)
 	LoopMaximum() (result *big.Int, present bool)
@@ -9365,6 +9363,8 @@ type StandardLoopCharacteristicsInterface interface {
 	SetTestBefore(value bool)
 	SetLoopMaximum(value big.Int)
 	SetLoopCondition(value AnExpression)
+
+	TextPayload() *string
 }
 
 func (t *StandardLoopCharacteristics) TextPayload() *string {
@@ -9428,11 +9428,11 @@ func DefaultStartEvent() StartEvent {
 
 type StartEventInterface interface {
 	Element
-
-	TextPayload() *string
 	CatchEventInterface
 	IsInterrupting() (result bool)
 	SetIsInterrupting(value bool)
+
+	TextPayload() *string
 }
 
 func (t *StartEvent) TextPayload() *string {
@@ -9505,8 +9505,6 @@ func DefaultSubChoreography() SubChoreography {
 
 type SubChoreographyInterface interface {
 	Element
-
-	TextPayload() *string
 	ChoreographyActivityInterface
 	AdHocSubProcesses() (result *[]AdHocSubProcess)
 	BoundaryEvents() (result *[]BoundaryEvent)
@@ -9576,6 +9574,8 @@ type SubChoreographyInterface interface {
 	SetAssociations(value []Association)
 	SetGroups(value []Group)
 	SetTextAnnotations(value []TextAnnotation)
+
+	TextPayload() *string
 }
 
 func (t *SubChoreography) TextPayload() *string {
@@ -10052,8 +10052,6 @@ func DefaultSubConversation() SubConversation {
 
 type SubConversationInterface interface {
 	Element
-
-	TextPayload() *string
 	ConversationNodeInterface
 	CallConversations() (result *[]CallConversation)
 	Conversations() (result *[]Conversation)
@@ -10061,6 +10059,8 @@ type SubConversationInterface interface {
 	SetCallConversations(value []CallConversation)
 	SetConversations(value []Conversation)
 	SetSubConversations(value []SubConversation)
+
+	TextPayload() *string
 }
 
 func (t *SubConversation) TextPayload() *string {
@@ -10170,8 +10170,6 @@ func DefaultSubProcess() SubProcess {
 
 type SubProcessInterface interface {
 	Element
-
-	TextPayload() *string
 	ActivityInterface
 	TriggeredByEvent() (result bool)
 	LaneSets() (result *[]LaneSet)
@@ -10245,6 +10243,8 @@ type SubProcessInterface interface {
 	SetAssociations(value []Association)
 	SetGroups(value []Group)
 	SetTextAnnotations(value []TextAnnotation)
+
+	TextPayload() *string
 }
 
 func (t *SubProcess) TextPayload() *string {
@@ -10738,9 +10738,9 @@ func DefaultTask() Task {
 
 type TaskInterface interface {
 	Element
+	ActivityInterface
 
 	TextPayload() *string
-	ActivityInterface
 }
 
 func (t *Task) TextPayload() *string {
@@ -10772,9 +10772,9 @@ func DefaultTerminateEventDefinition() TerminateEventDefinition {
 
 type TerminateEventDefinitionInterface interface {
 	Element
+	EventDefinitionInterface
 
 	TextPayload() *string
-	EventDefinitionInterface
 }
 
 func (t *TerminateEventDefinition) TextPayload() *string {
@@ -10811,13 +10811,13 @@ func DefaultTextAnnotation() TextAnnotation {
 
 type TextAnnotationInterface interface {
 	Element
-
-	TextPayload() *string
 	ArtifactInterface
 	TextFormat() (result *string)
 	Text() (result *Text, present bool)
 	SetTextFormat(value string)
 	SetText(value *Text)
+
+	TextPayload() *string
 }
 
 func (t *TextAnnotation) TextPayload() *string {
@@ -10913,8 +10913,6 @@ func DefaultThrowEvent() ThrowEvent {
 
 type ThrowEventInterface interface {
 	Element
-
-	TextPayload() *string
 	EventInterface
 	DataInputs() (result *[]DataInput)
 	DataInputAssociations() (result *[]DataInputAssociation)
@@ -10944,6 +10942,8 @@ type ThrowEventInterface interface {
 	SetTerminateEventDefinitions(value []TerminateEventDefinition)
 	SetTimerEventDefinitions(value []TimerEventDefinition)
 	SetEventDefinitionRefs(value []QName)
+
+	TextPayload() *string
 }
 
 func (t *ThrowEvent) TextPayload() *string {
@@ -11157,8 +11157,6 @@ func DefaultTimerEventDefinition() TimerEventDefinition {
 
 type TimerEventDefinitionInterface interface {
 	Element
-
-	TextPayload() *string
 	EventDefinitionInterface
 	TimeDate() (result *AnExpression, present bool)
 	TimeDuration() (result *AnExpression, present bool)
@@ -11166,6 +11164,8 @@ type TimerEventDefinitionInterface interface {
 	SetTimeDate(value AnExpression)
 	SetTimeDuration(value AnExpression)
 	SetTimeCycle(value AnExpression)
+
+	TextPayload() *string
 }
 
 func (t *TimerEventDefinition) TextPayload() *string {
@@ -11246,11 +11246,11 @@ func DefaultTransaction() Transaction {
 
 type TransactionInterface interface {
 	Element
-
-	TextPayload() *string
 	SubProcessInterface
 	Method() (result *TransactionMethod)
 	SetMethod(value TransactionMethod)
+
+	TextPayload() *string
 }
 
 func (t *Transaction) TextPayload() *string {
@@ -11291,13 +11291,13 @@ func DefaultUserTask() UserTask {
 
 type UserTaskInterface interface {
 	Element
-
-	TextPayload() *string
 	TaskInterface
 	Implementation() (result *Implementation)
 	Renderings() (result *[]Rendering)
 	SetImplementation(value Implementation)
 	SetRenderings(value []Rendering)
+
+	TextPayload() *string
 }
 
 func (t *UserTask) TextPayload() *string {

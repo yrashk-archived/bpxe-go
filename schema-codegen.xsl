@@ -201,16 +201,13 @@
         <xsl:text xml:space="preserve">Interface interface {
             Element
         </xsl:text>
-        
-        <xsl:text>
-            TextPayload() *string
-        </xsl:text>
-        
+           
         <xsl:if test="exists(./xs:complexContent/xs:extension[@base])">
             <xsl:value-of select="local:struct-case(./xs:complexContent/xs:extension/@base)"/>
             <xsl:text xml:space="preserve">Interface
             </xsl:text>
         </xsl:if>
+        
         <!-- Getters -->
         <xsl:for-each select=".//xs:attribute">
             <xsl:value-of select="local:struct-case(./@name)"/>
@@ -280,6 +277,11 @@
                 <xsl:otherwise/>
             </xsl:choose>
         </xsl:for-each>
+        <!-- Text payload -->
+        <xsl:text>
+            TextPayload() *string
+        </xsl:text>
+        
         <xsl:text xml:space="preserve"> }
         </xsl:text>
         <!-- Interface implementation -->
