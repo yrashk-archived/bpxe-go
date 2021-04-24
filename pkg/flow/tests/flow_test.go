@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"bpxe.org/pkg/bpmn"
+	"bpxe.org/pkg/flow"
 	"bpxe.org/pkg/process"
 	"bpxe.org/pkg/tracing"
 
@@ -34,7 +35,7 @@ func TestTrueFormalExpression(t *testing.T) {
 		for {
 			trace := <-traces
 			switch trace := trace.(type) {
-			case tracing.CompletionTrace:
+			case flow.CompletionTrace:
 				if id, present := trace.Node.Id(); present {
 					if *id == "end" {
 						// success!
@@ -77,7 +78,7 @@ func TestFalseFormalExpression(t *testing.T) {
 		for {
 			trace := <-traces
 			switch trace := trace.(type) {
-			case tracing.CompletionTrace:
+			case flow.CompletionTrace:
 				if id, present := trace.Node.Id(); present {
 					if *id == "end" {
 						t.Fatalf("end should not have been reached")
@@ -86,7 +87,7 @@ func TestFalseFormalExpression(t *testing.T) {
 				}
 			case tracing.ErrorTrace:
 				t.Fatalf("%#v", trace)
-			case tracing.CeaseFlowTrace:
+			case flow.CeaseFlowTrace:
 				// success
 				break loop
 			default:

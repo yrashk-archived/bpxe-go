@@ -6,10 +6,13 @@ import (
 
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/events"
+	"bpxe.org/pkg/flow"
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/flow_node/activity/task"
 	"bpxe.org/pkg/flow_node/event/end_event"
 	"bpxe.org/pkg/flow_node/event/start_event"
+	"bpxe.org/pkg/flow_node/gateway/exclusive_gateway"
+	"bpxe.org/pkg/id"
 	"bpxe.org/pkg/tracing"
 )
 
@@ -20,22 +23,30 @@ type ProcessInstance struct {
 	flowNodeMapping *flow_node.FlowNodeMapping
 	flowWaitGroup   sync.WaitGroup
 	complete        sync.RWMutex
+	idGenerator     id.IdGenerator
 }
 
 func NewProcessInstance(process *Process) (instance *ProcessInstance, err error) {
 	eventConsumers := make([]events.ProcessEventConsumer, 0)
 	tracer := tracing.NewTracer()
+	var idGenerator id.IdGenerator
+	idGenerator, err = process.IdGeneratorBuilder.NewIdGenerator(tracer)
+	if err != nil {
+		return
+	}
 	instance = &ProcessInstance{
 		process:         process,
 		eventConsumers:  eventConsumers,
 		Tracer:          tracer,
 		flowNodeMapping: flow_node.NewLockedFlowNodeMapping(),
+		idGenerator:     idGenerator,
 	}
 	for i := range *process.Element.StartEvents() {
 		element := &(*process.Element.StartEvents())[i]
 		var startEvent *start_event.StartEvent
 		startEvent, err = start_event.NewStartEvent(process.Element, process.Definitions,
-			element, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
+			element, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup,
+			idGenerator)
 		if err != nil {
 			return
 		}
@@ -67,6 +78,20 @@ func NewProcessInstance(process *Process) (instance *ProcessInstance, err error)
 			return
 		}
 		err = instance.flowNodeMapping.RegisterElementToFlowNode(element, aTask)
+		if err != nil {
+			return
+		}
+	}
+
+	for i := range *process.Element.ExclusiveGateways() {
+		element := &(*process.Element.ExclusiveGateways())[i]
+		var exclusiveGateway *exclusive_gateway.ExclusiveGateway
+		exclusiveGateway, err = exclusive_gateway.NewExclusiveGateway(process.Element, process.Definitions,
+			element, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
+		if err != nil {
+			return
+		}
+		err = instance.flowNodeMapping.RegisterElementToFlowNode(element, exclusiveGateway)
 		if err != nil {
 			return
 		}
@@ -121,13 +146,13 @@ func (instance *ProcessInstance) Run() (err error) {
 			trace := <-traces
 
 			switch t := trace.(type) {
-			case tracing.FlowTerminationTrace:
+			case flow.FlowTerminationTrace:
 				switch flowNode := t.Source.(type) {
 				case *bpmn.StartEvent:
 					startEventsActivated = append(startEventsActivated, flowNode)
 				default:
 				}
-			case tracing.FlowTrace:
+			case flow.FlowTrace:
 				switch flowNode := t.Source.(type) {
 				case *bpmn.StartEvent:
 					startEventsActivated = append(startEventsActivated, flowNode)
@@ -142,7 +167,7 @@ func (instance *ProcessInstance) Run() (err error) {
 		// Then, we're waiting for (2) to occur
 		instance.flowWaitGroup.Wait()
 		// Send out a cease flow trace
-		instance.Tracer.Trace(tracing.CeaseFlowTrace{})
+		instance.Tracer.Trace(flow.CeaseFlowTrace{})
 		instance.complete.Unlock()
 	}()
 	<-lockChan

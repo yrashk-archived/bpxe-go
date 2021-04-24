@@ -7,6 +7,7 @@ import (
 	"bpxe.org/pkg/events"
 	"bpxe.org/pkg/flow"
 	"bpxe.org/pkg/flow_node"
+	"bpxe.org/pkg/id"
 	"bpxe.org/pkg/tracing"
 )
 
@@ -25,6 +26,7 @@ type StartEvent struct {
 	element       *bpmn.StartEvent
 	runnerChannel chan message
 	activated     bool
+	idGenerator   id.IdGenerator
 }
 
 func NewStartEvent(process *bpmn.Process,
@@ -35,6 +37,7 @@ func NewStartEvent(process *bpmn.Process,
 	tracer *tracing.Tracer,
 	flowNodeMapping *flow_node.FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup,
+	idGenerator id.IdGenerator,
 ) (node *StartEvent, err error) {
 	flow_node, err := flow_node.NewFlowNode(process,
 		definitions,
@@ -50,6 +53,7 @@ func NewStartEvent(process *bpmn.Process,
 		element:       startEvent,
 		runnerChannel: make(chan message),
 		activated:     false,
+		idGenerator:   idGenerator,
 	}
 	go node.runner()
 	err = node.EventEgress.RegisterProcessEventConsumer(node)
@@ -81,7 +85,7 @@ func (node *StartEvent) ConsumeProcessEvent(
 	switch ev.(type) {
 	case *events.StartEvent:
 		newFlow := flow.NewFlow(node.FlowNode.Definitions, node, node.FlowNode.Tracer,
-			node.FlowNode.FlowNodeMapping, node.FlowNode.FlowWaitGroup)
+			node.FlowNode.FlowNodeMapping, node.FlowNode.FlowWaitGroup, node.idGenerator)
 		newFlow.Start()
 	default:
 	}
@@ -89,7 +93,7 @@ func (node *StartEvent) ConsumeProcessEvent(
 	return
 }
 
-func (node *StartEvent) NextAction() flow_node.Action {
+func (node *StartEvent) NextAction(id.Id) flow_node.Action {
 	response := make(chan flow_node.Action)
 	node.runnerChannel <- nextActionMessage{response: response}
 	return <-response

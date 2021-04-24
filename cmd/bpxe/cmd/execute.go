@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 
 	"bpxe.org/pkg/bpmn"
+	"bpxe.org/pkg/flow"
 	"bpxe.org/pkg/process"
 	"bpxe.org/pkg/tracing"
 
@@ -51,7 +52,9 @@ var executeCmd = &cobra.Command{
 					for {
 						trace := <-traces
 						switch trace := trace.(type) {
-						case tracing.FlowTrace:
+						case flow.NewFlowTrace:
+							fmt.Printf("New flow %s\n", trace.FlowId.String())
+						case flow.FlowTrace:
 							sourceId, present := trace.Source.Id()
 							if !present {
 								sourceId = new(string)
@@ -67,11 +70,14 @@ var executeCmd = &cobra.Command{
 									targetId = new(string)
 									*targetId = "unnamed"
 								}
-								fmt.Printf("Flow %s -> %s\n", *sourceId, *targetId)
+								fmt.Printf("Flow(%s) %s -> %s\n", trace.FlowId.String(), *sourceId, *targetId)
 							}
-						case tracing.CeaseFlowTrace:
+						case flow.CeaseFlowTrace:
+							fmt.Printf("No flows left\n")
 							done <- true
 							return
+						case tracing.ErrorTrace:
+							fmt.Printf("Error: %v\n", trace.Error)
 						default:
 						}
 

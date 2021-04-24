@@ -1,6 +1,7 @@
 package flow_node
 
 import (
+	"fmt"
 	"sync"
 
 	"bpxe.org/pkg/bpmn"
@@ -11,6 +12,7 @@ import (
 )
 
 type FlowNode struct {
+	Id           bpmn.Id
 	Definitions  *bpmn.Definitions
 	Incoming     []sequence_flow.SequenceFlow
 	Outgoing     []sequence_flow.SequenceFlow
@@ -44,22 +46,32 @@ func sequenceFlows(process *bpmn.Process,
 
 func NewFlowNode(process *bpmn.Process,
 	definitions *bpmn.Definitions,
-	flow_node *bpmn.FlowNode,
+	flowNode *bpmn.FlowNode,
 	eventIngress events.ProcessEventConsumer,
 	eventEgress events.ProcessEventSource,
 	tracer *tracing.Tracer,
 	flowNodeMapping *FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup,
 ) (node *FlowNode, err error) {
-	incoming, err := sequenceFlows(process, definitions, flow_node.Incomings())
+	incoming, err := sequenceFlows(process, definitions, flowNode.Incomings())
 	if err != nil {
 		return
 	}
-	outgoing, err := sequenceFlows(process, definitions, flow_node.Outgoings())
+	outgoing, err := sequenceFlows(process, definitions, flowNode.Outgoings())
 	if err != nil {
 		return
+	}
+	var ownId string
+	if ownIdPtr, present := flowNode.Id(); !present {
+		err = errors.NotFoundError{
+			Expected: fmt.Sprintf("flow node %#v to have an ID", flowNode),
+		}
+		return
+	} else {
+		ownId = *ownIdPtr
 	}
 	node = &FlowNode{
+		Id:              ownId,
 		Definitions:     definitions,
 		Incoming:        incoming,
 		Outgoing:        outgoing,

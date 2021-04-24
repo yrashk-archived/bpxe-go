@@ -2,6 +2,7 @@ package model
 
 import (
 	"bpxe.org/pkg/bpmn"
+	"bpxe.org/pkg/id"
 	"bpxe.org/pkg/process"
 )
 
@@ -10,13 +11,17 @@ type Model struct {
 	processes []process.Process
 }
 
-func NewModel(element *bpmn.Definitions) Model {
+func NewModel(element *bpmn.Definitions) *Model {
+	return NewModelWithIdGenerator(element, id.DefaultIdGeneratorBuilder)
+}
+
+func NewModelWithIdGenerator(element *bpmn.Definitions, idGeneratorBuilder id.IdGeneratorBuilder) *Model {
 	procs := element.Processes()
 	processes := make([]process.Process, len(*procs))
 	for i := range *procs {
-		processes[i] = process.MakeProcess(&(*procs)[i], element)
+		processes[i] = process.MakeProcess(&(*procs)[i], element, idGeneratorBuilder)
 	}
-	return Model{
+	return &Model{
 		Element:   element,
 		processes: processes,
 	}

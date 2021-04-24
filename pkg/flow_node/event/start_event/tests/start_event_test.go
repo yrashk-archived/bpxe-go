@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"bpxe.org/pkg/bpmn"
+	"bpxe.org/pkg/flow"
 	"bpxe.org/pkg/process"
 	"bpxe.org/pkg/tracing"
 
@@ -34,7 +35,7 @@ func TestStartEvent(t *testing.T) {
 		for {
 			trace := <-traces
 			switch trace := trace.(type) {
-			case tracing.FlowTrace:
+			case flow.FlowTrace:
 				if id, present := trace.Source.Id(); present {
 					if *id == "start" {
 						// success!

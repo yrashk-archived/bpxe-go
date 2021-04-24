@@ -6,6 +6,7 @@ import (
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/events"
 	"bpxe.org/pkg/flow_node"
+	"bpxe.org/pkg/id"
 	"bpxe.org/pkg/tracing"
 )
 
@@ -79,7 +80,7 @@ func (node *Task) runner() {
 	}
 }
 
-func (node *Task) NextAction() flow_node.Action {
+func (node *Task) NextAction(id.Id) flow_node.Action {
 	response := make(chan flow_node.Action)
 	node.runnerChannel <- nextActionMessage{response: response}
 	return <-response
