@@ -176,3 +176,55 @@ func TestExclusiveGatewayWithNoDefault(t *testing.T) {
 		t.Fatalf("failed to instantiate the process: %s", err)
 	}
 }
+
+func TestExclusiveGatewayIncompleteJoin(t *testing.T) {
+	var testDoc bpmn.Definitions
+	var err error
+	src, err := testdata.ReadFile("testdata/exclusive_gateway_multiple_incoming.bpmn")
+	if err != nil {
+		t.Fatalf("Can't read file: %v", err)
+	}
+	err = xml.Unmarshal(src, &testDoc)
+	if err != nil {
+		t.Fatalf("XML unmarshalling error: %v", err)
+	}
+	processElement := (*testDoc.Processes())[0]
+	proc := process.NewProcess(&processElement, &testDoc)
+	if instance, err := proc.Instantiate(); err == nil {
+		traces := instance.Tracer.Subscribe()
+		err := instance.Run()
+		if err != nil {
+			t.Fatalf("failed to run the instance: %s", err)
+		}
+		reached := make(map[string]int)
+	loop:
+		for {
+			trace := <-traces
+			switch trace := trace.(type) {
+			case flow.VisitTrace:
+				t.Logf("%#v", trace)
+				if id, present := trace.Node.Id(); present {
+					if counter, ok := reached[*id]; ok {
+						reached[*id] = counter + 1
+					} else {
+						reached[*id] = 1
+					}
+				} else {
+					t.Fatalf("can't find element with Id %#v", id)
+				}
+			case flow.CeaseFlowTrace:
+				break loop
+			case tracing.ErrorTrace:
+				t.Fatalf("%#v", trace)
+			default:
+				t.Logf("%#v", trace)
+			}
+		}
+		instance.Tracer.Unsubscribe(traces)
+
+		assert.Equal(t, 2, reached["exclusive"])
+		assert.Equal(t, 2, reached["task2"])
+	} else {
+		t.Fatalf("failed to instantiate the process: %s", err)
+	}
+}

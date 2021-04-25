@@ -114,6 +114,7 @@ func (flow *Flow) handleSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, u
 	if err == nil {
 		if flowNode, found := flow.flowNodeMapping.ResolveElementToFlowNode(target); found {
 			flow.current = flowNode
+			flow.tracer.Trace(VisitTrace{Node: flow.current.Element()})
 			var index int
 			index, err = sequenceFlow.TargetIndex()
 			if err != nil {
@@ -176,6 +177,7 @@ func (flow *Flow) Start() {
 		flow.tracer.Trace(NewFlowTrace{FlowId: flow.Id})
 		defer flow.flowWaitGroup.Done()
 		var action flow_node.Action
+		flow.tracer.Trace(VisitTrace{Node: flow.current.Element()})
 		for {
 			if flow.index != nil {
 				flow.current.Incoming(*flow.index)
