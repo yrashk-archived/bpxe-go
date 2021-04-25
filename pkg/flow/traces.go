@@ -35,3 +35,9 @@ func (t CompletionTrace) TraceInterface() {}
 type CeaseFlowTrace struct{}
 
 func (t CeaseFlowTrace) TraceInterface() {}
+
+type VisitTrace struct {
+	Node bpmn.FlowNodeInterface
+}
+
+func (t VisitTrace) TraceInterface() {}

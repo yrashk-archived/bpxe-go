@@ -12,6 +12,7 @@ import (
 	"bpxe.org/pkg/flow_node/event/end_event"
 	"bpxe.org/pkg/flow_node/event/start_event"
 	"bpxe.org/pkg/flow_node/gateway/exclusive_gateway"
+	"bpxe.org/pkg/flow_node/gateway/parallel_gateway"
 	"bpxe.org/pkg/id"
 	"bpxe.org/pkg/tracing"
 )
@@ -92,6 +93,20 @@ func NewProcessInstance(process *Process) (instance *ProcessInstance, err error)
 			return
 		}
 		err = instance.flowNodeMapping.RegisterElementToFlowNode(element, exclusiveGateway)
+		if err != nil {
+			return
+		}
+	}
+
+	for i := range *process.Element.ParallelGateways() {
+		element := &(*process.Element.ParallelGateways())[i]
+		var parallelGateway *parallel_gateway.ParallelGateway
+		parallelGateway, err = parallel_gateway.NewParallelGateway(process.Element, process.Definitions,
+			element, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
+		if err != nil {
+			return
+		}
+		err = instance.flowNodeMapping.RegisterElementToFlowNode(element, parallelGateway)
 		if err != nil {
 			return
 		}
