@@ -95,6 +95,7 @@ type DefinitionsInterface interface {
 	Resources() (result *[]Resource)
 	Signals() (result *[]Signal)
 	Relationships() (result *[]Relationship)
+	RootElements() []RootElementInterface
 	SetId(value Id)
 	SetName(value string)
 	SetTargetNamespace(value AnyURI)
@@ -134,6 +135,9 @@ func (t *Definitions) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Definitions) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -344,6 +348,95 @@ func (t *Definitions) ExporterVersion() (result *string) {
 func (t *Definitions) SetExporterVersion(value string) {
 	t.ExporterVersionField = value
 }
+func (t *Definitions) RootElements() []RootElementInterface {
+
+	result := make([]RootElementInterface, 0)
+
+	for i := range t.CategoryField {
+		result = append(result, &t.CategoryField[i])
+	}
+
+	for i := range t.CollaborationField {
+		result = append(result, &t.CollaborationField[i])
+	}
+
+	for i := range t.CorrelationPropertyField {
+		result = append(result, &t.CorrelationPropertyField[i])
+	}
+
+	for i := range t.DataStoreField {
+		result = append(result, &t.DataStoreField[i])
+	}
+
+	for i := range t.EndPointField {
+		result = append(result, &t.EndPointField[i])
+	}
+
+	for i := range t.ErrorField {
+		result = append(result, &t.ErrorField[i])
+	}
+
+	for i := range t.EscalationField {
+		result = append(result, &t.EscalationField[i])
+	}
+
+	for i := range t.EventDefinitionField {
+		result = append(result, &t.EventDefinitionField[i])
+	}
+
+	for i := range t.GlobalBusinessRuleTaskField {
+		result = append(result, &t.GlobalBusinessRuleTaskField[i])
+	}
+
+	for i := range t.GlobalManualTaskField {
+		result = append(result, &t.GlobalManualTaskField[i])
+	}
+
+	for i := range t.GlobalScriptTaskField {
+		result = append(result, &t.GlobalScriptTaskField[i])
+	}
+
+	for i := range t.GlobalTaskField {
+		result = append(result, &t.GlobalTaskField[i])
+	}
+
+	for i := range t.GlobalUserTaskField {
+		result = append(result, &t.GlobalUserTaskField[i])
+	}
+
+	for i := range t.InterfaceField {
+		result = append(result, &t.InterfaceField[i])
+	}
+
+	for i := range t.ItemDefinitionField {
+		result = append(result, &t.ItemDefinitionField[i])
+	}
+
+	for i := range t.MessageField {
+		result = append(result, &t.MessageField[i])
+	}
+
+	for i := range t.PartnerEntityField {
+		result = append(result, &t.PartnerEntityField[i])
+	}
+
+	for i := range t.PartnerRoleField {
+		result = append(result, &t.PartnerRoleField[i])
+	}
+
+	for i := range t.ProcessField {
+		result = append(result, &t.ProcessField[i])
+	}
+
+	for i := range t.ResourceField {
+		result = append(result, &t.ResourceField[i])
+	}
+
+	for i := range t.SignalField {
+		result = append(result, &t.SignalField[i])
+	}
+	return result
+}
 func (t *Definitions) Imports() (result *[]Import) {
 	result = &t.ImportField
 	return
@@ -540,6 +633,9 @@ func (t *Import) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Import) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -572,18 +668,18 @@ func (t *Import) SetImportType(value AnyURI) {
 
 type Activity struct {
 	FlowNode
-	IsForCompensationField                bool                             `xml:"isForCompensation,attr"`
-	StartQuantityField                    big.Int                          `xml:"startQuantity,attr"`
-	CompletionQuantityField               big.Int                          `xml:"completionQuantity,attr"`
-	DefaultField                          *IdRef                           `xml:"default,attr"`
-	IoSpecificationField                  *InputOutputSpecification        `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL ioSpecification"`
-	PropertyField                         []Property                       `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL property"`
-	DataInputAssociationField             []DataInputAssociation           `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL dataInputAssociation"`
-	DataOutputAssociationField            []DataOutputAssociation          `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL dataOutputAssociation"`
-	ResourceRoleField                     []ResourceRole                   `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL resourceRole"`
-	MultiInstanceLoopCharacteristicsField MultiInstanceLoopCharacteristics `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL multiInstanceLoopCharacteristics"`
-	StandardLoopCharacteristicsField      StandardLoopCharacteristics      `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL standardLoopCharacteristics"`
-	TextPayloadField                      string                           `xml:",chardata"`
+	IsForCompensationField                bool                              `xml:"isForCompensation,attr"`
+	StartQuantityField                    big.Int                           `xml:"startQuantity,attr"`
+	CompletionQuantityField               big.Int                           `xml:"completionQuantity,attr"`
+	DefaultField                          *IdRef                            `xml:"default,attr"`
+	IoSpecificationField                  *InputOutputSpecification         `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL ioSpecification"`
+	PropertyField                         []Property                        `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL property"`
+	DataInputAssociationField             []DataInputAssociation            `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL dataInputAssociation"`
+	DataOutputAssociationField            []DataOutputAssociation           `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL dataOutputAssociation"`
+	ResourceRoleField                     []ResourceRole                    `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL resourceRole"`
+	MultiInstanceLoopCharacteristicsField *MultiInstanceLoopCharacteristics `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL multiInstanceLoopCharacteristics"`
+	StandardLoopCharacteristicsField      *StandardLoopCharacteristics      `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL standardLoopCharacteristics"`
+	TextPayloadField                      string                            `xml:",chardata"`
 }
 
 var defaultActivityIsForCompensationField bool = false
@@ -611,8 +707,9 @@ type ActivityInterface interface {
 	DataInputAssociations() (result *[]DataInputAssociation)
 	DataOutputAssociations() (result *[]DataOutputAssociation)
 	ResourceRoles() (result *[]ResourceRole)
-	MultiInstanceLoopCharacteristics() (result *MultiInstanceLoopCharacteristics)
-	StandardLoopCharacteristics() (result *StandardLoopCharacteristics)
+	MultiInstanceLoopCharacteristics() (result *MultiInstanceLoopCharacteristics, present bool)
+	StandardLoopCharacteristics() (result *StandardLoopCharacteristics, present bool)
+	LoopCharacteristics() LoopCharacteristicsInterface
 	SetIsForCompensation(value bool)
 	SetStartQuantity(value big.Int)
 	SetCompletionQuantity(value big.Int)
@@ -622,8 +719,8 @@ type ActivityInterface interface {
 	SetDataInputAssociations(value []DataInputAssociation)
 	SetDataOutputAssociations(value []DataOutputAssociation)
 	SetResourceRoles(value []ResourceRole)
-	SetMultiInstanceLoopCharacteristics(value MultiInstanceLoopCharacteristics)
-	SetStandardLoopCharacteristics(value StandardLoopCharacteristics)
+	SetMultiInstanceLoopCharacteristics(value *MultiInstanceLoopCharacteristics)
+	SetStandardLoopCharacteristics(value *StandardLoopCharacteristics)
 
 	TextPayload() *string
 }
@@ -632,6 +729,9 @@ func (t *Activity) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Activity) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -712,6 +812,15 @@ func (t *Activity) Default() (result *IdRef, present bool) {
 func (t *Activity) SetDefault(value IdRef) {
 	t.DefaultField = &value
 }
+func (t *Activity) LoopCharacteristics() LoopCharacteristicsInterface {
+	if t.MultiInstanceLoopCharacteristicsField != nil {
+		return t.MultiInstanceLoopCharacteristicsField
+	}
+	if t.StandardLoopCharacteristicsField != nil {
+		return t.StandardLoopCharacteristicsField
+	}
+	return nil
+}
 func (t *Activity) IoSpecification() (result *InputOutputSpecification, present bool) {
 	if t.IoSpecificationField != nil {
 		present = true
@@ -750,18 +859,24 @@ func (t *Activity) ResourceRoles() (result *[]ResourceRole) {
 func (t *Activity) SetResourceRoles(value []ResourceRole) {
 	t.ResourceRoleField = value
 }
-func (t *Activity) MultiInstanceLoopCharacteristics() (result *MultiInstanceLoopCharacteristics) {
-	result = &t.MultiInstanceLoopCharacteristicsField
+func (t *Activity) MultiInstanceLoopCharacteristics() (result *MultiInstanceLoopCharacteristics, present bool) {
+	if t.MultiInstanceLoopCharacteristicsField != nil {
+		present = true
+	}
+	result = t.MultiInstanceLoopCharacteristicsField
 	return
 }
-func (t *Activity) SetMultiInstanceLoopCharacteristics(value MultiInstanceLoopCharacteristics) {
+func (t *Activity) SetMultiInstanceLoopCharacteristics(value *MultiInstanceLoopCharacteristics) {
 	t.MultiInstanceLoopCharacteristicsField = value
 }
-func (t *Activity) StandardLoopCharacteristics() (result *StandardLoopCharacteristics) {
-	result = &t.StandardLoopCharacteristicsField
+func (t *Activity) StandardLoopCharacteristics() (result *StandardLoopCharacteristics, present bool) {
+	if t.StandardLoopCharacteristicsField != nil {
+		present = true
+	}
+	result = t.StandardLoopCharacteristicsField
 	return
 }
-func (t *Activity) SetStandardLoopCharacteristics(value StandardLoopCharacteristics) {
+func (t *Activity) SetStandardLoopCharacteristics(value *StandardLoopCharacteristics) {
 	t.StandardLoopCharacteristicsField = value
 }
 
@@ -799,6 +914,9 @@ func (t *AdHocSubProcess) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *AdHocSubProcess) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -863,6 +981,9 @@ func (t *Artifact) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Artifact) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -903,6 +1024,9 @@ func (t *Assignment) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Assignment) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -971,6 +1095,9 @@ func (t *Association) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Association) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -1026,6 +1153,9 @@ func (t *Auditing) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Auditing) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -1065,6 +1195,9 @@ func (t *BaseElement) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *BaseElement) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -1140,6 +1273,9 @@ func (t *BaseElementWithMixedContent) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *BaseElementWithMixedContent) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -1219,6 +1355,9 @@ func (t *BoundaryEvent) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *BoundaryEvent) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -1270,6 +1409,9 @@ func (t *BusinessRuleTask) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *BusinessRuleTask) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -1323,6 +1465,9 @@ func (t *CallableElement) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *CallableElement) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -1403,6 +1548,9 @@ func (t *CallActivity) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *CallActivity) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -1453,6 +1601,9 @@ func (t *CallChoreography) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *CallChoreography) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -1516,6 +1667,9 @@ func (t *CallConversation) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *CallConversation) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -1573,6 +1727,9 @@ func (t *CancelEventDefinition) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *CancelEventDefinition) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -1632,6 +1789,7 @@ type CatchEventInterface interface {
 	TerminateEventDefinitions() (result *[]TerminateEventDefinition)
 	TimerEventDefinitions() (result *[]TimerEventDefinition)
 	EventDefinitionRefs() (result *[]QName)
+	EventDefinitions() []EventDefinitionInterface
 	SetParallelMultiple(value bool)
 	SetDataOutputs(value []DataOutput)
 	SetDataOutputAssociations(value []DataOutputAssociation)
@@ -1655,6 +1813,9 @@ func (t *CatchEvent) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *CatchEvent) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -1750,6 +1911,51 @@ func (t *CatchEvent) ParallelMultiple() (result bool) {
 }
 func (t *CatchEvent) SetParallelMultiple(value bool) {
 	t.ParallelMultipleField = value
+}
+func (t *CatchEvent) EventDefinitions() []EventDefinitionInterface {
+
+	result := make([]EventDefinitionInterface, 0)
+
+	for i := range t.CancelEventDefinitionField {
+		result = append(result, &t.CancelEventDefinitionField[i])
+	}
+
+	for i := range t.CompensateEventDefinitionField {
+		result = append(result, &t.CompensateEventDefinitionField[i])
+	}
+
+	for i := range t.ConditionalEventDefinitionField {
+		result = append(result, &t.ConditionalEventDefinitionField[i])
+	}
+
+	for i := range t.ErrorEventDefinitionField {
+		result = append(result, &t.ErrorEventDefinitionField[i])
+	}
+
+	for i := range t.EscalationEventDefinitionField {
+		result = append(result, &t.EscalationEventDefinitionField[i])
+	}
+
+	for i := range t.LinkEventDefinitionField {
+		result = append(result, &t.LinkEventDefinitionField[i])
+	}
+
+	for i := range t.MessageEventDefinitionField {
+		result = append(result, &t.MessageEventDefinitionField[i])
+	}
+
+	for i := range t.SignalEventDefinitionField {
+		result = append(result, &t.SignalEventDefinitionField[i])
+	}
+
+	for i := range t.TerminateEventDefinitionField {
+		result = append(result, &t.TerminateEventDefinitionField[i])
+	}
+
+	for i := range t.TimerEventDefinitionField {
+		result = append(result, &t.TimerEventDefinitionField[i])
+	}
+	return result
 }
 func (t *CatchEvent) DataOutputs() (result *[]DataOutput) {
 	result = &t.DataOutputField
@@ -1881,6 +2087,9 @@ func (t *Category) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Category) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -1938,6 +2147,9 @@ func (t *CategoryValue) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *CategoryValue) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -2036,6 +2248,7 @@ type ChoreographyInterface interface {
 	Tasks() (result *[]Task)
 	Transactions() (result *[]Transaction)
 	UserTasks() (result *[]UserTask)
+	FlowElements() []FlowElementInterface
 	SetAdHocSubProcesses(value []AdHocSubProcess)
 	SetBoundaryEvents(value []BoundaryEvent)
 	SetBusinessRuleTasks(value []BusinessRuleTask)
@@ -2075,6 +2288,9 @@ func (t *Choreography) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Choreography) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -2271,6 +2487,135 @@ func (t *Choreography) FindBy(f ElementPredicate) (result Element, found bool) {
 	}
 
 	return
+}
+func (t *Choreography) FlowElements() []FlowElementInterface {
+
+	result := make([]FlowElementInterface, 0)
+
+	for i := range t.AdHocSubProcessField {
+		result = append(result, &t.AdHocSubProcessField[i])
+	}
+
+	for i := range t.BoundaryEventField {
+		result = append(result, &t.BoundaryEventField[i])
+	}
+
+	for i := range t.BusinessRuleTaskField {
+		result = append(result, &t.BusinessRuleTaskField[i])
+	}
+
+	for i := range t.CallActivityField {
+		result = append(result, &t.CallActivityField[i])
+	}
+
+	for i := range t.CallChoreographyField {
+		result = append(result, &t.CallChoreographyField[i])
+	}
+
+	for i := range t.ChoreographyTaskField {
+		result = append(result, &t.ChoreographyTaskField[i])
+	}
+
+	for i := range t.ComplexGatewayField {
+		result = append(result, &t.ComplexGatewayField[i])
+	}
+
+	for i := range t.DataObjectField {
+		result = append(result, &t.DataObjectField[i])
+	}
+
+	for i := range t.DataObjectReferenceField {
+		result = append(result, &t.DataObjectReferenceField[i])
+	}
+
+	for i := range t.DataStoreReferenceField {
+		result = append(result, &t.DataStoreReferenceField[i])
+	}
+
+	for i := range t.EndEventField {
+		result = append(result, &t.EndEventField[i])
+	}
+
+	for i := range t.EventField {
+		result = append(result, &t.EventField[i])
+	}
+
+	for i := range t.EventBasedGatewayField {
+		result = append(result, &t.EventBasedGatewayField[i])
+	}
+
+	for i := range t.ExclusiveGatewayField {
+		result = append(result, &t.ExclusiveGatewayField[i])
+	}
+
+	for i := range t.ImplicitThrowEventField {
+		result = append(result, &t.ImplicitThrowEventField[i])
+	}
+
+	for i := range t.InclusiveGatewayField {
+		result = append(result, &t.InclusiveGatewayField[i])
+	}
+
+	for i := range t.IntermediateCatchEventField {
+		result = append(result, &t.IntermediateCatchEventField[i])
+	}
+
+	for i := range t.IntermediateThrowEventField {
+		result = append(result, &t.IntermediateThrowEventField[i])
+	}
+
+	for i := range t.ManualTaskField {
+		result = append(result, &t.ManualTaskField[i])
+	}
+
+	for i := range t.ParallelGatewayField {
+		result = append(result, &t.ParallelGatewayField[i])
+	}
+
+	for i := range t.ReceiveTaskField {
+		result = append(result, &t.ReceiveTaskField[i])
+	}
+
+	for i := range t.ScriptTaskField {
+		result = append(result, &t.ScriptTaskField[i])
+	}
+
+	for i := range t.SendTaskField {
+		result = append(result, &t.SendTaskField[i])
+	}
+
+	for i := range t.SequenceFlowField {
+		result = append(result, &t.SequenceFlowField[i])
+	}
+
+	for i := range t.ServiceTaskField {
+		result = append(result, &t.ServiceTaskField[i])
+	}
+
+	for i := range t.StartEventField {
+		result = append(result, &t.StartEventField[i])
+	}
+
+	for i := range t.SubChoreographyField {
+		result = append(result, &t.SubChoreographyField[i])
+	}
+
+	for i := range t.SubProcessField {
+		result = append(result, &t.SubProcessField[i])
+	}
+
+	for i := range t.TaskField {
+		result = append(result, &t.TaskField[i])
+	}
+
+	for i := range t.TransactionField {
+		result = append(result, &t.TransactionField[i])
+	}
+
+	for i := range t.UserTaskField {
+		result = append(result, &t.UserTaskField[i])
+	}
+	return result
 }
 func (t *Choreography) AdHocSubProcesses() (result *[]AdHocSubProcess) {
 	result = &t.AdHocSubProcessField
@@ -2527,6 +2872,9 @@ func (t *ChoreographyActivity) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ChoreographyActivity) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -2598,6 +2946,9 @@ func (t *ChoreographyTask) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ChoreographyTask) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -2666,6 +3017,8 @@ type CollaborationInterface interface {
 	CorrelationKeys() (result *[]CorrelationKey)
 	ChoreographyRefs() (result *[]QName)
 	ConversationLinks() (result *[]ConversationLink)
+	Artifacts() []ArtifactInterface
+	ConversationNodes() []ConversationNodeInterface
 	SetName(value string)
 	SetIsClosed(value bool)
 	SetParticipants(value []Participant)
@@ -2690,6 +3043,9 @@ func (t *Collaboration) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Collaboration) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -2792,6 +3148,40 @@ func (t *Collaboration) IsClosed() (result bool) {
 }
 func (t *Collaboration) SetIsClosed(value bool) {
 	t.IsClosedField = value
+}
+func (t *Collaboration) Artifacts() []ArtifactInterface {
+
+	result := make([]ArtifactInterface, 0)
+
+	for i := range t.AssociationField {
+		result = append(result, &t.AssociationField[i])
+	}
+
+	for i := range t.GroupField {
+		result = append(result, &t.GroupField[i])
+	}
+
+	for i := range t.TextAnnotationField {
+		result = append(result, &t.TextAnnotationField[i])
+	}
+	return result
+}
+func (t *Collaboration) ConversationNodes() []ConversationNodeInterface {
+
+	result := make([]ConversationNodeInterface, 0)
+
+	for i := range t.CallConversationField {
+		result = append(result, &t.CallConversationField[i])
+	}
+
+	for i := range t.ConversationField {
+		result = append(result, &t.ConversationField[i])
+	}
+
+	for i := range t.SubConversationField {
+		result = append(result, &t.SubConversationField[i])
+	}
+	return result
 }
 func (t *Collaboration) Participants() (result *[]Participant) {
 	result = &t.ParticipantField
@@ -2920,6 +3310,9 @@ func (t *CompensateEventDefinition) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *CompensateEventDefinition) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -2974,6 +3367,9 @@ func (t *ComplexBehaviorDefinition) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ComplexBehaviorDefinition) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -3041,6 +3437,9 @@ func (t *ComplexGateway) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ComplexGateway) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -3101,6 +3500,9 @@ func (t *ConditionalEventDefinition) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ConditionalEventDefinition) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -3146,6 +3548,9 @@ func (t *Conversation) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Conversation) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -3186,6 +3591,9 @@ func (t *ConversationAssociation) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ConversationAssociation) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -3243,6 +3651,9 @@ func (t *ConversationLink) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ConversationLink) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -3313,6 +3724,9 @@ func (t *ConversationNode) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ConversationNode) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -3387,6 +3801,9 @@ func (t *CorrelationKey) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *CorrelationKey) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -3447,6 +3864,9 @@ func (t *CorrelationProperty) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *CorrelationProperty) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -3517,6 +3937,9 @@ func (t *CorrelationPropertyBinding) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *CorrelationPropertyBinding) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -3575,6 +3998,9 @@ func (t *CorrelationPropertyRetrievalExpression) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *CorrelationPropertyRetrievalExpression) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -3633,6 +4059,9 @@ func (t *CorrelationSubscription) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *CorrelationSubscription) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -3699,6 +4128,9 @@ func (t *DataAssociation) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *DataAssociation) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -3791,6 +4223,9 @@ func (t *DataInput) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *DataInput) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -3865,6 +4300,9 @@ func (t *DataInputAssociation) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *DataInputAssociation) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -3911,6 +4349,9 @@ func (t *DataObject) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *DataObject) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -3984,6 +4425,9 @@ func (t *DataObjectReference) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *DataObjectReference) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -4063,6 +4507,9 @@ func (t *DataOutput) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *DataOutput) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -4137,6 +4584,9 @@ func (t *DataOutputAssociation) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *DataOutputAssociation) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -4174,6 +4624,9 @@ func (t *DataState) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *DataState) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -4233,6 +4686,9 @@ func (t *DataStore) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *DataStore) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -4320,6 +4776,9 @@ func (t *DataStoreReference) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *DataStoreReference) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -4390,6 +4849,9 @@ func (t *Documentation) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Documentation) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -4438,6 +4900,9 @@ func (t *EndEvent) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *EndEvent) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -4472,6 +4937,9 @@ func (t *EndPoint) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *EndPoint) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -4515,6 +4983,9 @@ func (t *Error) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Error) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -4573,6 +5044,9 @@ func (t *ErrorEventDefinition) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ErrorEventDefinition) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -4623,6 +5097,9 @@ func (t *Escalation) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Escalation) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -4681,6 +5158,9 @@ func (t *EscalationEventDefinition) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *EscalationEventDefinition) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -4725,6 +5205,9 @@ func (t *Event) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Event) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -4783,6 +5266,9 @@ func (t *EventBasedGateway) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *EventBasedGateway) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -4831,6 +5317,9 @@ func (t *EventDefinition) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *EventDefinition) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -4868,6 +5357,9 @@ func (t *ExclusiveGateway) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ExclusiveGateway) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -4912,6 +5404,9 @@ func (t *Expression) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Expression) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -4955,6 +5450,9 @@ func (t *Extension) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Extension) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5012,6 +5510,9 @@ func (t *ExtensionElements) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ExtensionElements) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5055,6 +5556,9 @@ func (t *FlowElement) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *FlowElement) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5141,6 +5645,9 @@ func (t *FlowNode) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *FlowNode) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5195,6 +5702,9 @@ func (t *FormalExpression) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *FormalExpression) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5252,6 +5762,9 @@ func (t *Gateway) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Gateway) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5296,6 +5809,9 @@ func (t *GlobalBusinessRuleTask) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *GlobalBusinessRuleTask) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5340,6 +5856,9 @@ func (t *GlobalChoreographyTask) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *GlobalChoreographyTask) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5381,6 +5900,9 @@ func (t *GlobalConversation) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *GlobalConversation) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5415,6 +5937,9 @@ func (t *GlobalManualTask) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *GlobalManualTask) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5455,6 +5980,9 @@ func (t *GlobalScriptTask) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *GlobalScriptTask) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5515,6 +6043,9 @@ func (t *GlobalTask) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *GlobalTask) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5568,6 +6099,9 @@ func (t *GlobalUserTask) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *GlobalUserTask) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5625,6 +6159,9 @@ func (t *Group) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Group) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5669,6 +6206,9 @@ func (t *HumanPerformer) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *HumanPerformer) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5703,6 +6243,9 @@ func (t *ImplicitThrowEvent) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ImplicitThrowEvent) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5740,6 +6283,9 @@ func (t *InclusiveGateway) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *InclusiveGateway) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5799,6 +6345,9 @@ func (t *InputSet) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *InputSet) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5877,6 +6426,9 @@ func (t *Interface) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Interface) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5938,6 +6490,9 @@ func (t *IntermediateCatchEvent) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *IntermediateCatchEvent) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -5972,6 +6527,9 @@ func (t *IntermediateThrowEvent) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *IntermediateThrowEvent) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -6015,6 +6573,9 @@ func (t *InputOutputBinding) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *InputOutputBinding) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -6082,6 +6643,9 @@ func (t *InputOutputSpecification) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *InputOutputSpecification) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -6182,6 +6746,9 @@ func (t *ItemDefinition) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ItemDefinition) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -6252,6 +6819,9 @@ func (t *Lane) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Lane) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -6345,6 +6915,9 @@ func (t *LaneSet) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *LaneSet) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -6408,6 +6981,9 @@ func (t *LinkEventDefinition) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *LinkEventDefinition) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -6466,6 +7042,9 @@ func (t *LoopCharacteristics) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *LoopCharacteristics) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -6500,6 +7079,9 @@ func (t *ManualTask) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ManualTask) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -6540,6 +7122,9 @@ func (t *Message) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Message) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -6594,6 +7179,9 @@ func (t *MessageEventDefinition) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *MessageEventDefinition) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -6657,6 +7245,9 @@ func (t *MessageFlow) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *MessageFlow) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -6728,6 +7319,9 @@ func (t *MessageFlowAssociation) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *MessageFlowAssociation) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -6776,6 +7370,9 @@ func (t *Monitoring) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Monitoring) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -6848,6 +7445,9 @@ func (t *MultiInstanceLoopCharacteristics) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *MultiInstanceLoopCharacteristics) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -7028,6 +7628,9 @@ func (t *Operation) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Operation) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -7115,6 +7718,9 @@ func (t *OutputSet) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *OutputSet) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -7184,6 +7790,9 @@ func (t *ParallelGateway) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ParallelGateway) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -7233,6 +7842,9 @@ func (t *Participant) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Participant) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -7320,6 +7932,9 @@ func (t *ParticipantAssociation) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ParticipantAssociation) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -7379,6 +7994,9 @@ func (t *ParticipantMultiplicity) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ParticipantMultiplicity) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -7433,6 +8051,9 @@ func (t *PartnerEntity) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *PartnerEntity) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -7487,6 +8108,9 @@ func (t *PartnerRole) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *PartnerRole) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -7535,6 +8159,9 @@ func (t *Performer) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Performer) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -7569,6 +8196,9 @@ func (t *PotentialOwner) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *PotentialOwner) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -7690,6 +8320,8 @@ type ProcessInterface interface {
 	ResourceRoles() (result *[]ResourceRole)
 	CorrelationSubscriptions() (result *[]CorrelationSubscription)
 	Supportses() (result *[]QName)
+	FlowElements() []FlowElementInterface
+	Artifacts() []ArtifactInterface
 	SetProcessType(value ProcessType)
 	SetIsClosed(value bool)
 	SetIsExecutable(value bool)
@@ -7743,6 +8375,9 @@ func (t *Process) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Process) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -8024,6 +8659,152 @@ func (t *Process) DefinitionalCollaborationRef() (result *QName, present bool) {
 }
 func (t *Process) SetDefinitionalCollaborationRef(value QName) {
 	t.DefinitionalCollaborationRefField = &value
+}
+func (t *Process) FlowElements() []FlowElementInterface {
+
+	result := make([]FlowElementInterface, 0)
+
+	for i := range t.AdHocSubProcessField {
+		result = append(result, &t.AdHocSubProcessField[i])
+	}
+
+	for i := range t.BoundaryEventField {
+		result = append(result, &t.BoundaryEventField[i])
+	}
+
+	for i := range t.BusinessRuleTaskField {
+		result = append(result, &t.BusinessRuleTaskField[i])
+	}
+
+	for i := range t.CallActivityField {
+		result = append(result, &t.CallActivityField[i])
+	}
+
+	for i := range t.CallChoreographyField {
+		result = append(result, &t.CallChoreographyField[i])
+	}
+
+	for i := range t.ChoreographyTaskField {
+		result = append(result, &t.ChoreographyTaskField[i])
+	}
+
+	for i := range t.ComplexGatewayField {
+		result = append(result, &t.ComplexGatewayField[i])
+	}
+
+	for i := range t.DataObjectField {
+		result = append(result, &t.DataObjectField[i])
+	}
+
+	for i := range t.DataObjectReferenceField {
+		result = append(result, &t.DataObjectReferenceField[i])
+	}
+
+	for i := range t.DataStoreReferenceField {
+		result = append(result, &t.DataStoreReferenceField[i])
+	}
+
+	for i := range t.EndEventField {
+		result = append(result, &t.EndEventField[i])
+	}
+
+	for i := range t.EventField {
+		result = append(result, &t.EventField[i])
+	}
+
+	for i := range t.EventBasedGatewayField {
+		result = append(result, &t.EventBasedGatewayField[i])
+	}
+
+	for i := range t.ExclusiveGatewayField {
+		result = append(result, &t.ExclusiveGatewayField[i])
+	}
+
+	for i := range t.ImplicitThrowEventField {
+		result = append(result, &t.ImplicitThrowEventField[i])
+	}
+
+	for i := range t.InclusiveGatewayField {
+		result = append(result, &t.InclusiveGatewayField[i])
+	}
+
+	for i := range t.IntermediateCatchEventField {
+		result = append(result, &t.IntermediateCatchEventField[i])
+	}
+
+	for i := range t.IntermediateThrowEventField {
+		result = append(result, &t.IntermediateThrowEventField[i])
+	}
+
+	for i := range t.ManualTaskField {
+		result = append(result, &t.ManualTaskField[i])
+	}
+
+	for i := range t.ParallelGatewayField {
+		result = append(result, &t.ParallelGatewayField[i])
+	}
+
+	for i := range t.ReceiveTaskField {
+		result = append(result, &t.ReceiveTaskField[i])
+	}
+
+	for i := range t.ScriptTaskField {
+		result = append(result, &t.ScriptTaskField[i])
+	}
+
+	for i := range t.SendTaskField {
+		result = append(result, &t.SendTaskField[i])
+	}
+
+	for i := range t.SequenceFlowField {
+		result = append(result, &t.SequenceFlowField[i])
+	}
+
+	for i := range t.ServiceTaskField {
+		result = append(result, &t.ServiceTaskField[i])
+	}
+
+	for i := range t.StartEventField {
+		result = append(result, &t.StartEventField[i])
+	}
+
+	for i := range t.SubChoreographyField {
+		result = append(result, &t.SubChoreographyField[i])
+	}
+
+	for i := range t.SubProcessField {
+		result = append(result, &t.SubProcessField[i])
+	}
+
+	for i := range t.TaskField {
+		result = append(result, &t.TaskField[i])
+	}
+
+	for i := range t.TransactionField {
+		result = append(result, &t.TransactionField[i])
+	}
+
+	for i := range t.UserTaskField {
+		result = append(result, &t.UserTaskField[i])
+	}
+	return result
+}
+func (t *Process) Artifacts() []ArtifactInterface {
+
+	result := make([]ArtifactInterface, 0)
+
+	for i := range t.AssociationField {
+		result = append(result, &t.AssociationField[i])
+	}
+
+	for i := range t.GroupField {
+		result = append(result, &t.GroupField[i])
+	}
+
+	for i := range t.TextAnnotationField {
+		result = append(result, &t.TextAnnotationField[i])
+	}
+	return result
 }
 func (t *Process) Auditing() (result *Auditing, present bool) {
 	if t.AuditingField != nil {
@@ -8350,6 +9131,9 @@ func (t *Property) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Property) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -8429,6 +9213,9 @@ func (t *ReceiveTask) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ReceiveTask) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -8509,6 +9296,9 @@ func (t *Relationship) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Relationship) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -8571,6 +9361,9 @@ func (t *Rendering) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Rendering) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -8611,6 +9404,9 @@ func (t *Resource) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Resource) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -8668,6 +9464,9 @@ func (t *ResourceAssignmentExpression) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ResourceAssignmentExpression) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -8722,6 +9521,9 @@ func (t *ResourceParameter) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ResourceParameter) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -8783,6 +9585,9 @@ func (t *ResourceParameterBinding) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ResourceParameterBinding) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -8847,6 +9652,9 @@ func (t *ResourceRole) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ResourceRole) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -8924,6 +9732,9 @@ func (t *RootElement) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *RootElement) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -8964,6 +9775,9 @@ func (t *ScriptTask) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ScriptTask) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -9017,6 +9831,9 @@ func (t *Script) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Script) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -9057,6 +9874,9 @@ func (t *SendTask) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *SendTask) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -9130,6 +9950,9 @@ func (t *SequenceFlow) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *SequenceFlow) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -9210,6 +10033,9 @@ func (t *ServiceTask) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ServiceTask) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -9267,6 +10093,9 @@ func (t *Signal) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Signal) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -9318,6 +10147,9 @@ func (t *SignalEventDefinition) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *SignalEventDefinition) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -9371,6 +10203,9 @@ func (t *StandardLoopCharacteristics) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *StandardLoopCharacteristics) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -9439,6 +10274,9 @@ func (t *StartEvent) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *StartEvent) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -9540,6 +10378,8 @@ type SubChoreographyInterface interface {
 	Associations() (result *[]Association)
 	Groups() (result *[]Group)
 	TextAnnotations() (result *[]TextAnnotation)
+	FlowElements() []FlowElementInterface
+	Artifacts() []ArtifactInterface
 	SetAdHocSubProcesses(value []AdHocSubProcess)
 	SetBoundaryEvents(value []BoundaryEvent)
 	SetBusinessRuleTasks(value []BusinessRuleTask)
@@ -9582,6 +10422,9 @@ func (t *SubChoreography) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *SubChoreography) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -9796,6 +10639,152 @@ func (t *SubChoreography) FindBy(f ElementPredicate) (result Element, found bool
 	}
 
 	return
+}
+func (t *SubChoreography) FlowElements() []FlowElementInterface {
+
+	result := make([]FlowElementInterface, 0)
+
+	for i := range t.AdHocSubProcessField {
+		result = append(result, &t.AdHocSubProcessField[i])
+	}
+
+	for i := range t.BoundaryEventField {
+		result = append(result, &t.BoundaryEventField[i])
+	}
+
+	for i := range t.BusinessRuleTaskField {
+		result = append(result, &t.BusinessRuleTaskField[i])
+	}
+
+	for i := range t.CallActivityField {
+		result = append(result, &t.CallActivityField[i])
+	}
+
+	for i := range t.CallChoreographyField {
+		result = append(result, &t.CallChoreographyField[i])
+	}
+
+	for i := range t.ChoreographyTaskField {
+		result = append(result, &t.ChoreographyTaskField[i])
+	}
+
+	for i := range t.ComplexGatewayField {
+		result = append(result, &t.ComplexGatewayField[i])
+	}
+
+	for i := range t.DataObjectField {
+		result = append(result, &t.DataObjectField[i])
+	}
+
+	for i := range t.DataObjectReferenceField {
+		result = append(result, &t.DataObjectReferenceField[i])
+	}
+
+	for i := range t.DataStoreReferenceField {
+		result = append(result, &t.DataStoreReferenceField[i])
+	}
+
+	for i := range t.EndEventField {
+		result = append(result, &t.EndEventField[i])
+	}
+
+	for i := range t.EventField {
+		result = append(result, &t.EventField[i])
+	}
+
+	for i := range t.EventBasedGatewayField {
+		result = append(result, &t.EventBasedGatewayField[i])
+	}
+
+	for i := range t.ExclusiveGatewayField {
+		result = append(result, &t.ExclusiveGatewayField[i])
+	}
+
+	for i := range t.ImplicitThrowEventField {
+		result = append(result, &t.ImplicitThrowEventField[i])
+	}
+
+	for i := range t.InclusiveGatewayField {
+		result = append(result, &t.InclusiveGatewayField[i])
+	}
+
+	for i := range t.IntermediateCatchEventField {
+		result = append(result, &t.IntermediateCatchEventField[i])
+	}
+
+	for i := range t.IntermediateThrowEventField {
+		result = append(result, &t.IntermediateThrowEventField[i])
+	}
+
+	for i := range t.ManualTaskField {
+		result = append(result, &t.ManualTaskField[i])
+	}
+
+	for i := range t.ParallelGatewayField {
+		result = append(result, &t.ParallelGatewayField[i])
+	}
+
+	for i := range t.ReceiveTaskField {
+		result = append(result, &t.ReceiveTaskField[i])
+	}
+
+	for i := range t.ScriptTaskField {
+		result = append(result, &t.ScriptTaskField[i])
+	}
+
+	for i := range t.SendTaskField {
+		result = append(result, &t.SendTaskField[i])
+	}
+
+	for i := range t.SequenceFlowField {
+		result = append(result, &t.SequenceFlowField[i])
+	}
+
+	for i := range t.ServiceTaskField {
+		result = append(result, &t.ServiceTaskField[i])
+	}
+
+	for i := range t.StartEventField {
+		result = append(result, &t.StartEventField[i])
+	}
+
+	for i := range t.SubChoreographyField {
+		result = append(result, &t.SubChoreographyField[i])
+	}
+
+	for i := range t.SubProcessField {
+		result = append(result, &t.SubProcessField[i])
+	}
+
+	for i := range t.TaskField {
+		result = append(result, &t.TaskField[i])
+	}
+
+	for i := range t.TransactionField {
+		result = append(result, &t.TransactionField[i])
+	}
+
+	for i := range t.UserTaskField {
+		result = append(result, &t.UserTaskField[i])
+	}
+	return result
+}
+func (t *SubChoreography) Artifacts() []ArtifactInterface {
+
+	result := make([]ArtifactInterface, 0)
+
+	for i := range t.AssociationField {
+		result = append(result, &t.AssociationField[i])
+	}
+
+	for i := range t.GroupField {
+		result = append(result, &t.GroupField[i])
+	}
+
+	for i := range t.TextAnnotationField {
+		result = append(result, &t.TextAnnotationField[i])
+	}
+	return result
 }
 func (t *SubChoreography) AdHocSubProcesses() (result *[]AdHocSubProcess) {
 	result = &t.AdHocSubProcessField
@@ -10056,6 +11045,7 @@ type SubConversationInterface interface {
 	CallConversations() (result *[]CallConversation)
 	Conversations() (result *[]Conversation)
 	SubConversations() (result *[]SubConversation)
+	ConversationNodes() []ConversationNodeInterface
 	SetCallConversations(value []CallConversation)
 	SetConversations(value []Conversation)
 	SetSubConversations(value []SubConversation)
@@ -10067,6 +11057,9 @@ func (t *SubConversation) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *SubConversation) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -10095,6 +11088,23 @@ func (t *SubConversation) FindBy(f ElementPredicate) (result Element, found bool
 	}
 
 	return
+}
+func (t *SubConversation) ConversationNodes() []ConversationNodeInterface {
+
+	result := make([]ConversationNodeInterface, 0)
+
+	for i := range t.CallConversationField {
+		result = append(result, &t.CallConversationField[i])
+	}
+
+	for i := range t.ConversationField {
+		result = append(result, &t.ConversationField[i])
+	}
+
+	for i := range t.SubConversationField {
+		result = append(result, &t.SubConversationField[i])
+	}
+	return result
 }
 func (t *SubConversation) CallConversations() (result *[]CallConversation) {
 	result = &t.CallConversationField
@@ -10207,6 +11217,8 @@ type SubProcessInterface interface {
 	Associations() (result *[]Association)
 	Groups() (result *[]Group)
 	TextAnnotations() (result *[]TextAnnotation)
+	FlowElements() []FlowElementInterface
+	Artifacts() []ArtifactInterface
 	SetTriggeredByEvent(value bool)
 	SetLaneSets(value []LaneSet)
 	SetAdHocSubProcesses(value []AdHocSubProcess)
@@ -10251,6 +11263,9 @@ func (t *SubProcess) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *SubProcess) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -10478,6 +11493,152 @@ func (t *SubProcess) TriggeredByEvent() (result bool) {
 }
 func (t *SubProcess) SetTriggeredByEvent(value bool) {
 	t.TriggeredByEventField = value
+}
+func (t *SubProcess) FlowElements() []FlowElementInterface {
+
+	result := make([]FlowElementInterface, 0)
+
+	for i := range t.AdHocSubProcessField {
+		result = append(result, &t.AdHocSubProcessField[i])
+	}
+
+	for i := range t.BoundaryEventField {
+		result = append(result, &t.BoundaryEventField[i])
+	}
+
+	for i := range t.BusinessRuleTaskField {
+		result = append(result, &t.BusinessRuleTaskField[i])
+	}
+
+	for i := range t.CallActivityField {
+		result = append(result, &t.CallActivityField[i])
+	}
+
+	for i := range t.CallChoreographyField {
+		result = append(result, &t.CallChoreographyField[i])
+	}
+
+	for i := range t.ChoreographyTaskField {
+		result = append(result, &t.ChoreographyTaskField[i])
+	}
+
+	for i := range t.ComplexGatewayField {
+		result = append(result, &t.ComplexGatewayField[i])
+	}
+
+	for i := range t.DataObjectField {
+		result = append(result, &t.DataObjectField[i])
+	}
+
+	for i := range t.DataObjectReferenceField {
+		result = append(result, &t.DataObjectReferenceField[i])
+	}
+
+	for i := range t.DataStoreReferenceField {
+		result = append(result, &t.DataStoreReferenceField[i])
+	}
+
+	for i := range t.EndEventField {
+		result = append(result, &t.EndEventField[i])
+	}
+
+	for i := range t.EventField {
+		result = append(result, &t.EventField[i])
+	}
+
+	for i := range t.EventBasedGatewayField {
+		result = append(result, &t.EventBasedGatewayField[i])
+	}
+
+	for i := range t.ExclusiveGatewayField {
+		result = append(result, &t.ExclusiveGatewayField[i])
+	}
+
+	for i := range t.ImplicitThrowEventField {
+		result = append(result, &t.ImplicitThrowEventField[i])
+	}
+
+	for i := range t.InclusiveGatewayField {
+		result = append(result, &t.InclusiveGatewayField[i])
+	}
+
+	for i := range t.IntermediateCatchEventField {
+		result = append(result, &t.IntermediateCatchEventField[i])
+	}
+
+	for i := range t.IntermediateThrowEventField {
+		result = append(result, &t.IntermediateThrowEventField[i])
+	}
+
+	for i := range t.ManualTaskField {
+		result = append(result, &t.ManualTaskField[i])
+	}
+
+	for i := range t.ParallelGatewayField {
+		result = append(result, &t.ParallelGatewayField[i])
+	}
+
+	for i := range t.ReceiveTaskField {
+		result = append(result, &t.ReceiveTaskField[i])
+	}
+
+	for i := range t.ScriptTaskField {
+		result = append(result, &t.ScriptTaskField[i])
+	}
+
+	for i := range t.SendTaskField {
+		result = append(result, &t.SendTaskField[i])
+	}
+
+	for i := range t.SequenceFlowField {
+		result = append(result, &t.SequenceFlowField[i])
+	}
+
+	for i := range t.ServiceTaskField {
+		result = append(result, &t.ServiceTaskField[i])
+	}
+
+	for i := range t.StartEventField {
+		result = append(result, &t.StartEventField[i])
+	}
+
+	for i := range t.SubChoreographyField {
+		result = append(result, &t.SubChoreographyField[i])
+	}
+
+	for i := range t.SubProcessField {
+		result = append(result, &t.SubProcessField[i])
+	}
+
+	for i := range t.TaskField {
+		result = append(result, &t.TaskField[i])
+	}
+
+	for i := range t.TransactionField {
+		result = append(result, &t.TransactionField[i])
+	}
+
+	for i := range t.UserTaskField {
+		result = append(result, &t.UserTaskField[i])
+	}
+	return result
+}
+func (t *SubProcess) Artifacts() []ArtifactInterface {
+
+	result := make([]ArtifactInterface, 0)
+
+	for i := range t.AssociationField {
+		result = append(result, &t.AssociationField[i])
+	}
+
+	for i := range t.GroupField {
+		result = append(result, &t.GroupField[i])
+	}
+
+	for i := range t.TextAnnotationField {
+		result = append(result, &t.TextAnnotationField[i])
+	}
+	return result
 }
 func (t *SubProcess) LaneSets() (result *[]LaneSet) {
 	result = &t.LaneSetField
@@ -10747,6 +11908,9 @@ func (t *Task) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Task) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -10781,6 +11945,9 @@ func (t *TerminateEventDefinition) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *TerminateEventDefinition) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -10824,6 +11991,9 @@ func (t *TextAnnotation) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *TextAnnotation) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -10877,6 +12047,9 @@ func (t *Text) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Text) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -10928,6 +12101,7 @@ type ThrowEventInterface interface {
 	TerminateEventDefinitions() (result *[]TerminateEventDefinition)
 	TimerEventDefinitions() (result *[]TimerEventDefinition)
 	EventDefinitionRefs() (result *[]QName)
+	EventDefinitions() []EventDefinitionInterface
 	SetDataInputs(value []DataInput)
 	SetDataInputAssociations(value []DataInputAssociation)
 	SetInputSet(value *InputSet)
@@ -10950,6 +12124,9 @@ func (t *ThrowEvent) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *ThrowEvent) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -11038,6 +12215,51 @@ func (t *ThrowEvent) FindBy(f ElementPredicate) (result Element, found bool) {
 	}
 
 	return
+}
+func (t *ThrowEvent) EventDefinitions() []EventDefinitionInterface {
+
+	result := make([]EventDefinitionInterface, 0)
+
+	for i := range t.CancelEventDefinitionField {
+		result = append(result, &t.CancelEventDefinitionField[i])
+	}
+
+	for i := range t.CompensateEventDefinitionField {
+		result = append(result, &t.CompensateEventDefinitionField[i])
+	}
+
+	for i := range t.ConditionalEventDefinitionField {
+		result = append(result, &t.ConditionalEventDefinitionField[i])
+	}
+
+	for i := range t.ErrorEventDefinitionField {
+		result = append(result, &t.ErrorEventDefinitionField[i])
+	}
+
+	for i := range t.EscalationEventDefinitionField {
+		result = append(result, &t.EscalationEventDefinitionField[i])
+	}
+
+	for i := range t.LinkEventDefinitionField {
+		result = append(result, &t.LinkEventDefinitionField[i])
+	}
+
+	for i := range t.MessageEventDefinitionField {
+		result = append(result, &t.MessageEventDefinitionField[i])
+	}
+
+	for i := range t.SignalEventDefinitionField {
+		result = append(result, &t.SignalEventDefinitionField[i])
+	}
+
+	for i := range t.TerminateEventDefinitionField {
+		result = append(result, &t.TerminateEventDefinitionField[i])
+	}
+
+	for i := range t.TimerEventDefinitionField {
+		result = append(result, &t.TimerEventDefinitionField[i])
+	}
+	return result
 }
 func (t *ThrowEvent) DataInputs() (result *[]DataInput) {
 	result = &t.DataInputField
@@ -11172,6 +12394,9 @@ func (t *TimerEventDefinition) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *TimerEventDefinition) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -11257,6 +12482,9 @@ func (t *Transaction) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *Transaction) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true
@@ -11304,6 +12532,9 @@ func (t *UserTask) TextPayload() *string {
 	return &t.TextPayloadField
 }
 func (t *UserTask) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
 	if f(t) {
 		result = t
 		found = true

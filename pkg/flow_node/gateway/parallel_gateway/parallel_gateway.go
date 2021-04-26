@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	"bpxe.org/pkg/bpmn"
-	"bpxe.org/pkg/events"
+	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/id"
 	"bpxe.org/pkg/tracing"
@@ -39,8 +39,8 @@ type ParallelGateway struct {
 func NewParallelGateway(process *bpmn.Process,
 	definitions *bpmn.Definitions,
 	parallelGateway *bpmn.ParallelGateway,
-	eventIngress events.ProcessEventConsumer,
-	eventEgress events.ProcessEventSource,
+	eventIngress event.ProcessEventConsumer,
+	eventEgress event.ProcessEventSource,
 	tracer *tracing.Tracer,
 	flowNodeMapping *flow_node.FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup,

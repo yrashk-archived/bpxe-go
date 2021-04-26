@@ -6,7 +6,7 @@ import (
 
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/errors"
-	"bpxe.org/pkg/events"
+	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/sequence_flow"
 	"bpxe.org/pkg/tracing"
 )
@@ -16,8 +16,8 @@ type FlowNode struct {
 	Definitions  *bpmn.Definitions
 	Incoming     []sequence_flow.SequenceFlow
 	Outgoing     []sequence_flow.SequenceFlow
-	EventIngress events.ProcessEventConsumer
-	EventEgress  events.ProcessEventSource
+	EventIngress event.ProcessEventConsumer
+	EventEgress  event.ProcessEventSource
 	Tracer       *tracing.Tracer
 	Process      *bpmn.Process
 	*FlowNodeMapping
@@ -47,8 +47,8 @@ func sequenceFlows(process *bpmn.Process,
 func NewFlowNode(process *bpmn.Process,
 	definitions *bpmn.Definitions,
 	flowNode *bpmn.FlowNode,
-	eventIngress events.ProcessEventConsumer,
-	eventEgress events.ProcessEventSource,
+	eventIngress event.ProcessEventConsumer,
+	eventEgress event.ProcessEventSource,
 	tracer *tracing.Tracer,
 	flowNodeMapping *FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup,

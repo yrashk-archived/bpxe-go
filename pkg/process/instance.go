@@ -5,12 +5,14 @@ import (
 	"sync"
 
 	"bpxe.org/pkg/bpmn"
-	"bpxe.org/pkg/events"
+	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow"
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/flow_node/activity/task"
 	"bpxe.org/pkg/flow_node/event/end_event"
+	"bpxe.org/pkg/flow_node/event/intermediate_catch_event"
 	"bpxe.org/pkg/flow_node/event/start_event"
+	"bpxe.org/pkg/flow_node/gateway/event_based_gateway"
 	"bpxe.org/pkg/flow_node/gateway/exclusive_gateway"
 	"bpxe.org/pkg/flow_node/gateway/parallel_gateway"
 	"bpxe.org/pkg/id"
@@ -19,7 +21,7 @@ import (
 
 type ProcessInstance struct {
 	process         *Process
-	eventConsumers  []events.ProcessEventConsumer
+	eventConsumers  []event.ProcessEventConsumer
 	Tracer          *tracing.Tracer
 	flowNodeMapping *flow_node.FlowNodeMapping
 	flowWaitGroup   sync.WaitGroup
@@ -28,7 +30,7 @@ type ProcessInstance struct {
 }
 
 func NewProcessInstance(process *Process) (instance *ProcessInstance, err error) {
-	eventConsumers := make([]events.ProcessEventConsumer, 0)
+	eventConsumers := make([]event.ProcessEventConsumer, 0)
 	tracer := tracing.NewTracer()
 	var idGenerator id.IdGenerator
 	idGenerator, err = process.IdGeneratorBuilder.NewIdGenerator(tracer)
@@ -42,6 +44,7 @@ func NewProcessInstance(process *Process) (instance *ProcessInstance, err error)
 		flowNodeMapping: flow_node.NewLockedFlowNodeMapping(),
 		idGenerator:     idGenerator,
 	}
+
 	for i := range *process.Element.StartEvents() {
 		element := &(*process.Element.StartEvents())[i]
 		var startEvent *start_event.StartEvent
@@ -56,6 +59,7 @@ func NewProcessInstance(process *Process) (instance *ProcessInstance, err error)
 			return
 		}
 	}
+
 	for i := range *process.Element.EndEvents() {
 		element := &(*process.Element.EndEvents())[i]
 		var endEvent *end_event.EndEvent
@@ -65,6 +69,21 @@ func NewProcessInstance(process *Process) (instance *ProcessInstance, err error)
 			return
 		}
 		err = instance.flowNodeMapping.RegisterElementToFlowNode(element, endEvent)
+		if err != nil {
+			return
+		}
+	}
+
+	for i := range *process.Element.IntermediateCatchEvents() {
+		element := &(*process.Element.IntermediateCatchEvents())[i]
+		var intermediateCatchEvent *intermediate_catch_event.IntermediateCatchEvent
+		intermediateCatchEvent, err = intermediate_catch_event.NewIntermediateCatchEvent(process.Element,
+			process.Definitions, element, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup,
+			process)
+		if err != nil {
+			return
+		}
+		err = instance.flowNodeMapping.RegisterElementToFlowNode(element, intermediateCatchEvent)
 		if err != nil {
 			return
 		}
@@ -112,17 +131,31 @@ func NewProcessInstance(process *Process) (instance *ProcessInstance, err error)
 		}
 	}
 
+	for i := range *process.Element.EventBasedGateways() {
+		element := &(*process.Element.EventBasedGateways())[i]
+		var eventBasedGateway *event_based_gateway.EventBasedGateway
+		eventBasedGateway, err = event_based_gateway.NewEventBasedGateway(process.Element, process.Definitions,
+			element, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
+		if err != nil {
+			return
+		}
+		err = instance.flowNodeMapping.RegisterElementToFlowNode(element, eventBasedGateway)
+		if err != nil {
+			return
+		}
+	}
+
 	instance.flowNodeMapping.Finalize()
 
 	return
 }
 
-func (instance *ProcessInstance) ConsumeProcessEvent(ev events.ProcessEvent) (result events.EventConsumptionResult, err error) {
-	result, err = events.ForwardProcessEvent(ev, &instance.eventConsumers)
+func (instance *ProcessInstance) ConsumeProcessEvent(ev event.ProcessEvent) (result event.EventConsumptionResult, err error) {
+	result, err = event.ForwardProcessEvent(ev, &instance.eventConsumers)
 	return
 }
 
-func (instance *ProcessInstance) RegisterProcessEventConsumer(ev events.ProcessEventConsumer) (err error) {
+func (instance *ProcessInstance) RegisterProcessEventConsumer(ev event.ProcessEventConsumer) (err error) {
 	instance.eventConsumers = append(instance.eventConsumers, ev)
 	return
 }
@@ -187,8 +220,8 @@ func (instance *ProcessInstance) Run() (err error) {
 	}()
 	<-lockChan
 	close(lockChan)
-	event := events.MakeStartEvent()
-	_, err = instance.ConsumeProcessEvent(&event)
+	evt := event.MakeStartEvent()
+	_, err = instance.ConsumeProcessEvent(&evt)
 	if err != nil {
 		return
 	}

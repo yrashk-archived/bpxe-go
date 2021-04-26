@@ -244,6 +244,12 @@
                 <xsl:otherwise/>
             </xsl:choose>
         </xsl:for-each>
+        <xsl:for-each select="local:abstract-elements(.)">
+            <xsl:value-of select="local:field-method(.)"/><xsl:text xml:space="preserve">() </xsl:text>
+            <xsl:value-of select="local:abstract-ref-type(.)"/>
+            <xsl:text xml:space="preserve">
+            </xsl:text>
+        </xsl:for-each>
         <!-- Setters -->
         <xsl:for-each select=".//xs:attribute">
             <xsl:text>Set</xsl:text>
@@ -294,6 +300,9 @@
         
         <xsl:text xml:space="preserve">func (t *</xsl:text><xsl:value-of select="local:struct-case($type/@name)"/>
         <xsl:text xml:space="preserve">) FindBy(f ElementPredicate) (result Element, found bool) {
+            if t == nil {
+              return
+            }
             if f(t) {
             result = t
             found = true
@@ -399,6 +408,62 @@
             <xsl:text xml:space="preserve">
                 }
             </xsl:text>
+        </xsl:for-each>
+        <!-- abstract -->
+        <xsl:variable name="element" select="."/>
+        <xsl:for-each select="local:abstract-elements(.)">
+            <xsl:text>func (t *</xsl:text>
+            <xsl:value-of select="local:struct-case($type/@name)"/>
+            <xsl:text xml:space="preserve">) </xsl:text>
+            <xsl:value-of select="local:field-method(.)"/>
+            <xsl:text xml:space="preserve">() </xsl:text>
+            <xsl:value-of select="local:abstract-ref-type(.)"/>
+            <xsl:text xml:space="preserve">{
+            </xsl:text>
+            <xsl:variable name="abstract-element" select="."/>
+            <xsl:if test="$abstract-element/@maxOccurs = 'unbounded'">
+                <xsl:text xml:space="preserve">
+                        result := make(</xsl:text>
+                <xsl:value-of select="local:abstract-ref-type(.)"/>
+                <xsl:text xml:space="preserve">, 0)
+                    </xsl:text>
+            </xsl:if>
+            <xsl:for-each select="local:specific-elements($element)">
+                <xsl:variable name="specific" select="."/>
+                <xsl:variable name="ref" select="$schema/xs:element[@name = $specific/@ref]"/>
+                <xsl:variable name="type" select="$schema/xs:complexType[@name = $ref/@type]"/>
+                <xsl:if test="$ref/@substitutionGroup = $abstract-element/@ref">
+                    <xsl:choose>
+                        <xsl:when test="$abstract-element/@maxOccurs = 'unbounded'">
+                            <xsl:text>
+                            for i := range t.</xsl:text>
+                            <xsl:value-of select="local:field-name($specific)"/>
+                            <xsl:text xml:space="preserve">{
+                                result = append(result, &amp;t.</xsl:text>
+                            <xsl:value-of select="local:field-name($specific)"/>
+                            <xsl:text xml:space="preserve">[i])
+                            }
+                        </xsl:text>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:text>if t.</xsl:text>
+                            <xsl:value-of select="local:field-name($specific)"/>
+                            <xsl:text xml:space="preserve"> != nil {
+                                return t.</xsl:text>
+                            <xsl:value-of select="local:field-name($specific)"/>
+                            <xsl:text xml:space="preserve">}
+                            </xsl:text>
+                        </xsl:otherwise>
+                    </xsl:choose>
+                </xsl:if>
+            </xsl:for-each>
+            <xsl:choose>
+                <xsl:when test="$abstract-element/@maxOccurs = 'unbounded'"> return result </xsl:when>
+                <xsl:otherwise> return nil </xsl:otherwise>
+            </xsl:choose>
+            <xsl:text xml:space="preserve">
+             }
+             </xsl:text>
         </xsl:for-each>
         <!-- elements -->
         <xsl:for-each select="local:specific-elements(.)">
@@ -676,7 +741,11 @@
         <xsl:param name="el"/>
         <xsl:variable name="ref" select="$el/@ref"/>
         <xsl:variable name="name" select="$schema/xs:element[@name = $ref]/@type"/>
+        <xsl:variable name="type" select="$schema/xs:complexType[@name = $name]"/>
         <xsl:choose>
+            <xsl:when test="$type/@abstract and $el/@maxOccurs != 'unbounded'">
+                <xsl:sequence select="concat('*',local:struct-case($name))"/>
+            </xsl:when>
             <xsl:when test="$el/@maxOccurs = 'unbounded'">
                 <xsl:sequence select="concat('[]',local:struct-case($name))"/>
             </xsl:when>
@@ -695,7 +764,7 @@
             <xsl:otherwise><xsl:sequence select="concat('*', local:ref-type($ref))"/></xsl:otherwise>
         </xsl:choose>
     </xsl:function>
-    
+
     <xsl:function name="local:field-type">
         <xsl:param name="el"/>
         <xsl:choose>
@@ -722,10 +791,20 @@
         <xsl:param name="el"/>
         <xsl:choose>
             <xsl:when test="$el/@use = 'optional'"><xsl:sequence select="true()"/></xsl:when>
-            <xsl:when test="$el/@minOccurs = '0' and $el/@maxOccurs = '1'"><xsl:sequence select="true()"/></xsl:when>
+            <xsl:when test="local:is-a-ref($el) and $el/@minOccurs = '0' and local:is-abstract($el)"><xsl:sequence select="false()"/></xsl:when>
+            <xsl:when test="$el/@minOccurs = '0' and $el/@maxOccurs != 'unbounded'"><xsl:sequence select="true()"/></xsl:when>
             <xsl:otherwise><xsl:sequence select="false()"/></xsl:otherwise>
         </xsl:choose>
     </xsl:function>
+    
+    <xsl:function name="local:is-abstract">
+        <xsl:param name="el"/>
+        <xsl:variable name="name" select="$el/@ref"/>
+        <xsl:variable name="ref" select="$schema/xs:element[@name = $name]"/>
+        <xsl:variable name="type" select="$schema/xs:complexType[@name = $ref/@type]"/>
+        <xsl:sequence select="exists($type/@abstract)"/>
+    </xsl:function>
+    
     
     <xsl:function name="local:specific-elements">
         <xsl:param name="el"/>
@@ -739,10 +818,7 @@
             <xsl:choose>
                 <xsl:when test="exists($type/@abstract)">
                     <xsl:for-each select="$schema/xs:element[@substitutionGroup = $name]">
-                        <xsl:variable name="specific-name" select="./@name"/><!--
-                            <xsl:apply-templates select="copy-of($element)">
-                            <xsl:with-param name="specific-name" select="$specific-name"/>
-                            </xsl:apply-templates>-->
+                        <xsl:variable name="specific-name" select="./@name"/>
                         <xsl:element name="xs:element">
                             <xsl:attribute name="ref" select="$specific-name"></xsl:attribute>
                             <xsl:attribute name="minOccurs" select="$element/@minOccurs"></xsl:attribute>
@@ -756,13 +832,29 @@
             </xsl:choose>
         </xsl:for-each>
     </xsl:function>
-    
-    <xsl:template match="xs:element">
-        <xsl:param name="specific-name"/>
-        
-        <xsl:attribute name="ref" select="$specific-name"/>
-        
-        <xsl:sequence select="."></xsl:sequence>
-    </xsl:template>
-    
+
+    <xsl:function name="local:abstract-elements">
+        <xsl:param name="el"/>
+        <xsl:variable name="elements" select="copy-of($el//xs:element)"/>
+        <xsl:for-each select="$elements">
+            <xsl:variable name="element" select="."/>
+            <xsl:variable name="name" select="./@ref"/>
+            <xsl:variable name="ref" select="$schema/xs:element[@name = $name]"/>
+            <xsl:variable name="type" select="$schema/xs:complexType[@name = $ref/@type]"/>
+            <xsl:if test="exists($type/@abstract)">
+                <xsl:sequence select="$element"/>
+            </xsl:if>
+        </xsl:for-each>
+    </xsl:function>
+
+    <xsl:function name="local:abstract-ref-type">
+        <xsl:param name="ref"/>
+        <xsl:variable name="refType" select="concat(local:struct-case($ref/@ref), 'Interface')"/>
+        <xsl:choose>
+            <xsl:when test="local:is-optional($ref)"><xsl:sequence select="concat('*', $refType)"/></xsl:when>
+            <xsl:when test="$ref/@maxOccurs = 'unbounded'"><xsl:sequence select="concat('[]', $refType)"/></xsl:when>
+            <xsl:otherwise><xsl:sequence select="$refType"/></xsl:otherwise>
+        </xsl:choose>
+    </xsl:function>
+
 </xsl:stylesheet>
