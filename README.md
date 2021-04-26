@@ -12,7 +12,6 @@ the only such engine, as there are many commercially or community supported
 ones. The motivation behind the creation of BPXE was to create an engine with a
 particular focus on correctness and robustness.
 
-
 ## Goals
 
 * Reasonably good performance
@@ -26,3 +25,15 @@ particular focus on correctness and robustness.
 ## Usage
 
 At this time, BPXE does not have an executable server of its own and can be only used as a Go library.
+
+## Licensing & Contributions
+
+BPXE is not Open Source software. However, its source code is available under
+the terms of [LICENSE](Business Source License 1.1) with an Additional Use
+Grant for non-commercial purposes. Moreover, according to the terms of this
+license, every release of BPXE will eventually be re-licensed under the terms
+of [Apache 2.0 license](licenses/LICENSE-Apache-2.0), on its fourth anniversary.
+
+We also take [contributions](CONTRIBUTING.md) under the terms of [New BSD
+license](licenses/LICENSE-BSD-3-Clause) or in public domain.
+
