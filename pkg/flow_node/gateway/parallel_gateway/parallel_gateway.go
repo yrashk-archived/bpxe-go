@@ -82,21 +82,24 @@ func (node *ParallelGateway) flowWhenReady() {
 			indices[i] = i
 		}
 
-		noAwaitingActions := len(awaitingActions)
-	loop:
-		for i := range node.Outgoing {
-			if noAwaitingActions == i {
-				break loop
-			}
-			awaitingActions[i] <- flow_node.FlowAction{
-				SequenceFlows:      sequenceFlows,
-				UnconditionalFlows: indices,
-			}
-		}
+		for i, action := range awaitingActions {
+			rangeEnd := i + 1
 
-		if noAwaitingActions > len(node.Outgoing) {
-			for i := len(node.Outgoing); i < noAwaitingActions; i++ {
-				awaitingActions[i] <- flow_node.CompleteAction{}
+			// If this is a last channel awaiting action
+			if rangeEnd == len(awaitingActions) {
+				// give it the remainder of sequence flows
+				rangeEnd = len(sequenceFlows)
+			}
+
+			if rangeEnd <= len(sequenceFlows) {
+				action <- flow_node.FlowAction{
+					SequenceFlows:      sequenceFlows[i:rangeEnd],
+					UnconditionalFlows: indices[0 : rangeEnd-i],
+				}
+			} else {
+				// signal completion to flows that aren't
+				// getting any flows
+				action <- flow_node.CompleteAction{}
 			}
 		}
 	}
