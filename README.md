@@ -28,11 +28,12 @@ At this time, BPXE does not have an executable server of its own and can be only
 
 ## Licensing & Contributions
 
-BPXE is not Open Source software. However, its source code is available under
-the terms of [Business Source License 1.1](LICENSE) with an Additional Use
-Grant for non-commercial purposes. Moreover, according to the terms of this
-license, every release of BPXE will eventually be re-licensed under the terms
-of [Apache 2.0 license](licenses/LICENSE-Apache-2.0), on its fourth anniversary.
+BPXE is Open Source software in the making. Its source code is currently
+available under the terms of [Business Source License 1.1](LICENSE) with an
+Additional Use Grant for non-commercial purposes. Moreover, according to the
+terms of this license, every release of BPXE will eventually be re-licensed
+under the terms of [Apache 2.0 license](licenses/LICENSE-Apache-2.0), on its
+fourth anniversary.
 
 We also take [contributions](CONTRIBUTING.md) under the terms of [New BSD
 license](licenses/LICENSE-BSD-3-Clause) or in public domain.
