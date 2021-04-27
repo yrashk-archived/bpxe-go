@@ -66,9 +66,6 @@ func NewEndEvent(process *bpmn.Process,
 		startEventsActivated: make([]*bpmn.StartEvent, 0),
 	}
 	go node.runner()
-	if err != nil {
-		return
-	}
 	return
 }
 
@@ -82,12 +79,12 @@ func (node *EndEvent) runner() {
 			// If the node hasn't been activated, it's too early
 			if !node.activated {
 				m.response <- flow_node.NoAction{}
-				return
+				continue
 			}
 			// If the node already completed, then we essentially fuse it
 			if node.completed {
 				m.response <- flow_node.CompleteAction{}
-				return
+				continue
 			}
 
 			if _, err := node.FlowNode.EventIngress.ConsumeProcessEvent(
