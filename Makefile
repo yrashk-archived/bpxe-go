@@ -6,6 +6,9 @@ all: check ## Build bpxe
 test: check ## Run tests
 	go test ./...
 
+headers:
+	@go-license --config=.license.yml $(wildcard **/**.go **/**/**.go **/**/**/**.go **/**/**/**/**.go **/**/**/**/**/**.go)
+
 generate: ## Generate source files (only needed if schema changes)
 	go generate ./...
 	go fmt ./...

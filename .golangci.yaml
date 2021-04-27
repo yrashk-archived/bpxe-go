@@ -1,5 +1,6 @@
 linters:
   enable:
+    - goheader
     - errorlint
     - gocritic
     - godox
@@ -7,3 +8,10 @@ linters:
     - gosec
     - misspell
     - nilerr
+
+linters-settings:
+  goheader:
+    template-path: ".header.txt"
+    values:
+      const:
+        Owner: "Aree Enterprises, Inc. and Contributors"
