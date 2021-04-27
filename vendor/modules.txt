@@ -139,7 +139,7 @@ github.com/mitchellh/go-homedir
 github.com/mitchellh/mapstructure
 # github.com/montanaflynn/stats v0.0.0-20151014174947-eeaced052adb
 github.com/montanaflynn/stats
-# github.com/muyo/sno v1.1.1-0.20200406142550-e5d36f06b5d6
+# github.com/muyo/sno v1.2.0
 ## explicit
 github.com/muyo/sno
 github.com/muyo/sno/internal
