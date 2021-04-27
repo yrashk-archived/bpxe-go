@@ -48,6 +48,14 @@ func TestDependencyLicenses(t *testing.T) {
 			assert.Nil(t, err)
 			licenses, err := licensedb.Detect(f)
 			assert.Nil(t, err)
+			if len(licenses) == 0 {
+				alerts <- dependencyAlert{
+					dependency: dependency,
+					license:    "none",
+					confidence: 1,
+				}
+				return
+			}
 			for license := range licenses {
 				if strings.Contains(license, "GPL") {
 					alerts <- dependencyAlert{
@@ -56,6 +64,7 @@ func TestDependencyLicenses(t *testing.T) {
 						confidence: licenses[license].Confidence,
 					}
 				}
+				return
 			}
 		}(dependency)
 
