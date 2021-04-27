@@ -1,6 +1,8 @@
 <img src="https://github.com/bpxe/bpxe/blob/master/logo.svg" width="100%" height="150">
 
 # BPXE: Business Process eXecution Engine
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbpxe%2Fbpxe.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbpxe%2Fbpxe?ref=badge_shield)
+
 
 BPMN 2.0 based business process execution engine implemented in Go. BPMN stands
 for Business Process Model and Notation. BPMN's goal is to help stakeholders to
@@ -37,3 +39,6 @@ of [Apache 2.0 license](licenses/LICENSE-Apache-2.0), on its fourth anniversary.
 We also take [contributions](CONTRIBUTING.md) under the terms of [New BSD
 license](licenses/LICENSE-BSD-3-Clause) or in public domain.
 
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbpxe%2Fbpxe.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbpxe%2Fbpxe?ref=badge_large)
