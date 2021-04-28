@@ -19,7 +19,7 @@ import (
 	"bpxe.org/pkg/tracing"
 )
 
-type ProcessInstance struct {
+type Instance struct {
 	process         *Process
 	eventConsumers  []event.ProcessEventConsumer
 	Tracer          *tracing.Tracer
@@ -29,7 +29,7 @@ type ProcessInstance struct {
 	idGenerator     id.IdGenerator
 }
 
-func NewProcessInstance(process *Process) (instance *ProcessInstance, err error) {
+func NewInstance(process *Process) (instance *Instance, err error) {
 	eventConsumers := make([]event.ProcessEventConsumer, 0)
 	tracer := tracing.NewTracer()
 	var idGenerator id.IdGenerator
@@ -37,7 +37,7 @@ func NewProcessInstance(process *Process) (instance *ProcessInstance, err error)
 	if err != nil {
 		return
 	}
-	instance = &ProcessInstance{
+	instance = &Instance{
 		process:         process,
 		eventConsumers:  eventConsumers,
 		Tracer:          tracer,
@@ -150,17 +150,17 @@ func NewProcessInstance(process *Process) (instance *ProcessInstance, err error)
 	return
 }
 
-func (instance *ProcessInstance) ConsumeProcessEvent(ev event.ProcessEvent) (result event.EventConsumptionResult, err error) {
+func (instance *Instance) ConsumeProcessEvent(ev event.ProcessEvent) (result event.ConsumptionResult, err error) {
 	result, err = event.ForwardProcessEvent(ev, &instance.eventConsumers)
 	return
 }
 
-func (instance *ProcessInstance) RegisterProcessEventConsumer(ev event.ProcessEventConsumer) (err error) {
+func (instance *Instance) RegisterProcessEventConsumer(ev event.ProcessEventConsumer) (err error) {
 	instance.eventConsumers = append(instance.eventConsumers, ev)
 	return
 }
 
-func (instance *ProcessInstance) Run() (err error) {
+func (instance *Instance) Run() (err error) {
 	lockChan := make(chan bool)
 	go func() {
 		traces := instance.Tracer.Subscribe()
@@ -230,7 +230,7 @@ func (instance *ProcessInstance) Run() (err error) {
 
 // Waits until the instance is complete. Returns true if the instance was complete,
 // false if the context signalled `Done`
-func (instance *ProcessInstance) WaitUntilComplete(ctx context.Context) (complete bool) {
+func (instance *Instance) WaitUntilComplete(ctx context.Context) (complete bool) {
 	signal := make(chan bool)
 	go func() {
 		instance.complete.Lock()

@@ -131,9 +131,9 @@ loop:
 
 func (node *IntermediateCatchEvent) ConsumeProcessEvent(
 	ev event.ProcessEvent,
-) (result event.EventConsumptionResult, err error) {
+) (result event.ConsumptionResult, err error) {
 	node.runnerChannel <- processEventMessage{event: ev}
-	result = event.EventConsumed
+	result = event.Consumed
 	return
 }
 

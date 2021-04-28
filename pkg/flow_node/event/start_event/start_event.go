@@ -81,7 +81,7 @@ func (node *StartEvent) runner() {
 
 func (node *StartEvent) ConsumeProcessEvent(
 	ev event.ProcessEvent,
-) (result event.EventConsumptionResult, err error) {
+) (result event.ConsumptionResult, err error) {
 	switch ev.(type) {
 	case *event.StartEvent:
 		newFlow := flow.NewFlow(node.FlowNode.Definitions, node, node.FlowNode.Tracer,
@@ -89,7 +89,7 @@ func (node *StartEvent) ConsumeProcessEvent(
 		newFlow.Start()
 	default:
 	}
-	result = event.EventConsumed
+	result = event.Consumed
 	return
 }
 
