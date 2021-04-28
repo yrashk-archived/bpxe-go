@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	"bpxe.org/pkg/bpmn"
-	"bpxe.org/pkg/events"
+	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/id"
 	"bpxe.org/pkg/tracing"
@@ -31,7 +31,7 @@ type EndEvent struct {
 	element              *bpmn.EndEvent
 	activated            bool
 	completed            bool
-	eventConsumer        events.ProcessEventConsumer
+	eventConsumer        event.ProcessEventConsumer
 	runnerChannel        chan message
 	startEventsActivated []*bpmn.StartEvent
 }
@@ -39,8 +39,8 @@ type EndEvent struct {
 func NewEndEvent(process *bpmn.Process,
 	definitions *bpmn.Definitions,
 	endEvent *bpmn.EndEvent,
-	eventIngress events.ProcessEventConsumer,
-	eventEgress events.ProcessEventSource,
+	eventIngress event.ProcessEventConsumer,
+	eventEgress event.ProcessEventSource,
 	tracer *tracing.Tracer,
 	flowNodeMapping *flow_node.FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup,
@@ -88,7 +88,7 @@ func (node *EndEvent) runner() {
 			}
 
 			if _, err := node.FlowNode.EventIngress.ConsumeProcessEvent(
-				events.MakeEndEvent(node.element),
+				event.MakeEndEvent(node.element),
 			); err == nil {
 				node.completed = true
 				m.response <- flow_node.CompleteAction{}

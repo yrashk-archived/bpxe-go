@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	"bpxe.org/pkg/bpmn"
-	"bpxe.org/pkg/events"
+	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow"
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/id"
@@ -32,8 +32,8 @@ type StartEvent struct {
 func NewStartEvent(process *bpmn.Process,
 	definitions *bpmn.Definitions,
 	startEvent *bpmn.StartEvent,
-	eventIngress events.ProcessEventConsumer,
-	eventEgress events.ProcessEventSource,
+	eventIngress event.ProcessEventConsumer,
+	eventEgress event.ProcessEventSource,
 	tracer *tracing.Tracer,
 	flowNodeMapping *flow_node.FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup,
@@ -80,16 +80,16 @@ func (node *StartEvent) runner() {
 }
 
 func (node *StartEvent) ConsumeProcessEvent(
-	ev events.ProcessEvent,
-) (result events.EventConsumptionResult, err error) {
+	ev event.ProcessEvent,
+) (result event.EventConsumptionResult, err error) {
 	switch ev.(type) {
-	case *events.StartEvent:
+	case *event.StartEvent:
 		newFlow := flow.NewFlow(node.FlowNode.Definitions, node, node.FlowNode.Tracer,
-			node.FlowNode.FlowNodeMapping, node.FlowNode.FlowWaitGroup, node.idGenerator)
+			node.FlowNode.FlowNodeMapping, node.FlowNode.FlowWaitGroup, node.idGenerator, nil)
 		newFlow.Start()
 	default:
 	}
-	result = events.EventConsumed
+	result = event.EventConsumed
 	return
 }
 

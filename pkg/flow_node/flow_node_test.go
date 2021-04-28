@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"bpxe.org/pkg/bpmn"
-	"bpxe.org/pkg/events"
+	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/tracing"
 
 	"github.com/stretchr/testify/assert"
@@ -32,8 +32,8 @@ func TestNewFlowNode(t *testing.T) {
 			node, err := NewFlowNode(proc.(*bpmn.Process),
 				&defaultDefinitions,
 				&flowNode.(*bpmn.ParallelGateway).FlowNode,
-				events.VoidProcessEventConsumer{},
-				events.VoidProcessEventSource{},
+				event.VoidProcessEventConsumer{},
+				event.VoidProcessEventSource{},
 				tracing.NewTracer(), NewLockedFlowNodeMapping(),
 				&waitGroup,
 			)

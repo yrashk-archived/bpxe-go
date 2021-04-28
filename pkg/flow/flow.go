@@ -17,13 +17,15 @@ import (
 // Represents a flow
 type Flow struct {
 	id.Id
-	definitions     *bpmn.Definitions
-	current         flow_node.FlowNodeInterface
-	index           *int
-	tracer          *tracing.Tracer
-	flowNodeMapping *flow_node.FlowNodeMapping
-	flowWaitGroup   *sync.WaitGroup
-	idGenerator     id.IdGenerator
+	definitions       *bpmn.Definitions
+	current           flow_node.FlowNodeInterface
+	index             *int
+	tracer            *tracing.Tracer
+	flowNodeMapping   *flow_node.FlowNodeMapping
+	flowWaitGroup     *sync.WaitGroup
+	idGenerator       id.IdGenerator
+	actionTransformer flow_node.ActionTransformer
+	terminate         flow_node.Terminate
 }
 
 // Creates a new flow from a flow node
@@ -32,15 +34,16 @@ type Flow struct {
 func NewFlow(definitions *bpmn.Definitions,
 	current flow_node.FlowNodeInterface, tracer *tracing.Tracer,
 	flowNodeMapping *flow_node.FlowNodeMapping, flowWaitGroup *sync.WaitGroup,
-	idGenerator id.IdGenerator) *Flow {
+	idGenerator id.IdGenerator, actionTransformer flow_node.ActionTransformer) *Flow {
 	return &Flow{
-		Id:              idGenerator.New(),
-		definitions:     definitions,
-		current:         current,
-		tracer:          tracer,
-		flowNodeMapping: flowNodeMapping,
-		flowWaitGroup:   flowWaitGroup,
-		idGenerator:     idGenerator,
+		Id:                idGenerator.New(),
+		definitions:       definitions,
+		current:           current,
+		tracer:            tracer,
+		flowNodeMapping:   flowNodeMapping,
+		flowWaitGroup:     flowWaitGroup,
+		idGenerator:       idGenerator,
+		actionTransformer: actionTransformer,
 	}
 }
 
@@ -100,7 +103,8 @@ func (flow *Flow) testSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, unc
 	return
 }
 
-func (flow *Flow) handleSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, unconditional bool) (flowed bool) {
+func (flow *Flow) handleSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, unconditional bool,
+	actionTransformer flow_node.ActionTransformer, terminate flow_node.Terminate) (flowed bool) {
 	ok, err := flow.testSequenceFlow(sequenceFlow, unconditional)
 	if err != nil {
 		flow.tracer.Trace(tracing.ErrorTrace{Error: err})
@@ -114,7 +118,9 @@ func (flow *Flow) handleSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, u
 	if err == nil {
 		if flowNode, found := flow.flowNodeMapping.ResolveElementToFlowNode(target); found {
 			flow.current = flowNode
+			flow.terminate = terminate
 			flow.tracer.Trace(VisitTrace{Node: flow.current.Element()})
+			flow.actionTransformer = actionTransformer
 			var index int
 			index, err = sequenceFlow.TargetIndex()
 			if err != nil {
@@ -135,7 +141,8 @@ func (flow *Flow) handleSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, u
 	return
 }
 
-func (flow *Flow) handleAdditionalSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, unconditional bool) (flowed bool) {
+func (flow *Flow) handleAdditionalSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, unconditional bool,
+	actionTransformer flow_node.ActionTransformer, terminate flow_node.Terminate) (flowed bool) {
 	ok, err := flow.testSequenceFlow(sequenceFlow, unconditional)
 	if err != nil {
 		flow.tracer.Trace(tracing.ErrorTrace{Error: err})
@@ -149,7 +156,8 @@ func (flow *Flow) handleAdditionalSequenceFlow(sequenceFlow *sequence_flow.Seque
 		if flowNode, found := flow.flowNodeMapping.ResolveElementToFlowNode(target); found {
 			var index int
 			newFlow := NewFlow(flow.definitions, flowNode, flow.tracer, flow.flowNodeMapping, flow.flowWaitGroup,
-				flow.idGenerator)
+				flow.idGenerator, actionTransformer)
+			newFlow.terminate = terminate
 			index, err = sequenceFlow.TargetIndex()
 			if err != nil {
 				flow.tracer.Trace(tracing.ErrorTrace{Error: err})
@@ -176,76 +184,98 @@ func (flow *Flow) Start() {
 	go func() {
 		flow.tracer.Trace(NewFlowTrace{FlowId: flow.Id})
 		defer flow.flowWaitGroup.Done()
-		var action flow_node.Action
 		flow.tracer.Trace(VisitTrace{Node: flow.current.Element()})
 		for {
 			if flow.index != nil {
 				flow.current.Incoming(*flow.index)
 			}
-			action = flow.current.NextAction(flow.Id)
-			switch a := action.(type) {
-			case flow_node.ProbeAction:
-				results := make([]int, 0)
-				for i, seqFlow := range a.SequenceFlows {
-					if result, err := flow.testSequenceFlow(seqFlow, false); err == nil {
-						if result {
-							results = append(results, i)
-						}
-					} else {
-						flow.tracer.Trace(tracing.ErrorTrace{Error: err})
-					}
+			actionChan := make(chan flow_node.Action)
+			go func() {
+				action := flow.current.NextAction(flow.Id)
+				if flow.actionTransformer != nil {
+					action = flow.actionTransformer(flow.Id, action)
 				}
-				a.ProbeListener <- results
-			case flow_node.FlowAction:
-				sequenceFlows := a.SequenceFlows
-				if len(a.SequenceFlows) > 0 {
-					unconditional := make([]bool, len(a.SequenceFlows))
-					for _, index := range a.UnconditionalFlows {
-						unconditional[index] = true
-					}
-					source := flow.current.Element()
-
-					current := sequenceFlows[0]
-					effectiveFlows := make([]*sequence_flow.SequenceFlow, 0)
-
-					flowed := flow.handleSequenceFlow(current, unconditional[0])
-
-					if flowed {
-						effectiveFlows = append(effectiveFlows, current)
-					}
-
-					rest := sequenceFlows[1:]
-					for i, sequenceFlow := range rest {
-						flowed = flow.handleAdditionalSequenceFlow(sequenceFlow, unconditional[i+1])
-						if flowed {
-							effectiveFlows = append(effectiveFlows, sequenceFlow)
+				actionChan <- action
+			}()
+		await:
+			select {
+			case terminate := <-flow.terminate:
+				if terminate(flow.Id) {
+					flow.tracer.Trace(FlowTerminationTrace{
+						Source: flow.current.Element(),
+					})
+					return
+				} else {
+					goto await
+				}
+			case action := <-actionChan:
+				switch a := action.(type) {
+				case flow_node.ProbeAction:
+					results := make([]int, 0)
+					for i, seqFlow := range a.SequenceFlows {
+						if result, err := flow.testSequenceFlow(seqFlow, false); err == nil {
+							if result {
+								results = append(results, i)
+							}
+						} else {
+							flow.tracer.Trace(tracing.ErrorTrace{Error: err})
 						}
 					}
+					a.ProbeListener <- results
+				case flow_node.FlowAction:
+					sequenceFlows := a.SequenceFlows
+					if len(a.SequenceFlows) > 0 {
+						unconditional := make([]bool, len(a.SequenceFlows))
+						for _, index := range a.UnconditionalFlows {
+							unconditional[index] = true
+						}
+						source := flow.current.Element()
 
-					if len(effectiveFlows) > 0 {
-						flow.tracer.Trace(FlowTrace{
-							FlowId:        flow.Id,
-							Source:        source,
-							SequenceFlows: effectiveFlows,
-						})
+						current := sequenceFlows[0]
+						effectiveFlows := make([]*sequence_flow.SequenceFlow, 0)
+
+						flowed := flow.handleSequenceFlow(current, unconditional[0], a.ActionTransformer, a.Terminate)
+
+						if flowed {
+							effectiveFlows = append(effectiveFlows, current)
+						}
+
+						rest := sequenceFlows[1:]
+						for i, sequenceFlow := range rest {
+							flowed = flow.handleAdditionalSequenceFlow(sequenceFlow, unconditional[i+1],
+								a.ActionTransformer, a.Terminate)
+							if flowed {
+								effectiveFlows = append(effectiveFlows, sequenceFlow)
+							}
+						}
+
+						if len(effectiveFlows) > 0 {
+							flow.tracer.Trace(FlowTrace{
+								FlowId:        flow.Id,
+								Source:        source,
+								SequenceFlows: effectiveFlows,
+							})
+						} else {
+							// no flows to continue with, abort
+							flow.tracer.Trace(FlowTerminationTrace{
+								Source: source,
+							})
+							return
+						}
+
 					} else {
-						// no flows to continue with, abort
-						flow.tracer.Trace(FlowTerminationTrace{
-							Source: source,
-						})
+						// nowhere to flow, abort
 						return
 					}
-
-				} else {
-					// nowhere to flow, abort
+				case flow_node.CompleteAction:
+					flow.tracer.Trace(CompletionTrace{
+						Node: flow.current.Element(),
+					})
 					return
+				case flow_node.NoAction:
+					return
+				default:
 				}
-			case flow_node.CompleteAction:
-				flow.tracer.Trace(CompletionTrace{
-					Node: flow.current.Element(),
-				})
-				return
-			default:
 			}
 		}
 

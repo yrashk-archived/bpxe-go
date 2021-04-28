@@ -2,6 +2,7 @@ package process
 
 import (
 	"bpxe.org/pkg/bpmn"
+	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/id"
 )
 
@@ -9,7 +10,12 @@ type Process struct {
 	Element     *bpmn.Process
 	Definitions *bpmn.Definitions
 	id.IdGeneratorBuilder
-	instances []*ProcessInstance
+	instances            []*ProcessInstance
+	eventInstanceBuilder event.InstanceBuilder
+}
+
+func (process *Process) SetEventInstanceBuilder(eventInstanceBuilder event.InstanceBuilder) {
+	process.eventInstanceBuilder = eventInstanceBuilder
 }
 
 func MakeProcess(element *bpmn.Process, definitions *bpmn.Definitions, idGeneratorBuilder id.IdGeneratorBuilder) Process {
@@ -38,4 +44,12 @@ func (process *Process) Instantiate() (instance *ProcessInstance, err error) {
 	}
 
 	return
+}
+
+func (process *Process) NewEventInstance(def bpmn.EventDefinitionInterface) event.Instance {
+	if process.eventInstanceBuilder != nil {
+		return process.eventInstanceBuilder.NewEventInstance(def)
+	} else {
+		return event.NewInstance(def)
+	}
 }

@@ -1,4 +1,4 @@
-package events
+package event
 
 type ProcessEventSource interface {
 	RegisterProcessEventConsumer(ProcessEventConsumer) error

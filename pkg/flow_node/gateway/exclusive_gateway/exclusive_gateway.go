@@ -6,7 +6,7 @@ import (
 
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/errors"
-	"bpxe.org/pkg/events"
+	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/id"
 	"bpxe.org/pkg/sequence_flow"
@@ -61,8 +61,8 @@ type ExclusiveGateway struct {
 func NewExclusiveGateway(process *bpmn.Process,
 	definitions *bpmn.Definitions,
 	exclusiveGateway *bpmn.ExclusiveGateway,
-	eventIngress events.ProcessEventConsumer,
-	eventEgress events.ProcessEventSource,
+	eventIngress event.ProcessEventConsumer,
+	eventEgress event.ProcessEventSource,
 	tracer *tracing.Tracer,
 	flowNodeMapping *flow_node.FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup,
