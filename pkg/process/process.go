@@ -10,7 +10,7 @@ type Process struct {
 	Element     *bpmn.Process
 	Definitions *bpmn.Definitions
 	id.IdGeneratorBuilder
-	instances            []*ProcessInstance
+	instances            []*Instance
 	eventInstanceBuilder event.InstanceBuilder
 }
 
@@ -23,7 +23,7 @@ func MakeProcess(element *bpmn.Process, definitions *bpmn.Definitions, idGenerat
 		Element:            element,
 		Definitions:        definitions,
 		IdGeneratorBuilder: idGeneratorBuilder,
-		instances:          make([]*ProcessInstance, 0),
+		instances:          make([]*Instance, 0),
 	}
 }
 
@@ -37,8 +37,8 @@ func NewProcessWithIdGeneratorBuilder(element *bpmn.Process, definitions *bpmn.D
 	return &process
 }
 
-func (process *Process) Instantiate() (instance *ProcessInstance, err error) {
-	instance, err = NewProcessInstance(process)
+func (process *Process) Instantiate() (instance *Instance, err error) {
+	instance, err = NewInstance(process)
 	if err != nil {
 		return
 	}
