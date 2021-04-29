@@ -1,7 +1,7 @@
 package flow_node
 
 import (
-	"bpxe.org/pkg/id"
+	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/sequence_flow"
 )
 
@@ -19,8 +19,8 @@ type ProbeAction struct {
 
 func (action ProbeAction) action() {}
 
-type ActionTransformer func(id.Id, Action) Action
-type Terminate chan func(id id.Id) bool
+type ActionTransformer func(sequenceFlowId bpmn.IdRef, action Action) Action
+type Terminate func(sequenceFlowId bpmn.IdRef) chan bool
 
 type FlowAction struct {
 	SequenceFlows []*sequence_flow.SequenceFlow

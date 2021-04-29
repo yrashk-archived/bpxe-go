@@ -26,6 +26,7 @@ type Flow struct {
 	idGenerator       id.IdGenerator
 	actionTransformer flow_node.ActionTransformer
 	terminate         flow_node.Terminate
+	sequenceFlowId    *string
 }
 
 // Creates a new flow from a flow node
@@ -117,6 +118,13 @@ func (flow *Flow) handleSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, u
 	target, err := sequenceFlow.Target()
 	if err == nil {
 		if flowNode, found := flow.flowNodeMapping.ResolveElementToFlowNode(target); found {
+			if idPtr, present := sequenceFlow.Id(); present {
+				flow.sequenceFlowId = idPtr
+			} else {
+				flow.tracer.Trace(tracing.ErrorTrace{
+					Error: errors.NotFoundError{Expected: fmt.Sprintf("id for sequence flow %#v", sequenceFlow)},
+				})
+			}
 			flow.current = flowNode
 			flow.terminate = terminate
 			flow.tracer.Trace(VisitTrace{Node: flow.current.Element()})
@@ -157,6 +165,13 @@ func (flow *Flow) handleAdditionalSequenceFlow(sequenceFlow *sequence_flow.Seque
 			var index int
 			newFlow := NewFlow(flow.definitions, flowNode, flow.tracer, flow.flowNodeMapping, flow.flowWaitGroup,
 				flow.idGenerator, actionTransformer)
+			if idPtr, present := sequenceFlow.Id(); present {
+				newFlow.sequenceFlowId = idPtr
+			} else {
+				flow.tracer.Trace(tracing.ErrorTrace{
+					Error: errors.NotFoundError{Expected: fmt.Sprintf("id for sequence flow %#v", sequenceFlow)},
+				})
+			}
 			newFlow.terminate = terminate
 			index, err = sequenceFlow.TargetIndex()
 			if err != nil {
@@ -178,6 +193,14 @@ func (flow *Flow) handleAdditionalSequenceFlow(sequenceFlow *sequence_flow.Seque
 	return
 }
 
+func (flow *Flow) termination() chan bool {
+	if flow.terminate == nil {
+		return nil
+	} else {
+		return flow.terminate(*flow.sequenceFlowId)
+	}
+}
+
 // Starts the flow
 func (flow *Flow) Start() {
 	flow.flowWaitGroup.Add(1)
@@ -189,18 +212,10 @@ func (flow *Flow) Start() {
 			if flow.index != nil {
 				flow.current.Incoming(*flow.index)
 			}
-			actionChan := make(chan flow_node.Action)
-			go func() {
-				action := flow.current.NextAction(flow.Id)
-				if flow.actionTransformer != nil {
-					action = flow.actionTransformer(flow.Id, action)
-				}
-				actionChan <- action
-			}()
 		await:
 			select {
-			case terminate := <-flow.terminate:
-				if terminate(flow.Id) {
+			case terminate := <-flow.termination():
+				if terminate {
 					flow.tracer.Trace(FlowTerminationTrace{
 						Source: flow.current.Element(),
 					})
@@ -208,7 +223,10 @@ func (flow *Flow) Start() {
 				} else {
 					goto await
 				}
-			case action := <-actionChan:
+			case action := <-flow.current.NextAction(flow.Id):
+				if flow.actionTransformer != nil {
+					action = flow.actionTransformer(*flow.sequenceFlowId, action)
+				}
 				switch a := action.(type) {
 				case flow_node.ProbeAction:
 					results := make([]int, 0)

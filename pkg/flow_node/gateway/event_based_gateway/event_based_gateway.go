@@ -1,10 +1,12 @@
 package event_based_gateway
 
 import (
+	"fmt"
 	"sync"
 	"sync/atomic"
 
 	"bpxe.org/pkg/bpmn"
+	"bpxe.org/pkg/errors"
 	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/id"
@@ -67,22 +69,33 @@ func (node *EventBasedGateway) runner() {
 		case nextActionMessage:
 			if node.activated {
 				var first int32 = 0
-				terminate := make(flow_node.Terminate)
+				sequenceFlows := flow_node.AllSequenceFlows(&node.Outgoing)
+				terminationChannels := make(map[bpmn.IdRef]chan bool)
+				for _, sequenceFlow := range sequenceFlows {
+					if idPtr, present := sequenceFlow.Id(); present {
+						terminationChannels[*idPtr] = make(chan bool)
+					} else {
+						node.Tracer.Trace(tracing.ErrorTrace{Error: errors.NotFoundError{
+							Expected: fmt.Sprintf("id for %#v", sequenceFlow),
+						}})
+					}
+				}
 				m.response <- flow_node.FlowAction{
-					Terminate:     terminate,
-					SequenceFlows: flow_node.AllSequenceFlows(&node.Outgoing),
-					ActionTransformer: func(flowId id.Id, action flow_node.Action) flow_node.Action {
+					Terminate: func(sequenceFlowId bpmn.IdRef) chan bool {
+						return terminationChannels[sequenceFlowId]
+					},
+					SequenceFlows: sequenceFlows,
+					ActionTransformer: func(sequenceFlowId bpmn.IdRef, action flow_node.Action) flow_node.Action {
 						// only first one is to flow
 						if atomic.CompareAndSwapInt32(&first, 0, 1) {
 							node.Tracer.Trace(DeterminationMadeTrace{Element: node.element})
-							test := func(anotherflowId id.Id) bool {
-								// don't terminate the first (successful) flow
-								return anotherflowId != flowId
+							for terminationCandidateId, ch := range terminationChannels {
+								if terminationCandidateId != sequenceFlowId {
+									ch <- true
+								}
+								close(ch)
 							}
-							// Send a termination for every outgoing flow
-							for range node.Outgoing {
-								terminate <- test
-							}
+							terminationChannels = make(map[bpmn.IdRef]chan bool)
 							return action
 						} else {
 							return flow_node.CompleteAction{}
@@ -97,10 +110,10 @@ func (node *EventBasedGateway) runner() {
 	}
 }
 
-func (node *EventBasedGateway) NextAction(flowId id.Id) flow_node.Action {
+func (node *EventBasedGateway) NextAction(flowId id.Id) chan flow_node.Action {
 	response := make(chan flow_node.Action)
 	node.runnerChannel <- nextActionMessage{response: response, flowId: flowId}
-	return <-response
+	return response
 }
 
 func (node *EventBasedGateway) Incoming(index int) {
