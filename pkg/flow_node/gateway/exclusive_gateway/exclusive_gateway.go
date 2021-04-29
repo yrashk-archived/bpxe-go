@@ -113,9 +113,6 @@ func NewExclusiveGateway(process *bpmn.Process,
 		probing:                 make(map[id.Id]*chan flow_node.Action),
 	}
 	go node.runner()
-	if err != nil {
-		return
-	}
 	return
 }
 

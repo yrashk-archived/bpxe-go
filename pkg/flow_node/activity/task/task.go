@@ -42,7 +42,7 @@ func NewTask(process *bpmn.Process,
 	flowNodeMapping *flow_node.FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup,
 ) (node *Task, err error) {
-	flow_node, err := flow_node.NewFlowNode(process,
+	flowNode, err := flow_node.NewFlowNode(process,
 		definitions,
 		&startEvent.FlowNode,
 		eventIngress, eventEgress,
@@ -52,15 +52,12 @@ func NewTask(process *bpmn.Process,
 		return
 	}
 	node = &Task{
-		FlowNode:      *flow_node,
+		FlowNode:      *flowNode,
 		element:       startEvent,
 		runnerChannel: make(chan message),
 		activated:     false,
 	}
 	go node.runner()
-	if err != nil {
-		return
-	}
 	return
 }
 

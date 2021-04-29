@@ -4,12 +4,12 @@ import (
 	"bpxe.org/pkg/tracing"
 )
 
-type IdGeneratorBuilder interface {
-	NewIdGenerator(tracer *tracing.Tracer) (IdGenerator, error)
-	RestoreIdGenerator(serialized []byte, tracer *tracing.Tracer) (IdGenerator, error)
+type GeneratorBuilder interface {
+	NewIdGenerator(tracer *tracing.Tracer) (Generator, error)
+	RestoreIdGenerator(serialized []byte, tracer *tracing.Tracer) (Generator, error)
 }
 
-type IdGenerator interface {
+type Generator interface {
 	Snapshot() ([]byte, error)
 	New() Id
 }
@@ -19,4 +19,4 @@ type Id interface {
 	String() string
 }
 
-var DefaultIdGeneratorBuilder IdGeneratorBuilder
+var DefaultIdGeneratorBuilder GeneratorBuilder

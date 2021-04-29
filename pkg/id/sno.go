@@ -12,8 +12,8 @@ type Sno struct {
 }
 
 func GetSno() *Sno {
-	sno := &Sno{}
-	return sno
+	sno_ := &Sno{}
+	return sno_
 }
 
 type SnoGenerator struct {
@@ -21,11 +21,11 @@ type SnoGenerator struct {
 	tracer *tracing.Tracer
 }
 
-func (g *Sno) NewIdGenerator(tracer *tracing.Tracer) (result IdGenerator, err error) {
+func (g *Sno) NewIdGenerator(tracer *tracing.Tracer) (result Generator, err error) {
 	return g.RestoreIdGenerator([]byte{}, tracer)
 }
 
-func (g *Sno) RestoreIdGenerator(bytes []byte, tracer *tracing.Tracer) (result IdGenerator, err error) {
+func (g *Sno) RestoreIdGenerator(bytes []byte, tracer *tracing.Tracer) (result Generator, err error) {
 	var snapshot *sno.GeneratorSnapshot
 	if len(bytes) > 0 {
 		snapshot = new(sno.GeneratorSnapshot)

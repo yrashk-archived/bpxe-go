@@ -23,7 +23,7 @@ type Flow struct {
 	tracer            *tracing.Tracer
 	flowNodeMapping   *flow_node.FlowNodeMapping
 	flowWaitGroup     *sync.WaitGroup
-	idGenerator       id.IdGenerator
+	idGenerator       id.Generator
 	actionTransformer flow_node.ActionTransformer
 	terminate         flow_node.Terminate
 	sequenceFlowId    *string
@@ -35,7 +35,7 @@ type Flow struct {
 func NewFlow(definitions *bpmn.Definitions,
 	current flow_node.FlowNodeInterface, tracer *tracing.Tracer,
 	flowNodeMapping *flow_node.FlowNodeMapping, flowWaitGroup *sync.WaitGroup,
-	idGenerator id.IdGenerator, actionTransformer flow_node.ActionTransformer) *Flow {
+	idGenerator id.Generator, actionTransformer flow_node.ActionTransformer) *Flow {
 	return &Flow{
 		Id:                idGenerator.New(),
 		definitions:       definitions,

@@ -15,7 +15,7 @@ func NewModel(element *bpmn.Definitions) *Model {
 	return NewModelWithIdGenerator(element, id.DefaultIdGeneratorBuilder)
 }
 
-func NewModelWithIdGenerator(element *bpmn.Definitions, idGeneratorBuilder id.IdGeneratorBuilder) *Model {
+func NewModelWithIdGenerator(element *bpmn.Definitions, idGeneratorBuilder id.GeneratorBuilder) *Model {
 	procs := element.Processes()
 	processes := make([]process.Process, len(*procs))
 	for i := range *procs {
