@@ -26,12 +26,6 @@ type processEventMessage struct {
 
 func (m processEventMessage) message() {}
 
-type incomingMessage struct {
-	index int
-}
-
-func (m incomingMessage) message() {}
-
 type IntermediateCatchEvent struct {
 	flow_node.FlowNode
 	element         *bpmn.IntermediateCatchEvent
@@ -112,18 +106,14 @@ loop:
 					actionChan <- flow_node.FlowAction{SequenceFlows: flow_node.AllSequenceFlows(&node.Outgoing)}
 				}
 				node.awaitingActions = make([]chan flow_node.Action, 0)
+				node.activated = false
 			}
-		case incomingMessage:
+		case nextActionMessage:
 			if !node.activated {
 				node.activated = true
 				node.Tracer.Trace(ActiveListeningTrace{Node: node.element})
 			}
-		case nextActionMessage:
-			if node.activated {
-				node.awaitingActions = append(node.awaitingActions, m.response)
-			} else {
-				m.response <- flow_node.NoAction{}
-			}
+			node.awaitingActions = append(node.awaitingActions, m.response)
 		default:
 		}
 	}
@@ -143,8 +133,7 @@ func (node *IntermediateCatchEvent) NextAction(id.Id) chan flow_node.Action {
 	return response
 }
 
-func (node *IntermediateCatchEvent) Incoming(index int) {
-	node.runnerChannel <- incomingMessage{index: index}
+func (node *IntermediateCatchEvent) Incoming(int) {
 }
 
 func (node *IntermediateCatchEvent) Element() bpmn.FlowNodeInterface {
