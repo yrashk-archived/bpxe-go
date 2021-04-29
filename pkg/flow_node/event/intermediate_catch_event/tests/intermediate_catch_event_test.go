@@ -111,7 +111,7 @@ func testEvent(t *testing.T, filename string, nodeId string, eventInstanceBuilde
 		proc.SetEventInstanceBuilder(eventInstanceBuilder)
 	}
 	if instance, err := proc.Instantiate(); err == nil {
-		traces := instance.Tracer.Subscribe()
+		traces := instance.Tracer.SubscribeChannel(make(chan tracing.Trace, 64))
 		err := instance.Run()
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
@@ -143,6 +143,7 @@ func testEvent(t *testing.T, filename string, nodeId string, eventInstanceBuilde
 		assert.True(t, <-resultChan)
 
 		go func() {
+			defer instance.Tracer.Unsubscribe(traces)
 			for {
 				trace := <-traces
 				switch trace := trace.(type) {
@@ -171,7 +172,6 @@ func testEvent(t *testing.T, filename string, nodeId string, eventInstanceBuilde
 		}
 
 		assert.True(t, <-resultChan)
-		instance.Tracer.Unsubscribe(traces)
 
 	} else {
 		t.Fatalf("failed to instantiate the process: %s", err)

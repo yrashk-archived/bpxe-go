@@ -60,8 +60,20 @@ func (t *Tracer) runner() {
 	}
 }
 
+// Subscribe creates a new unbuffered channel and subscribes it to
+// traces from the Tracer
+//
+// Note that this channel should be continuously read from until unsubscribed
+// from, otherwise, the Tracer will block.
 func (t *Tracer) Subscribe() chan Trace {
-	channel := make(chan Trace)
+	return t.SubscribeChannel(make(chan Trace))
+}
+
+// SubscribeChannel subscribes a channel to traces from the Tracer
+//
+// Note that this channel should be continuously read from (modulo
+// buffering), otherwise, the Tracer will block.
+func (t *Tracer) SubscribeChannel(channel chan Trace) chan Trace {
 	okChan := make(chan bool)
 	sub := subscription{channel: channel, ok: okChan}
 	t.subscription <- sub
