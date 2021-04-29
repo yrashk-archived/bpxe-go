@@ -82,7 +82,6 @@ func TestFalseFormalExpression(t *testing.T) {
 				if id, present := trace.Node.Id(); present {
 					if *id == "end" {
 						t.Fatalf("end should not have been reached")
-						break loop
 					}
 				}
 			case tracing.ErrorTrace:

@@ -1,6 +1,6 @@
 package flow_node
 
-import embed "embed"
+import "embed"
 
 //go:embed testdata
 var testdata embed.FS

@@ -26,14 +26,14 @@ type Instance struct {
 	flowNodeMapping *flow_node.FlowNodeMapping
 	flowWaitGroup   sync.WaitGroup
 	complete        sync.RWMutex
-	idGenerator     id.IdGenerator
+	idGenerator     id.Generator
 }
 
 func NewInstance(process *Process) (instance *Instance, err error) {
 	eventConsumers := make([]event.ProcessEventConsumer, 0)
 	tracer := tracing.NewTracer()
-	var idGenerator id.IdGenerator
-	idGenerator, err = process.IdGeneratorBuilder.NewIdGenerator(tracer)
+	var idGenerator id.Generator
+	idGenerator, err = process.GeneratorBuilder.NewIdGenerator(tracer)
 	if err != nil {
 		return
 	}

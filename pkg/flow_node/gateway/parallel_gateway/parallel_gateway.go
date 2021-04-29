@@ -64,9 +64,6 @@ func NewParallelGateway(process *bpmn.Process,
 		noOfIncomingFlows:     len(flowNode.Incoming),
 	}
 	go node.runner()
-	if err != nil {
-		return
-	}
 	return
 }
 

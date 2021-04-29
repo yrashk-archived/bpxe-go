@@ -1,6 +1,6 @@
 package tests
 
-import embed "embed"
+import "embed"
 
 //go:embed testdata
 var testdata embed.FS

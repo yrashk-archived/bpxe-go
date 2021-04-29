@@ -26,7 +26,7 @@ type StartEvent struct {
 	element       *bpmn.StartEvent
 	runnerChannel chan message
 	activated     bool
-	idGenerator   id.IdGenerator
+	idGenerator   id.Generator
 }
 
 func NewStartEvent(process *bpmn.Process,
@@ -37,9 +37,9 @@ func NewStartEvent(process *bpmn.Process,
 	tracer *tracing.Tracer,
 	flowNodeMapping *flow_node.FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup,
-	idGenerator id.IdGenerator,
+	idGenerator id.Generator,
 ) (node *StartEvent, err error) {
-	flow_node, err := flow_node.NewFlowNode(process,
+	flowNode, err := flow_node.NewFlowNode(process,
 		definitions,
 		&startEvent.FlowNode,
 		eventIngress, eventEgress,
@@ -49,7 +49,7 @@ func NewStartEvent(process *bpmn.Process,
 		return
 	}
 	node = &StartEvent{
-		FlowNode:      *flow_node,
+		FlowNode:      *flowNode,
 		element:       startEvent,
 		runnerChannel: make(chan message),
 		activated:     false,

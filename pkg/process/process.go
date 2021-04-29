@@ -9,7 +9,7 @@ import (
 type Process struct {
 	Element     *bpmn.Process
 	Definitions *bpmn.Definitions
-	id.IdGeneratorBuilder
+	id.GeneratorBuilder
 	instances            []*Instance
 	eventInstanceBuilder event.InstanceBuilder
 }
@@ -18,12 +18,12 @@ func (process *Process) SetEventInstanceBuilder(eventInstanceBuilder event.Insta
 	process.eventInstanceBuilder = eventInstanceBuilder
 }
 
-func MakeProcess(element *bpmn.Process, definitions *bpmn.Definitions, idGeneratorBuilder id.IdGeneratorBuilder) Process {
+func MakeProcess(element *bpmn.Process, definitions *bpmn.Definitions, idGeneratorBuilder id.GeneratorBuilder) Process {
 	return Process{
-		Element:            element,
-		Definitions:        definitions,
-		IdGeneratorBuilder: idGeneratorBuilder,
-		instances:          make([]*Instance, 0),
+		Element:          element,
+		Definitions:      definitions,
+		GeneratorBuilder: idGeneratorBuilder,
+		instances:        make([]*Instance, 0),
 	}
 }
 
@@ -32,7 +32,7 @@ func NewProcess(element *bpmn.Process, definitions *bpmn.Definitions) *Process {
 }
 
 func NewProcessWithIdGeneratorBuilder(element *bpmn.Process, definitions *bpmn.Definitions,
-	idGeneratorBuilder id.IdGeneratorBuilder) *Process {
+	idGeneratorBuilder id.GeneratorBuilder) *Process {
 	process := MakeProcess(element, definitions, idGeneratorBuilder)
 	return &process
 }
