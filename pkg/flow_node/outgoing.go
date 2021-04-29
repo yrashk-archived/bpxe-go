@@ -6,7 +6,7 @@ import (
 )
 
 type Outgoing interface {
-	NextAction(flowId id.Id) Action
+	NextAction(flowId id.Id) chan Action
 }
 
 func AllSequenceFlows(

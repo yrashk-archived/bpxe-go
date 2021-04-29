@@ -93,10 +93,10 @@ func (node *StartEvent) ConsumeProcessEvent(
 	return
 }
 
-func (node *StartEvent) NextAction(id.Id) flow_node.Action {
+func (node *StartEvent) NextAction(id.Id) chan flow_node.Action {
 	response := make(chan flow_node.Action)
 	node.runnerChannel <- nextActionMessage{response: response}
-	return <-response
+	return response
 }
 
 func (node *StartEvent) Incoming(int) {

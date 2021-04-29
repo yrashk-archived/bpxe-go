@@ -100,10 +100,10 @@ func (node *EndEvent) runner() {
 	}
 }
 
-func (node *EndEvent) NextAction(id.Id) flow_node.Action {
+func (node *EndEvent) NextAction(id.Id) chan flow_node.Action {
 	response := make(chan flow_node.Action)
 	node.runnerChannel <- nextActionMessage{response: response}
-	return <-response
+	return response
 }
 
 func (node *EndEvent) Incoming(index int) {

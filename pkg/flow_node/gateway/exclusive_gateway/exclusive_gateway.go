@@ -201,10 +201,10 @@ func (node *ExclusiveGateway) runner() {
 	}
 }
 
-func (node *ExclusiveGateway) NextAction(flowId id.Id) flow_node.Action {
+func (node *ExclusiveGateway) NextAction(flowId id.Id) chan flow_node.Action {
 	response := make(chan flow_node.Action)
 	node.runnerChannel <- nextActionMessage{response: response, flowId: flowId}
-	return <-response
+	return response
 }
 
 func (node *ExclusiveGateway) Incoming(index int) {
