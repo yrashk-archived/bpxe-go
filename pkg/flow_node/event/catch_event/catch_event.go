@@ -1,4 +1,4 @@
-package intermediate_catch_event
+package catch_event
 
 import (
 	"sync"
@@ -26,9 +26,9 @@ type processEventMessage struct {
 
 func (m processEventMessage) message() {}
 
-type IntermediateCatchEvent struct {
+type CatchEvent struct {
 	flow_node.FlowNode
-	element         *bpmn.IntermediateCatchEvent
+	element         *bpmn.CatchEvent
 	runnerChannel   chan message
 	activated       bool
 	awaitingActions []chan flow_node.Action
@@ -36,10 +36,10 @@ type IntermediateCatchEvent struct {
 	matchedEvents   []bool
 }
 
-func NewIntermediateCatchEvent(process *bpmn.Process, definitions *bpmn.Definitions,
-	intermediateCatchEvent *bpmn.IntermediateCatchEvent, eventIngress event.ProcessEventConsumer,
+func NewCatchEvent(process *bpmn.Process, definitions *bpmn.Definitions,
+	intermediateCatchEvent *bpmn.CatchEvent, eventIngress event.ProcessEventConsumer,
 	eventEgress event.ProcessEventSource, tracer *tracing.Tracer, flowNodeMapping *flow_node.FlowNodeMapping,
-	flowWaitGroup *sync.WaitGroup, instanceBuilder event.InstanceBuilder) (node *IntermediateCatchEvent, err error) {
+	flowWaitGroup *sync.WaitGroup, instanceBuilder event.InstanceBuilder) (node *CatchEvent, err error) {
 	flowNode, err := flow_node.NewFlowNode(process,
 		definitions,
 		&intermediateCatchEvent.FlowNode,
@@ -56,7 +56,7 @@ func NewIntermediateCatchEvent(process *bpmn.Process, definitions *bpmn.Definiti
 		eventInstances[i] = instanceBuilder.NewEventInstance(eventDefinition)
 	}
 
-	node = &IntermediateCatchEvent{
+	node = &CatchEvent{
 		FlowNode:        *flowNode,
 		element:         intermediateCatchEvent,
 		runnerChannel:   make(chan message),
@@ -73,7 +73,7 @@ func NewIntermediateCatchEvent(process *bpmn.Process, definitions *bpmn.Definiti
 	return
 }
 
-func (node *IntermediateCatchEvent) runner() {
+func (node *CatchEvent) runner() {
 loop:
 	for {
 		msg := <-node.runnerChannel
@@ -119,7 +119,7 @@ loop:
 	}
 }
 
-func (node *IntermediateCatchEvent) ConsumeProcessEvent(
+func (node *CatchEvent) ConsumeProcessEvent(
 	ev event.ProcessEvent,
 ) (result event.ConsumptionResult, err error) {
 	node.runnerChannel <- processEventMessage{event: ev}
@@ -127,15 +127,15 @@ func (node *IntermediateCatchEvent) ConsumeProcessEvent(
 	return
 }
 
-func (node *IntermediateCatchEvent) NextAction(id.Id) chan flow_node.Action {
+func (node *CatchEvent) NextAction(id.Id) chan flow_node.Action {
 	response := make(chan flow_node.Action)
 	node.runnerChannel <- nextActionMessage{response: response}
 	return response
 }
 
-func (node *IntermediateCatchEvent) Incoming(int) {
+func (node *CatchEvent) Incoming(int) {
 }
 
-func (node *IntermediateCatchEvent) Element() bpmn.FlowNodeInterface {
+func (node *CatchEvent) Element() bpmn.FlowNodeInterface {
 	return node.element
 }

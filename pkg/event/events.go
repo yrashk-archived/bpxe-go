@@ -69,10 +69,11 @@ func (ev *SignalEvent) MatchesEventInstance(instance Instance) bool {
 	if !ok {
 		return false
 	}
-	if definition.SignalRef() == nil {
+	signalRef, present := definition.SignalRef()
+	if !present {
 		return false
 	}
-	return *definition.SignalRef() == ev.signalRef
+	return *signalRef == ev.signalRef
 }
 
 func (ev *SignalEvent) SignalRef() *string {
@@ -156,10 +157,11 @@ func (ev *MessageEvent) MatchesEventInstance(instance Instance) bool {
 	if !ok {
 		return false
 	}
-	if definition.MessageRef() == nil {
+	messageRef, present := definition.MessageRef()
+	if !present {
 		return false
 	}
-	if *definition.MessageRef() != ev.messageRef {
+	if *messageRef != ev.messageRef {
 		return false
 	}
 	if ev.operationRef == nil {
@@ -206,10 +208,11 @@ func (ev *EscalationEvent) MatchesEventInstance(instance Instance) bool {
 	if !ok {
 		return false
 	}
-	if definition.EscalationRef() == nil {
+	escalationRef, present := definition.EscalationRef()
+	if !present {
 		return false
 	}
-	return ev.escalationRef == *definition.EscalationRef()
+	return ev.escalationRef == *escalationRef
 }
 
 func (ev *EscalationEvent) EscalationRef() *string {
@@ -304,10 +307,11 @@ func (ev *ErrorEvent) MatchesEventInstance(instance Instance) bool {
 	if !ok {
 		return false
 	}
-	if definition.ErrorRef() == nil {
+	errorRef, present := definition.ErrorRef()
+	if !present {
 		return false
 	}
-	return *definition.ErrorRef() == ev.errorRef
+	return *errorRef == ev.errorRef
 }
 
 func (ev *ErrorEvent) ErrorRef() *string {

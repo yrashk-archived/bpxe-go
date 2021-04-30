@@ -29,6 +29,10 @@ type Flow struct {
 	sequenceFlowId    *string
 }
 
+func (flow *Flow) SetTerminate(terminate flow_node.Terminate) {
+	flow.terminate = terminate
+}
+
 // Creates a new flow from a flow node
 //
 // The flow does nothing until it is explicitly started.
@@ -60,8 +64,8 @@ func (flow *Flow) testSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, unc
 
 			if language, present := e.Language(); present {
 				lang = *language
-			} else if language, present := flow.definitions.ExpressionLanguage(); present {
-				lang = *language
+			} else {
+				lang = *flow.definitions.ExpressionLanguage()
 			}
 
 			engine := expression.GetEngine(lang)
@@ -197,7 +201,7 @@ func (flow *Flow) termination() chan bool {
 	if flow.terminate == nil {
 		return nil
 	} else {
-		return flow.terminate(*flow.sequenceFlowId)
+		return flow.terminate(flow.sequenceFlowId)
 	}
 }
 
@@ -225,7 +229,7 @@ func (flow *Flow) Start() {
 				}
 			case action := <-flow.current.NextAction(flow.Id):
 				if flow.actionTransformer != nil {
-					action = flow.actionTransformer(*flow.sequenceFlowId, action)
+					action = flow.actionTransformer(flow.sequenceFlowId, action)
 				}
 				switch a := action.(type) {
 				case flow_node.ProbeAction:

@@ -8,7 +8,7 @@ import (
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow"
-	ev "bpxe.org/pkg/flow_node/event/intermediate_catch_event"
+	ev "bpxe.org/pkg/flow_node/event/catch_event"
 	"bpxe.org/pkg/process"
 	"bpxe.org/pkg/tracing"
 

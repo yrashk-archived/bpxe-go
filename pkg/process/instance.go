@@ -8,9 +8,10 @@ import (
 	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow"
 	"bpxe.org/pkg/flow_node"
+	"bpxe.org/pkg/flow_node/activity"
 	"bpxe.org/pkg/flow_node/activity/task"
+	"bpxe.org/pkg/flow_node/event/catch_event"
 	"bpxe.org/pkg/flow_node/event/end_event"
-	"bpxe.org/pkg/flow_node/event/intermediate_catch_event"
 	"bpxe.org/pkg/flow_node/event/start_event"
 	"bpxe.org/pkg/flow_node/gateway/event_based_gateway"
 	"bpxe.org/pkg/flow_node/gateway/exclusive_gateway"
@@ -27,6 +28,10 @@ type Instance struct {
 	flowWaitGroup   sync.WaitGroup
 	complete        sync.RWMutex
 	idGenerator     id.Generator
+}
+
+func (instance *Instance) FlowNodeMapping() *flow_node.FlowNodeMapping {
+	return instance.flowNodeMapping
 }
 
 func NewInstance(process *Process) (instance *Instance, err error) {
@@ -76,9 +81,9 @@ func NewInstance(process *Process) (instance *Instance, err error) {
 
 	for i := range *process.Element.IntermediateCatchEvents() {
 		element := &(*process.Element.IntermediateCatchEvents())[i]
-		var intermediateCatchEvent *intermediate_catch_event.IntermediateCatchEvent
-		intermediateCatchEvent, err = intermediate_catch_event.NewIntermediateCatchEvent(process.Element,
-			process.Definitions, element, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup,
+		var intermediateCatchEvent *catch_event.CatchEvent
+		intermediateCatchEvent, err = catch_event.NewCatchEvent(process.Element,
+			process.Definitions, &element.CatchEvent, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup,
 			process)
 		if err != nil {
 			return
@@ -91,9 +96,11 @@ func NewInstance(process *Process) (instance *Instance, err error) {
 
 	for i := range *process.Element.Tasks() {
 		element := &(*process.Element.Tasks())[i]
-		var aTask *task.Task
-		aTask, err = task.NewTask(process.Element, process.Definitions,
-			element, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
+		var aTask *activity.Harness
+		aTask, err = activity.NewHarness(process.Element, process.Definitions,
+			&element.FlowNode, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup,
+			idGenerator, task.NewTask(element), process,
+		)
 		if err != nil {
 			return
 		}
