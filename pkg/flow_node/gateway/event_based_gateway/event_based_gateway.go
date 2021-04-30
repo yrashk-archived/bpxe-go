@@ -72,16 +72,16 @@ func (node *EventBasedGateway) runner() {
 				}
 			}
 			m.response <- flow_node.FlowAction{
-				Terminate: func(sequenceFlowId bpmn.IdRef) chan bool {
-					return terminationChannels[sequenceFlowId]
+				Terminate: func(sequenceFlowId *bpmn.IdRef) chan bool {
+					return terminationChannels[*sequenceFlowId]
 				},
 				SequenceFlows: sequenceFlows,
-				ActionTransformer: func(sequenceFlowId bpmn.IdRef, action flow_node.Action) flow_node.Action {
+				ActionTransformer: func(sequenceFlowId *bpmn.IdRef, action flow_node.Action) flow_node.Action {
 					// only first one is to flow
 					if atomic.CompareAndSwapInt32(&first, 0, 1) {
 						node.Tracer.Trace(DeterminationMadeTrace{Element: node.element})
 						for terminationCandidateId, ch := range terminationChannels {
-							if terminationCandidateId != sequenceFlowId {
+							if sequenceFlowId != nil && terminationCandidateId != *sequenceFlowId {
 								ch <- true
 							}
 							close(ch)

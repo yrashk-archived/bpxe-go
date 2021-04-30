@@ -87,7 +87,8 @@ func TestFindByInSingleThroughInheritanceChain(t *testing.T) {
 
 func TestExactId(t *testing.T) {
 	proc := DefaultProcess()
-	proc.SetId("a")
+	s := "a"
+	proc.SetId(&s)
 	assert.True(t, ExactId("a")(&proc))
 	assert.False(t, ExactId("b")(&proc))
 }
@@ -107,14 +108,16 @@ func TestElementInterface(t *testing.T) {
 
 func TestElementPredicateAnd(t *testing.T) {
 	proc := DefaultProcess()
-	proc.SetId("a")
+	s := "a"
+	proc.SetId(&s)
 	assert.True(t, ElementType((*Process)(nil)).And(ExactId("a"))(&proc))
 	assert.False(t, ElementType((*Process)(nil)).And(ExactId("b"))(&proc))
 }
 
 func TestElementPredicateOr(t *testing.T) {
 	proc := DefaultProcess()
-	proc.SetId("a")
+	s := "a"
+	proc.SetId(&s)
 	assert.True(t, ExactId("a").Or(ExactId("b"))(&proc))
 	assert.False(t, ExactId("A").Or(ExactId("B"))(&proc))
 }

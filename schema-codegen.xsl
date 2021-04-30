@@ -118,7 +118,7 @@
         <!-- defaults -->
         
         <xsl:for-each select=".//xs:attribute[exists(@default)]">
-            <xsl:if test="not(contains(./@default, '#'))">
+            <!--<xsl:if test="not(contains(./@default, '#'))">-->
                 <xsl:text>var default</xsl:text>
                 <xsl:value-of select="local:struct-case($type/@name)"/>
                 <xsl:value-of select="local:field-name(.)"/>
@@ -147,7 +147,7 @@
                 </xsl:choose>
                 <xsl:text xml:space="preserve">
                 </xsl:text>
-            </xsl:if>
+            <!--</xsl:if>-->
         </xsl:for-each>
         
         <xsl:text xml:space="preserve">func Default</xsl:text>
@@ -172,7 +172,7 @@
             <xsl:if test="not(contains(./@default, '#'))">
                 <xsl:value-of select="local:field-name(.)"/>
                 <xsl:text>:</xsl:text>
-                <xsl:if test="local:is-optional(.)">
+                <xsl:if test="local:is-optional-attribute(.)">
                     <xsl:text>&amp;</xsl:text>
                 </xsl:if>
                 <xsl:choose>
@@ -213,7 +213,7 @@
             <xsl:value-of select="local:struct-case(./@name)"/>
             <xsl:text xml:space="preserve">() (result </xsl:text>
             <xsl:value-of select="local:returning-type(.)"/>
-            <xsl:if test="local:is-optional(.)">
+            <xsl:if test="local:is-optional-attribute-with-no-default(.)">
                 <xsl:text xml:space="preserve">, present bool</xsl:text>
             </xsl:if>
             <xsl:text xml:space="preserve">)
@@ -255,6 +255,9 @@
             <xsl:text>Set</xsl:text>
             <xsl:value-of select="local:struct-case(./@name)"/>
             <xsl:text xml:space="preserve">(value </xsl:text>
+            <xsl:if test="local:is-optional-attribute(.)">
+                <xsl:text>*</xsl:text>
+            </xsl:if>
             <xsl:value-of select="local:type(./@type)"/>
             <xsl:text>) </xsl:text>
             <xsl:text xml:space="preserve">
@@ -366,12 +369,12 @@
             <xsl:value-of select="local:field-method(.)"/>
             <xsl:text xml:space="preserve">() (result </xsl:text>
             <xsl:value-of select="local:returning-type(.)"/>
-            <xsl:if test="local:is-optional(.)">
+            <xsl:if test="local:is-optional-attribute-with-no-default(.)">
                 <xsl:text xml:space="preserve">, present bool</xsl:text>
             </xsl:if>
             <xsl:text>){
             </xsl:text>
-            <xsl:if test="local:is-optional(.)">
+            <xsl:if test="local:is-optional-attribute-with-no-default(.)">
                 <xsl:text>if t.</xsl:text>
                 <xsl:value-of select="local:field-name(.)"/>
                 <xsl:text> != nil {
@@ -379,7 +382,25 @@
                     }
                 </xsl:text>
             </xsl:if>
+            <xsl:if test="local:is-optional-attribute(.) and exists(./@default)">
+                <xsl:text>if t.</xsl:text>
+                <xsl:value-of select="local:field-name(.)"/>
+                <xsl:text xml:space="preserve"> == nil {
+                    result  = </xsl:text>
+                <xsl:if test="contains(local:returning-type(.), '*')">
+                    <xsl:text>&amp;</xsl:text>
+                </xsl:if>
+                <xsl:text>default</xsl:text>
+                        <xsl:value-of select="local:struct-case($type/@name)"/>
+                <xsl:value-of select="local:field-name(.)"/><xsl:text xml:space="preserve">
+                    return
+                }
+                </xsl:text>
+            </xsl:if>
             <xsl:text>    result = </xsl:text>
+            <xsl:if test="not(contains(local:returning-type(.), '*'))">
+                <xsl:text>*</xsl:text>
+            </xsl:if>
             <xsl:value-of select="local:returning(.)"/>
             <xsl:text>t.</xsl:text>
             <xsl:value-of select="local:field-name(.)"/>
@@ -394,6 +415,9 @@
             <xsl:text>Set</xsl:text>
             <xsl:value-of select="local:field-method(.)"/>
             <xsl:text xml:space="preserve">(value </xsl:text>
+            <xsl:if test="local:is-optional-attribute(.)">
+                <xsl:text>*</xsl:text>
+            </xsl:if>
             <xsl:value-of select="local:type(./@type)"/>
             <xsl:text xml:space="preserve">) </xsl:text>
             <xsl:text xml:space="preserve">{
@@ -401,9 +425,6 @@
             <xsl:text>t.</xsl:text>
             <xsl:value-of select="local:field-name(.)"/>
             <xsl:text> = </xsl:text>
-            <xsl:if test="local:is-optional(.)">
-                <xsl:text>&amp;</xsl:text>
-            </xsl:if>
             <xsl:text>value</xsl:text>
             <xsl:text xml:space="preserve">
                 }
@@ -542,9 +563,9 @@
                     <xsl:text>t.</xsl:text>
                     <xsl:value-of select="local:field-name(.)"/>
                     <xsl:text> = </xsl:text>
-                    <xsl:if test="local:is-optional(.)">
+                   <!-- <xsl:if test="local:is-optional(.)">
                         <xsl:text>&amp;</xsl:text>
-                    </xsl:if>
+                    </xsl:if>-->
                     <xsl:text>value</xsl:text>
                     <xsl:text xml:space="preserve">
                         }
@@ -689,6 +710,9 @@
             <xsl:when test="$el/@maxOccurs = 'unbounded'">
                 <xsl:sequence select="concat('[]', local:type($name))"/>
             </xsl:when>
+            <xsl:when test="local:is-optional-attribute($el)">
+                <xsl:sequence select="concat('*', local:type($name))"/>
+            </xsl:when>
             <xsl:otherwise><xsl:sequence select="local:type($name)"/></xsl:otherwise>
         </xsl:choose>
     </xsl:function>
@@ -728,7 +752,7 @@
     <xsl:function name="local:returning">
         <xsl:param name="el"/>
         <xsl:choose>
-            <xsl:when test="local:is-optional($el)"></xsl:when>
+            <xsl:when test="local:is-optional-attribute($el)"></xsl:when>
             <xsl:when test="$el/@type = 'xsd:boolean'"></xsl:when>
             <xsl:when test="$el/@type = 'xsd:int'"></xsl:when>
             <xsl:when test="$el/@type = 'xsd:int32'"></xsl:when>
@@ -776,6 +800,9 @@
             <xsl:when test="local:is-optional($el)">
                 <xsl:sequence select="concat('*',local:type($el/@type))"/>
             </xsl:when>
+            <xsl:when test="local:is-optional-attribute($el)">
+                <xsl:sequence select="concat('*',local:type($el/@type))"/>
+            </xsl:when>
             <xsl:otherwise>
                 <xsl:sequence select="local:type($el/@type)"/>
             </xsl:otherwise>
@@ -790,6 +817,7 @@
     <xsl:function name="local:is-optional">
         <xsl:param name="el"/>
         <xsl:choose>
+            <xsl:when test="$el/@use = 'required'"><xsl:sequence select="false()"/></xsl:when>
             <xsl:when test="$el/@use = 'optional'"><xsl:sequence select="true()"/></xsl:when>
             <xsl:when test="local:is-a-ref($el) and $el/@minOccurs = '0' and local:is-abstract($el)"><xsl:sequence select="false()"/></xsl:when>
             <xsl:when test="$el/@minOccurs = '0' and $el/@maxOccurs != 'unbounded'"><xsl:sequence select="true()"/></xsl:when>
@@ -855,6 +883,16 @@
             <xsl:when test="$ref/@maxOccurs = 'unbounded'"><xsl:sequence select="concat('[]', $refType)"/></xsl:when>
             <xsl:otherwise><xsl:sequence select="$refType"/></xsl:otherwise>
         </xsl:choose>
+    </xsl:function>
+    
+    <xsl:function name="local:is-optional-attribute">
+        <xsl:param name="el"/>
+        <xsl:sequence select="local:is-optional($el) or (name($el) = 'xsd:attribute' and not(exists($el/@use)))"/>
+    </xsl:function>
+    
+    <xsl:function name="local:is-optional-attribute-with-no-default">
+        <xsl:param name="el"/>
+        <xsl:sequence select="local:is-optional-attribute($el) and not(exists($el/@default))"/>
     </xsl:function>
 
 </xsl:stylesheet>

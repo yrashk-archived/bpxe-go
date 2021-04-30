@@ -1,11 +1,11 @@
-package intermediate_catch_event
+package catch_event
 
 import (
 	"bpxe.org/pkg/bpmn"
 )
 
 type ActiveListeningTrace struct {
-	Node *bpmn.IntermediateCatchEvent
+	Node *bpmn.CatchEvent
 }
 
 func (t ActiveListeningTrace) TraceInterface() {}

@@ -19,8 +19,8 @@ type ProbeAction struct {
 
 func (action ProbeAction) action() {}
 
-type ActionTransformer func(sequenceFlowId bpmn.IdRef, action Action) Action
-type Terminate func(sequenceFlowId bpmn.IdRef) chan bool
+type ActionTransformer func(sequenceFlowId *bpmn.IdRef, action Action) Action
+type Terminate func(sequenceFlowId *bpmn.IdRef) chan bool
 
 type FlowAction struct {
 	SequenceFlows []*sequence_flow.SequenceFlow

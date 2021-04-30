@@ -12,7 +12,7 @@ import (
 	_ "github.com/stretchr/testify/assert"
 )
 
-func TestStartEvent(t *testing.T) {
+func TestTask(t *testing.T) {
 	var testDoc bpmn.Definitions
 	var err error
 	src, err := testdata.ReadFile("testdata/task.bpmn")

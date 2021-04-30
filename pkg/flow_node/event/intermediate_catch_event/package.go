@@ -1,1 +1,0 @@
-package intermediate_catch_event
