@@ -60,8 +60,8 @@ var executeCmd = &cobra.Command{
 								sourceId = new(string)
 								*sourceId = "unnamed"
 							}
-							for _, sequenceFlow := range trace.SequenceFlows {
-								target, err := sequenceFlow.Target()
+							for _, flow := range trace.Flows {
+								target, err := flow.SequenceFlow().Target()
 								if err != nil {
 									fmt.Printf("Can't find target in a flow")
 								}
@@ -70,7 +70,7 @@ var executeCmd = &cobra.Command{
 									targetId = new(string)
 									*targetId = "unnamed"
 								}
-								fmt.Printf("Flow(%s) %s -> %s\n", trace.FlowId.String(), *sourceId, *targetId)
+								fmt.Printf("Flow(%s) %s -> %s\n", flow.Id().String(), *sourceId, *targetId)
 							}
 						case flow.CeaseFlowTrace:
 							fmt.Printf("No flows left\n")

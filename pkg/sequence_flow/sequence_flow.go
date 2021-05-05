@@ -19,6 +19,11 @@ func MakeSequenceFlow(sequenceFlow *bpmn.SequenceFlow, definitions *bpmn.Definit
 	}
 }
 
+func NewSequenceFlow(sequenceFlow *bpmn.SequenceFlow, definitions *bpmn.Definitions) *SequenceFlow {
+	seqFlow := MakeSequenceFlow(sequenceFlow, definitions)
+	return &seqFlow
+}
+
 func (sequenceFlow *SequenceFlow) resolveId(id *string) (result bpmn.FlowNodeInterface, err error) {
 	ownId, present := sequenceFlow.SequenceFlow.Id()
 	if !present {

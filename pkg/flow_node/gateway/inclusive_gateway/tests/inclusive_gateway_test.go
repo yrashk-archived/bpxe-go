@@ -7,17 +7,17 @@ import (
 
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/flow"
-	"bpxe.org/pkg/flow_node/gateway/exclusive_gateway"
+	"bpxe.org/pkg/flow_node/gateway/inclusive_gateway"
 	"bpxe.org/pkg/process"
 	"bpxe.org/pkg/tracing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestExclusiveGateway(t *testing.T) {
+func TestInclusiveGateway(t *testing.T) {
 	var testDoc bpmn.Definitions
 	var err error
-	src, err := testdata.ReadFile("testdata/exclusive_gateway.bpmn")
+	src, err := testdata.ReadFile("testdata/inclusive_gateway.bpmn")
 	if err != nil {
 		t.Fatalf("Can't read file: %v", err)
 	}
@@ -33,6 +33,7 @@ func TestExclusiveGateway(t *testing.T) {
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
+		endReached := 0
 	loop:
 		for {
 			trace := <-traces
@@ -42,10 +43,11 @@ func TestExclusiveGateway(t *testing.T) {
 					t.Logf("%#v", f.SequenceFlow())
 					if target, err := f.SequenceFlow().Target(); err == nil {
 						if id, present := target.Id(); present {
-							assert.NotEqual(t, "task1", *id)
-							if *id == "task2" {
-								// reached task2 as expected
-								break loop
+							assert.NotEqual(t, "a3", *id)
+							if *id == "end" {
+								// reached end
+								endReached++
+								continue
 							}
 						} else {
 							t.Fatalf("can't find target's Id %#v", target)
@@ -55,6 +57,10 @@ func TestExclusiveGateway(t *testing.T) {
 						t.Fatalf("can't find sequence flow target: %#v", err)
 					}
 				}
+			case flow.CeaseFlowTrace:
+				// should only reach `end` once
+				assert.Equal(t, 1, endReached)
+				break loop
 			case tracing.ErrorTrace:
 				t.Fatalf("%#v", trace)
 			default:
@@ -67,10 +73,10 @@ func TestExclusiveGateway(t *testing.T) {
 	}
 }
 
-func TestExclusiveGatewayWithDefault(t *testing.T) {
+func TestInclusiveGatewayDefault(t *testing.T) {
 	var testDoc bpmn.Definitions
 	var err error
-	src, err := testdata.ReadFile("testdata/exclusive_gateway_default.bpmn")
+	src, err := testdata.ReadFile("testdata/inclusive_gateway_default.bpmn")
 	if err != nil {
 		t.Fatalf("Can't read file: %v", err)
 	}
@@ -86,6 +92,7 @@ func TestExclusiveGatewayWithDefault(t *testing.T) {
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
+		endReached := 0
 	loop:
 		for {
 			trace := <-traces
@@ -95,11 +102,12 @@ func TestExclusiveGatewayWithDefault(t *testing.T) {
 					t.Logf("%#v", f.SequenceFlow())
 					if target, err := f.SequenceFlow().Target(); err == nil {
 						if id, present := target.Id(); present {
-							assert.NotEqual(t, "task1", *id)
-							assert.NotEqual(t, "task2", *id)
-							if *id == "default_task" {
-								// reached default_task as expected
-								break loop
+							assert.NotEqual(t, "a1", *id)
+							assert.NotEqual(t, "a2", *id)
+							if *id == "end" {
+								// reached end
+								endReached++
+								continue
 							}
 						} else {
 							t.Fatalf("can't find target's Id %#v", target)
@@ -109,6 +117,10 @@ func TestExclusiveGatewayWithDefault(t *testing.T) {
 						t.Fatalf("can't find sequence flow target: %#v", err)
 					}
 				}
+			case flow.CeaseFlowTrace:
+				// should only reach `end` once
+				assert.Equal(t, 1, endReached)
+				break loop
 			case tracing.ErrorTrace:
 				t.Fatalf("%#v", trace)
 			default:
@@ -121,10 +133,10 @@ func TestExclusiveGatewayWithDefault(t *testing.T) {
 	}
 }
 
-func TestExclusiveGatewayWithNoDefault(t *testing.T) {
+func TestInclusiveGatewayNoDefault(t *testing.T) {
 	var testDoc bpmn.Definitions
 	var err error
-	src, err := testdata.ReadFile("testdata/exclusive_gateway_no_default.bpmn")
+	src, err := testdata.ReadFile("testdata/inclusive_gateway_no_default.bpmn")
 	if err != nil {
 		t.Fatalf("Can't read file: %v", err)
 	}
@@ -144,23 +156,8 @@ func TestExclusiveGatewayWithNoDefault(t *testing.T) {
 		for {
 			trace := <-traces
 			switch trace := trace.(type) {
-			case flow.FlowTrace:
-				for _, f := range trace.Flows {
-					t.Logf("%#v", f.SequenceFlow())
-					if target, err := f.SequenceFlow().Target(); err == nil {
-						if id, present := target.Id(); present {
-							assert.NotEqual(t, "task1", *id)
-							assert.NotEqual(t, "task2", *id)
-						} else {
-							t.Fatalf("can't find target's Id %#v", target)
-						}
-
-					} else {
-						t.Fatalf("can't find sequence flow target: %#v", err)
-					}
-				}
 			case tracing.ErrorTrace:
-				var target exclusive_gateway.NoEffectiveSequenceFlows
+				var target inclusive_gateway.NoEffectiveSequenceFlows
 				if errors.As(trace.Error, &target) {
 					// success
 					break loop
@@ -172,58 +169,6 @@ func TestExclusiveGatewayWithNoDefault(t *testing.T) {
 			}
 		}
 		instance.Tracer.Unsubscribe(traces)
-	} else {
-		t.Fatalf("failed to instantiate the process: %s", err)
-	}
-}
-
-func TestExclusiveGatewayIncompleteJoin(t *testing.T) {
-	var testDoc bpmn.Definitions
-	var err error
-	src, err := testdata.ReadFile("testdata/exclusive_gateway_multiple_incoming.bpmn")
-	if err != nil {
-		t.Fatalf("Can't read file: %v", err)
-	}
-	err = xml.Unmarshal(src, &testDoc)
-	if err != nil {
-		t.Fatalf("XML unmarshalling error: %v", err)
-	}
-	processElement := (*testDoc.Processes())[0]
-	proc := process.NewProcess(&processElement, &testDoc)
-	if instance, err := proc.Instantiate(); err == nil {
-		traces := instance.Tracer.Subscribe()
-		err := instance.Run()
-		if err != nil {
-			t.Fatalf("failed to run the instance: %s", err)
-		}
-		reached := make(map[string]int)
-	loop:
-		for {
-			trace := <-traces
-			switch trace := trace.(type) {
-			case flow.VisitTrace:
-				t.Logf("%#v", trace)
-				if id, present := trace.Node.Id(); present {
-					if counter, ok := reached[*id]; ok {
-						reached[*id] = counter + 1
-					} else {
-						reached[*id] = 1
-					}
-				} else {
-					t.Fatalf("can't find element with Id %#v", id)
-				}
-			case flow.CeaseFlowTrace:
-				break loop
-			case tracing.ErrorTrace:
-				t.Fatalf("%#v", trace)
-			default:
-				t.Logf("%#v", trace)
-			}
-		}
-		instance.Tracer.Unsubscribe(traces)
-
-		assert.Equal(t, 2, reached["exclusive"])
-		assert.Equal(t, 2, reached["task2"])
 	} else {
 		t.Fatalf("failed to instantiate the process: %s", err)
 	}

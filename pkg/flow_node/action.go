@@ -11,10 +11,10 @@ type Action interface {
 
 type ProbeAction struct {
 	SequenceFlows []*sequence_flow.SequenceFlow
-	// Channel that will be used to receive an array
-	// of sequence flow indices that have successful
+	// ProbeReport is a function that needs to be called
+	// wth sequence flow indices that have successful
 	// condition expressions (or none)
-	ProbeListener chan []int
+	ProbeReport func([]int)
 }
 
 func (action ProbeAction) action() {}

@@ -3,7 +3,6 @@ package flow
 import (
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/id"
-	"bpxe.org/pkg/sequence_flow"
 )
 
 type NewFlowTrace struct {
@@ -13,14 +12,14 @@ type NewFlowTrace struct {
 func (t NewFlowTrace) TraceInterface() {}
 
 type FlowTrace struct {
-	FlowId        id.Id
-	Source        bpmn.FlowNodeInterface
-	SequenceFlows []*sequence_flow.SequenceFlow
+	Source bpmn.FlowNodeInterface
+	Flows  []Snapshot
 }
 
 func (t FlowTrace) TraceInterface() {}
 
 type FlowTerminationTrace struct {
+	FlowId id.Id
 	Source bpmn.FlowNodeInterface
 }
 

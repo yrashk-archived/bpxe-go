@@ -5,8 +5,8 @@ import (
 
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/event"
+	"bpxe.org/pkg/flow/flow_interface"
 	"bpxe.org/pkg/flow_node"
-	"bpxe.org/pkg/id"
 	"bpxe.org/pkg/tracing"
 )
 
@@ -100,7 +100,7 @@ func (node *EndEvent) runner() {
 	}
 }
 
-func (node *EndEvent) NextAction(id.Id) chan flow_node.Action {
+func (node *EndEvent) NextAction(flow_interface.T) chan flow_node.Action {
 	response := make(chan flow_node.Action)
 	node.runnerChannel <- nextActionMessage{response: response}
 	return response

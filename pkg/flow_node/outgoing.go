@@ -1,12 +1,12 @@
 package flow_node
 
 import (
-	"bpxe.org/pkg/id"
+	"bpxe.org/pkg/flow/flow_interface"
 	"bpxe.org/pkg/sequence_flow"
 )
 
 type Outgoing interface {
-	NextAction(flowId id.Id) chan Action
+	NextAction(flow flow_interface.T) chan Action
 }
 
 func AllSequenceFlows(
