@@ -5,8 +5,9 @@ import (
 
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/event"
+	"bpxe.org/pkg/flow/flow_interface"
 	"bpxe.org/pkg/flow_node"
-	"bpxe.org/pkg/id"
+	"bpxe.org/pkg/flow_node/gateway"
 	"bpxe.org/pkg/tracing"
 )
 
@@ -16,7 +17,7 @@ type message interface {
 
 type nextActionMessage struct {
 	response chan flow_node.Action
-	flowId   id.Id
+	flow     flow_interface.T
 }
 
 func (m nextActionMessage) message() {}
@@ -74,31 +75,7 @@ func (node *ParallelGateway) flowWhenReady() {
 		awaitingActions := node.awaitingActions
 		node.awaitingActions = make([]chan flow_node.Action, 0)
 		sequenceFlows := flow_node.AllSequenceFlows(&node.Outgoing)
-		indices := make([]int, len(sequenceFlows))
-		for i := range indices {
-			indices[i] = i
-		}
-
-		for i, action := range awaitingActions {
-			rangeEnd := i + 1
-
-			// If this is a last channel awaiting action
-			if rangeEnd == len(awaitingActions) {
-				// give it the remainder of sequence flows
-				rangeEnd = len(sequenceFlows)
-			}
-
-			if rangeEnd <= len(sequenceFlows) {
-				action <- flow_node.FlowAction{
-					SequenceFlows:      sequenceFlows[i:rangeEnd],
-					UnconditionalFlows: indices[0 : rangeEnd-i],
-				}
-			} else {
-				// signal completion to flows that aren't
-				// getting any flows
-				action <- flow_node.CompleteAction{}
-			}
-		}
+		gateway.DistributeFlows(awaitingActions, sequenceFlows)
 	}
 
 }
@@ -124,9 +101,9 @@ loop:
 	}
 }
 
-func (node *ParallelGateway) NextAction(flowId id.Id) chan flow_node.Action {
+func (node *ParallelGateway) NextAction(flow flow_interface.T) chan flow_node.Action {
 	response := make(chan flow_node.Action)
-	node.runnerChannel <- nextActionMessage{response: response, flowId: flowId}
+	node.runnerChannel <- nextActionMessage{response: response, flow: flow}
 	return response
 }
 

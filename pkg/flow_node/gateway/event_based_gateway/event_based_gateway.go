@@ -8,8 +8,8 @@ import (
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/errors"
 	"bpxe.org/pkg/event"
+	"bpxe.org/pkg/flow/flow_interface"
 	"bpxe.org/pkg/flow_node"
-	"bpxe.org/pkg/id"
 	"bpxe.org/pkg/tracing"
 )
 
@@ -19,7 +19,7 @@ type message interface {
 
 type nextActionMessage struct {
 	response chan flow_node.Action
-	flowId   id.Id
+	flow     flow_interface.T
 }
 
 func (m nextActionMessage) message() {}
@@ -98,9 +98,9 @@ func (node *EventBasedGateway) runner() {
 	}
 }
 
-func (node *EventBasedGateway) NextAction(flowId id.Id) chan flow_node.Action {
+func (node *EventBasedGateway) NextAction(flow flow_interface.T) chan flow_node.Action {
 	response := make(chan flow_node.Action)
-	node.runnerChannel <- nextActionMessage{response: response, flowId: flowId}
+	node.runnerChannel <- nextActionMessage{response: response, flow: flow}
 	return response
 }
 

@@ -1,4 +1,4 @@
-package exclusive_gateway
+package inclusive_gateway
 
 import (
 	"fmt"
@@ -9,18 +9,19 @@ import (
 	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow/flow_interface"
 	"bpxe.org/pkg/flow_node"
+	"bpxe.org/pkg/flow_node/gateway"
 	"bpxe.org/pkg/id"
 	"bpxe.org/pkg/sequence_flow"
 	"bpxe.org/pkg/tracing"
 )
 
 type NoEffectiveSequenceFlows struct {
-	*bpmn.ExclusiveGateway
+	*bpmn.InclusiveGateway
 }
 
 func (e NoEffectiveSequenceFlows) Error() string {
 	ownId := "<unnamed>"
-	if ownIdPtr, present := e.ExclusiveGateway.Id(); present {
+	if ownIdPtr, present := e.InclusiveGateway.Id(); present {
 		ownId = *ownIdPtr
 	}
 	return fmt.Sprintf("No effective sequence flows found in exclusive gateway `%v`", ownId)
@@ -50,27 +51,37 @@ type probingReport struct {
 
 func (m probingReport) message() {}
 
-type ExclusiveGateway struct {
+type flowSync struct {
+	response chan flow_node.Action
+	flow     flow_interface.T
+}
+
+type InclusiveGateway struct {
 	flow_node.FlowNode
-	element                 *bpmn.ExclusiveGateway
+	element                 *bpmn.InclusiveGateway
 	runnerChannel           chan message
 	defaultSequenceFlow     *sequence_flow.SequenceFlow
 	nonDefaultSequenceFlows []*sequence_flow.SequenceFlow
-	probing                 map[id.Id]*chan flow_node.Action
+	probing                 *chan flow_node.Action
+	activated               *flowSync
+	awaiting                []id.Id
+	sync                    []chan flow_node.Action
+	*flowTracker
+	synchronized bool
 }
 
-func NewExclusiveGateway(process *bpmn.Process,
+func NewInclusiveGateway(process *bpmn.Process,
 	definitions *bpmn.Definitions,
-	exclusiveGateway *bpmn.ExclusiveGateway,
+	inclusiveGateway *bpmn.InclusiveGateway,
 	eventIngress event.ProcessEventConsumer,
 	eventEgress event.ProcessEventSource,
 	tracer *tracing.Tracer,
 	flowNodeMapping *flow_node.FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup,
-) (node *ExclusiveGateway, err error) {
+) (node *InclusiveGateway, err error) {
 	flowNode, err := flow_node.NewFlowNode(process,
 		definitions,
-		&exclusiveGateway.FlowNode,
+		&inclusiveGateway.FlowNode,
 		eventIngress, eventEgress,
 		tracer, flowNodeMapping,
 		flowWaitGroup)
@@ -80,7 +91,7 @@ func NewExclusiveGateway(process *bpmn.Process,
 
 	var defaultSequenceFlow *sequence_flow.SequenceFlow
 
-	if seqFlow, present := exclusiveGateway.Default(); present {
+	if seqFlow, present := inclusiveGateway.Default(); present {
 		if node, found := flowNode.Process.FindBy(bpmn.ExactId(*seqFlow).
 			And(bpmn.ElementType((*bpmn.SequenceFlow)(nil)))); found {
 			defaultSequenceFlow = new(sequence_flow.SequenceFlow)
@@ -105,24 +116,27 @@ func NewExclusiveGateway(process *bpmn.Process,
 		},
 	)
 
-	node = &ExclusiveGateway{
+	node = &InclusiveGateway{
 		FlowNode:                *flowNode,
-		element:                 exclusiveGateway,
+		element:                 inclusiveGateway,
 		runnerChannel:           make(chan message),
 		nonDefaultSequenceFlows: nonDefaultSequenceFlows,
 		defaultSequenceFlow:     defaultSequenceFlow,
-		probing:                 make(map[id.Id]*chan flow_node.Action),
+		flowTracker:             newFlowTracker(tracer),
 	}
 	go node.runner()
 	return
 }
 
-func (node *ExclusiveGateway) runner() {
+func (node *InclusiveGateway) runner() {
+	defer node.flowTracker.shutdown()
+	activity := node.flowTracker.activity()
 	for {
-		msg := <-node.runnerChannel
-		switch m := msg.(type) {
-		case probingReport:
-			if response, ok := node.probing[m.flowId]; ok {
+		select {
+		case msg := <-node.runnerChannel:
+			switch m := msg.(type) {
+			case probingReport:
+				response := node.probing
 				if response == nil {
 					// Reschedule, there's no next action yet
 					go func() {
@@ -130,12 +144,12 @@ func (node *ExclusiveGateway) runner() {
 					}()
 					continue
 				}
-				delete(node.probing, m.flowId)
+				node.probing = nil
 				flow := make([]*sequence_flow.SequenceFlow, 0)
 				for _, i := range m.result {
 					flow = append(flow, node.nonDefaultSequenceFlows[i])
-					break
 				}
+
 				switch len(flow) {
 				case 0:
 					// no successful non-default sequence flows
@@ -143,69 +157,86 @@ func (node *ExclusiveGateway) runner() {
 						// exception (Table 13.2)
 						node.FlowNode.Tracer.Trace(tracing.ErrorTrace{
 							Error: NoEffectiveSequenceFlows{
-								ExclusiveGateway: node.element,
+								InclusiveGateway: node.element,
 							},
 						})
 					} else {
-						// default
-						*response <- flow_node.FlowAction{
-							SequenceFlows:      []*sequence_flow.SequenceFlow{node.defaultSequenceFlow},
-							UnconditionalFlows: []int{0},
-						}
-					}
-				case 1:
-					*response <- flow_node.FlowAction{
-						SequenceFlows:      flow,
-						UnconditionalFlows: []int{0},
+						gateway.DistributeFlows(node.sync, []*sequence_flow.SequenceFlow{node.defaultSequenceFlow})
 					}
 				default:
-					node.FlowNode.Tracer.Trace(tracing.ErrorTrace{
-						Error: errors.InvalidArgumentError{
-							Expected: fmt.Sprintf("maximum 1 outgoing exclusive gateway (%s) flow",
-								node.FlowNode.Id),
-							Actual: len(flow),
-						},
-					})
+					gateway.DistributeFlows(node.sync, flow)
 				}
-			} else {
-				node.FlowNode.Tracer.Trace(tracing.ErrorTrace{
-					Error: errors.InvalidStateError{
-						Expected: fmt.Sprintf("probing[%s] is to be present (exclusive gateway %s)",
-							m.flowId.String(), node.FlowNode.Id),
-					},
-				})
-			}
-		case nextActionMessage:
-			if _, ok := node.probing[m.flow.Id()]; ok {
-				node.probing[m.flow.Id()] = &m.response
-				// and now we wait until the probe has returned
-			} else {
-				node.probing[m.flow.Id()] = nil
-				m.response <- flow_node.ProbeAction{
-					SequenceFlows: node.nonDefaultSequenceFlows,
-					ProbeReport: func(indices []int) {
-						node.runnerChannel <- probingReport{
-							result: indices,
-							flowId: m.flow.Id(),
+				node.synchronized = false
+				node.activated = nil
+			case nextActionMessage:
+				if node.synchronized {
+					if m.flow.Id() == node.activated.flow.Id() {
+						// Activating flow returned
+						node.sync = append(node.sync, m.response)
+						node.probing = &m.response
+						// and now we wait until the probe has returned
+						continue
+					}
+				}
+				if node.activated == nil {
+					// Haven't been activated yet
+					node.activated = &flowSync{response: m.response, flow: m.flow}
+					node.awaiting = node.flowTracker.activeFlowsInCohort(m.flow.Id())
+					node.sync = make([]chan flow_node.Action, 0)
+				} else {
+					// Already activated
+					for i, awaitingId := range node.awaiting {
+						if awaitingId == m.flow.Id() {
+							// Remove
+							node.awaiting[i] = node.awaiting[len(node.awaiting)-1]
+							node.awaiting = node.awaiting[:len(node.awaiting)-1]
+							break
 						}
-					},
+					}
+					node.sync = append(node.sync, m.response)
 				}
+				node.trySync()
+
+			default:
 			}
-		default:
+		case <-activity:
+			if node.activated != nil {
+				node.awaiting = node.flowTracker.activeFlowsInCohort(node.activated.flow.Id())
+				node.trySync()
+			}
 		}
 	}
 }
 
-func (node *ExclusiveGateway) NextAction(flow flow_interface.T) chan flow_node.Action {
+func (node *InclusiveGateway) trySync() {
+	if !node.synchronized && len(node.awaiting) == 0 {
+		// We've got everybody
+		anId := node.activated.flow.Id()
+		// Probe outgoing sequence flow using the first flow
+		node.activated.response <- flow_node.ProbeAction{
+			SequenceFlows: node.nonDefaultSequenceFlows,
+			ProbeReport: func(indices []int) {
+				node.runnerChannel <- probingReport{
+					result: indices,
+					flowId: anId,
+				}
+			},
+		}
+
+		node.synchronized = true
+	}
+}
+
+func (node *InclusiveGateway) NextAction(flow flow_interface.T) chan flow_node.Action {
 	response := make(chan flow_node.Action)
 	node.runnerChannel <- nextActionMessage{response: response, flow: flow}
 	return response
 }
 
-func (node *ExclusiveGateway) Incoming(index int) {
+func (node *InclusiveGateway) Incoming(index int) {
 	node.runnerChannel <- incomingMessage{index: index}
 }
 
-func (node *ExclusiveGateway) Element() bpmn.FlowNodeInterface {
+func (node *InclusiveGateway) Element() bpmn.FlowNodeInterface {
 	return node.element
 }

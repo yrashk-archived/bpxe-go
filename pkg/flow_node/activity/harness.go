@@ -6,6 +6,7 @@ import (
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow"
+	"bpxe.org/pkg/flow/flow_interface"
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/flow_node/event/catch_event"
 	"bpxe.org/pkg/id"
@@ -17,7 +18,7 @@ type message interface {
 }
 
 type nextActionMessage struct {
-	flowId   id.Id
+	flow     flow_interface.T
 	response chan chan flow_node.Action
 }
 
@@ -169,16 +170,16 @@ func (node *Harness) runner() {
 			case incomingMessage:
 				node.activity.Incoming(m.index)
 			case nextActionMessage:
-				m.response <- node.activity.NextAction(m.flowId)
+				m.response <- node.activity.NextAction(m.flow)
 			default:
 			}
 		}
 	}
 }
 
-func (node *Harness) NextAction(flowId id.Id) chan flow_node.Action {
+func (node *Harness) NextAction(flow flow_interface.T) chan flow_node.Action {
 	response := make(chan chan flow_node.Action)
-	node.runnerChannel <- nextActionMessage{flowId: flowId, response: response}
+	node.runnerChannel <- nextActionMessage{flow: flow, response: response}
 	return <-response
 }
 
