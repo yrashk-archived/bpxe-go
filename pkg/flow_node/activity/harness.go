@@ -106,7 +106,7 @@ func NewHarness(process *bpmn.Process,
 	node = &Harness{
 		FlowNode:                  *flowNode,
 		element:                   element,
-		runnerChannel:             make(chan message),
+		runnerChannel:             make(chan message, len(flowNode.Incoming)*2+1),
 		activity:                  activity,
 		activeBoundary:            activity.ActiveBoundary(),
 		idGenerator:               idGenerator,

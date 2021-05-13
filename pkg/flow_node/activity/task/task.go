@@ -77,7 +77,7 @@ func NewTask(startEvent *bpmn.Task) activity.Constructor {
 		taskNode := &Task{
 			FlowNode:       *flowNode,
 			element:        startEvent,
-			runnerChannel:  make(chan message),
+			runnerChannel:  make(chan message, len(flowNode.Incoming)*2+1),
 			activeBoundary: make(chan bool),
 			ctx:            ctx,
 			cancel:         cancel,

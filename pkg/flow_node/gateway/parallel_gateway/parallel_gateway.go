@@ -59,7 +59,7 @@ func NewParallelGateway(process *bpmn.Process,
 	node = &ParallelGateway{
 		FlowNode:              *flowNode,
 		element:               parallelGateway,
-		runnerChannel:         make(chan message),
+		runnerChannel:         make(chan message, len(flowNode.Incoming)*2+1),
 		reportedIncomingFlows: make([]int, 0),
 		awaitingActions:       make([]chan flow_node.Action, 0),
 		noOfIncomingFlows:     len(flowNode.Incoming),

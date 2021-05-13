@@ -119,7 +119,7 @@ func NewInclusiveGateway(process *bpmn.Process,
 	node = &InclusiveGateway{
 		FlowNode:                *flowNode,
 		element:                 inclusiveGateway,
-		runnerChannel:           make(chan message),
+		runnerChannel:           make(chan message, len(flowNode.Incoming)*2+1),
 		nonDefaultSequenceFlows: nonDefaultSequenceFlows,
 		defaultSequenceFlow:     defaultSequenceFlow,
 		flowTracker:             newFlowTracker(tracer),
