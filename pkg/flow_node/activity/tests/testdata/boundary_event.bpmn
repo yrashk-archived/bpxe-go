@@ -11,6 +11,7 @@
     <bpmn:sequenceFlow id="Flow_02vwd78" sourceRef="start" targetRef="task" />
     <bpmn:endEvent id="end">
       <bpmn:incoming>Flow_01oa3b2</bpmn:incoming>
+      <bpmn:incoming>Flow_0535fbo</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_01oa3b2" sourceRef="task" targetRef="end" />
     <bpmn:boundaryEvent id="sig1listener" attachedToRef="task">
@@ -23,17 +24,29 @@
     </bpmn:boundaryEvent>
     <bpmn:task id="interrupted" name="interrupted">
       <bpmn:incoming>Flow_07cj1c5</bpmn:incoming>
+      <bpmn:outgoing>Flow_0535fbo</bpmn:outgoing>
     </bpmn:task>
     <bpmn:sequenceFlow id="Flow_07cj1c5" sourceRef="sig1listener" targetRef="interrupted" />
     <bpmn:task id="uninterrupted" name="uninterrupted">
       <bpmn:incoming>Flow_1rjdgzw</bpmn:incoming>
     </bpmn:task>
     <bpmn:sequenceFlow id="Flow_1rjdgzw" sourceRef="sig2listener" targetRef="uninterrupted" />
+    <bpmn:sequenceFlow id="Flow_0535fbo" sourceRef="interrupted" targetRef="end" />
   </bpmn:process>
   <bpmn:signal id="sig1" name="sig1" />
   <bpmn:signal id="sig2" name="sig2" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_0r565a0">
+      <bpmndi:BPMNEdge id="Flow_1rjdgzw_di" bpmnElement="Flow_1rjdgzw">
+        <di:waypoint x="320" y="305" />
+        <di:waypoint x="320" y="370" />
+        <di:waypoint x="390" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07cj1c5_di" bpmnElement="Flow_07cj1c5">
+        <di:waypoint x="320" y="189" />
+        <di:waypoint x="320" y="120" />
+        <di:waypoint x="390" y="120" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_01oa3b2_di" bpmnElement="Flow_01oa3b2">
         <di:waypoint x="370" y="247" />
         <di:waypoint x="432" y="247" />
@@ -42,15 +55,9 @@
         <di:waypoint x="215" y="247" />
         <di:waypoint x="270" y="247" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_07cj1c5_di" bpmnElement="Flow_07cj1c5">
-        <di:waypoint x="320" y="189" />
-        <di:waypoint x="320" y="120" />
-        <di:waypoint x="390" y="120" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1rjdgzw_di" bpmnElement="Flow_1rjdgzw">
-        <di:waypoint x="320" y="305" />
-        <di:waypoint x="320" y="370" />
-        <di:waypoint x="390" y="370" />
+      <bpmndi:BPMNEdge id="Flow_0535fbo_di" bpmnElement="Flow_0535fbo">
+        <di:waypoint x="450" y="160" />
+        <di:waypoint x="450" y="229" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="start">
         <dc:Bounds x="179" y="229" width="36" height="36" />

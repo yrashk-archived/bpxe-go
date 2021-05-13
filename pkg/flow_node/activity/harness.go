@@ -2,6 +2,7 @@ package activity
 
 import (
 	"sync"
+	"sync/atomic"
 
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/event"
@@ -32,16 +33,34 @@ func (m incomingMessage) message() {}
 
 type Harness struct {
 	flow_node.FlowNode
-	element                   bpmn.FlowNodeInterface
-	runnerChannel             chan message
-	activity                  Activity
-	activeBoundary            <-chan bool
-	active                    bool
-	idGenerator               id.Generator
-	boundaryEvents            []*bpmn.BoundaryEvent
-	boundaryEventTerminations []chan bool
-	instanceBuilder           event.InstanceBuilder
-	cancellation              sync.Once
+	element         bpmn.FlowNodeInterface
+	runnerChannel   chan message
+	activity        Activity
+	activeBoundary  <-chan bool
+	active          int32
+	idGenerator     id.Generator
+	instanceBuilder event.InstanceBuilder
+	cancellation    sync.Once
+	lock            sync.RWMutex
+	eventConsumers  []event.ProcessEventConsumer
+}
+
+func (node *Harness) ConsumeProcessEvent(ev event.ProcessEvent) (result event.ConsumptionResult, err error) {
+	node.lock.RLock()
+	defer node.lock.RUnlock()
+	if atomic.LoadInt32(&node.active) == 1 {
+		result, err = event.ForwardProcessEvent(ev, &node.eventConsumers)
+	} else {
+		result = event.Consumed
+	}
+	return
+}
+
+func (node *Harness) RegisterProcessEventConsumer(consumer event.ProcessEventConsumer) (err error) {
+	node.lock.Lock()
+	defer node.lock.Unlock()
+	node.eventConsumers = append(node.eventConsumers, consumer)
+	return
 }
 
 func (node *Harness) Activity() Activity {
@@ -93,78 +112,67 @@ func NewHarness(process *bpmn.Process,
 	}
 
 	boundaryEvents := make([]*bpmn.BoundaryEvent, 0)
-	boundaryEventsTerminations := make([]chan bool, 0)
 
 	for i := range *process.BoundaryEvents() {
 		boundaryEvent := &(*process.BoundaryEvents())[i]
 		if *boundaryEvent.AttachedToRef() == flowNode.Id {
 			boundaryEvents = append(boundaryEvents, boundaryEvent)
-			boundaryEventsTerminations = append(boundaryEventsTerminations, make(chan bool))
 		}
 	}
 
 	node = &Harness{
-		FlowNode:                  *flowNode,
-		element:                   element,
-		runnerChannel:             make(chan message, len(flowNode.Incoming)*2+1),
-		activity:                  activity,
-		activeBoundary:            activity.ActiveBoundary(),
-		idGenerator:               idGenerator,
-		boundaryEvents:            boundaryEvents,
-		boundaryEventTerminations: boundaryEventsTerminations,
-		instanceBuilder:           instanceBuilder,
+		FlowNode:        *flowNode,
+		element:         element,
+		runnerChannel:   make(chan message, len(flowNode.Incoming)*2+1),
+		activity:        activity,
+		activeBoundary:  activity.ActiveBoundary(),
+		idGenerator:     idGenerator,
+		instanceBuilder: instanceBuilder,
+	}
+
+	err = node.EventEgress.RegisterProcessEventConsumer(node)
+	if err != nil {
+		return
+	}
+
+	for i := range boundaryEvents {
+		boundaryEvent := boundaryEvents[i]
+		catchEvent, err := catch_event.NewCatchEvent(node.Process, node.Definitions, &boundaryEvent.CatchEvent,
+			node.EventIngress, node, node.Tracer, node.FlowNodeMapping, node.FlowWaitGroup, node.instanceBuilder)
+		if err != nil {
+			node.Tracer.Trace(tracing.ErrorTrace{Error: err})
+		} else {
+			var actionTransformer flow_node.ActionTransformer
+			if boundaryEvent.CancelActivity() {
+				actionTransformer = func(sequenceFlowId *bpmn.IdRef, action flow_node.Action) flow_node.Action {
+					node.cancellation.Do(func() {
+						<-node.activity.Cancel()
+					})
+					return action
+				}
+			}
+			newFlow := flow.NewFlow(node.FlowNode.Definitions, catchEvent, node.FlowNode.Tracer,
+				node.FlowNode.FlowNodeMapping, node.FlowNode.FlowWaitGroup, node.idGenerator, actionTransformer)
+			newFlow.Start()
+		}
 	}
 	go node.runner()
 	return
 }
 
 func (node *Harness) runner() {
-	boundaryEventFlows := make([]*flow.Flow, len(node.boundaryEvents))
 	for {
 		select {
 		case activeBoundary := <-node.activeBoundary:
-			if activeBoundary && !node.active {
+			if activeBoundary && atomic.LoadInt32(&node.active) == 0 {
 				// Opening active boundary
+				atomic.StoreInt32(&node.active, 1)
 				node.Tracer.Trace(ActiveBoundaryTrace{Start: activeBoundary, Node: node.activity.Element()})
-				for i := range node.boundaryEvents {
-					boundaryEvent := node.boundaryEvents[i]
-					catchEvent, err := catch_event.NewCatchEvent(node.Process, node.Definitions, &boundaryEvent.CatchEvent,
-						node.EventIngress, node.EventEgress, node.Tracer, node.FlowNodeMapping, node.FlowWaitGroup, node.instanceBuilder)
-					if err != nil {
-						node.Tracer.Trace(tracing.ErrorTrace{Error: err})
-					} else {
-						var actionTransformer flow_node.ActionTransformer
-						if boundaryEvent.CancelActivity() {
-							actionTransformer = func(sequenceFlowId *bpmn.IdRef, action flow_node.Action) flow_node.Action {
-								node.cancellation.Do(func() {
-									<-node.activity.Cancel()
-								})
-								return action
-							}
-						}
-						newFlow := flow.NewFlow(node.FlowNode.Definitions, catchEvent, node.FlowNode.Tracer,
-							node.FlowNode.FlowNodeMapping, node.FlowNode.FlowWaitGroup, node.idGenerator, actionTransformer)
-						newFlow.SetTerminate(func(*bpmn.IdRef) chan bool {
-							return node.boundaryEventTerminations[i]
-						})
-						boundaryEventFlows[i] = newFlow
-						newFlow.Start()
-					}
-				}
-			} else if !activeBoundary && node.active {
+			} else if !activeBoundary && atomic.LoadInt32(&node.active) == 1 {
 				// Closing active boundary
+				atomic.StoreInt32(&node.active, 0)
 				node.Tracer.Trace(ActiveBoundaryTrace{Start: activeBoundary, Node: node.activity.Element()})
-				// Terminate boundary events
-				for i := range node.boundaryEventTerminations {
-					select {
-					// attempt to send if waiting
-					case node.boundaryEventTerminations[i] <- true:
-					default:
-						// bail otherwise
-					}
-				}
 			}
-			node.active = activeBoundary
 		case msg := <-node.runnerChannel:
 			switch m := msg.(type) {
 			case incomingMessage:
