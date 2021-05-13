@@ -11,7 +11,6 @@ import (
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/flow_node/activity"
 	"bpxe.org/pkg/flow_node/activity/task"
-	"bpxe.org/pkg/flow_node/event/catch_event"
 	"bpxe.org/pkg/process"
 	"bpxe.org/pkg/tracing"
 	"github.com/stretchr/testify/assert"
@@ -20,20 +19,22 @@ import (
 )
 
 func TestInterruptingEvent(t *testing.T) {
-	testBoundaryEvent(t, "testdata/boundary_event.bpmn", "sig1listener", func(visited map[string]bool) {
+	testBoundaryEvent(t, "testdata/boundary_event.bpmn", func(visited map[string]bool) {
+		assert.False(t, visited["uninterrupted"])
 		assert.True(t, visited["interrupted"])
-		assert.False(t, visited["end"])
+		assert.True(t, visited["end"])
 	}, event.NewSignalEvent("sig1"))
 }
 
 func TestNonInterruptingEvent(t *testing.T) {
-	testBoundaryEvent(t, "testdata/boundary_event.bpmn", "sig2listener", func(visited map[string]bool) {
+	testBoundaryEvent(t, "testdata/boundary_event.bpmn", func(visited map[string]bool) {
+		assert.False(t, visited["interrupted"])
 		assert.True(t, visited["uninterrupted"])
 		assert.True(t, visited["end"])
 	}, event.NewSignalEvent("sig2"))
 }
 
-func testBoundaryEvent(t *testing.T, filename, boundary string, test func(visited map[string]bool), events ...event.ProcessEvent) {
+func testBoundaryEvent(t *testing.T, filename string, test func(visited map[string]bool), events ...event.ProcessEvent) {
 	var testDoc bpmn.Definitions
 	var err error
 	src, err := testdata.ReadFile(filename)
@@ -67,7 +68,8 @@ func testBoundaryEvent(t *testing.T, filename, boundary string, test func(visite
 		} else {
 			t.Fatalf("failed to get the flow node element for `task`")
 		}
-		traces := instance.Tracer.Subscribe()
+		// this gives us some room when instance starts up
+		traces := instance.Tracer.SubscribeChannel(make(chan tracing.Trace, 32))
 		err := instance.Run()
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
@@ -90,29 +92,7 @@ func testBoundaryEvent(t *testing.T, filename, boundary string, test func(visite
 				t.Logf("%#v", trace)
 			}
 		}
-		listening := make(chan bool)
-		go func() {
-			for {
-				trace := <-traces
-				switch trace := trace.(type) {
-				case catch_event.ActiveListeningTrace:
-					if id, present := trace.Node.Id(); present {
-						if *id == boundary {
-							// got to task
-							listening <- true
-							return
-						}
 
-					}
-				case tracing.ErrorTrace:
-					t.Errorf("%#v", trace)
-					listening <- false
-				default:
-					t.Logf("%#v", trace)
-				}
-			}
-		}()
-		assert.True(t, <-listening)
 		for _, evt := range events {
 			_, err = instance.ConsumeProcessEvent(evt)
 			assert.Nil(t, err)
@@ -129,9 +109,10 @@ func testBoundaryEvent(t *testing.T, filename, boundary string, test func(visite
 						ready <- true
 					}
 					visited[*id] = true
+					if *id == "end" {
+						break loop1
+					}
 				}
-			case flow.CeaseFlowTrace:
-				break loop1
 			case tracing.ErrorTrace:
 				t.Fatalf("%#v", trace)
 			default:
