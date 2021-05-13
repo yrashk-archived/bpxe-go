@@ -47,7 +47,7 @@ func NewEventBasedGateway(process *bpmn.Process, definitions *bpmn.Definitions, 
 	node = &EventBasedGateway{
 		FlowNode:      *flowNode,
 		element:       eventBasedGateway,
-		runnerChannel: make(chan message),
+		runnerChannel: make(chan message, len(flowNode.Incoming)*2+1),
 		activated:     false,
 	}
 	go node.runner()

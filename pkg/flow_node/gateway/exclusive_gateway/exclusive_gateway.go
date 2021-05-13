@@ -108,7 +108,7 @@ func NewExclusiveGateway(process *bpmn.Process,
 	node = &ExclusiveGateway{
 		FlowNode:                *flowNode,
 		element:                 exclusiveGateway,
-		runnerChannel:           make(chan message),
+		runnerChannel:           make(chan message, len(flowNode.Incoming)*2+1),
 		nonDefaultSequenceFlows: nonDefaultSequenceFlows,
 		defaultSequenceFlow:     defaultSequenceFlow,
 		probing:                 make(map[id.Id]*chan flow_node.Action),

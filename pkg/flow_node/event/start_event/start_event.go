@@ -52,7 +52,7 @@ func NewStartEvent(process *bpmn.Process,
 	node = &StartEvent{
 		FlowNode:      *flowNode,
 		element:       startEvent,
-		runnerChannel: make(chan message),
+		runnerChannel: make(chan message, len(flowNode.Incoming)*2+1),
 		activated:     false,
 		idGenerator:   idGenerator,
 	}

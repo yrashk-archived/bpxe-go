@@ -62,7 +62,7 @@ func NewEndEvent(process *bpmn.Process,
 		activated:            false,
 		completed:            false,
 		eventConsumer:        eventIngress,
-		runnerChannel:        make(chan message),
+		runnerChannel:        make(chan message, len(flowNode.Incoming)*2+1),
 		startEventsActivated: make([]*bpmn.StartEvent, 0),
 	}
 	go node.runner()

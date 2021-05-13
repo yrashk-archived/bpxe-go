@@ -59,7 +59,7 @@ func NewCatchEvent(process *bpmn.Process, definitions *bpmn.Definitions,
 	node = &CatchEvent{
 		FlowNode:        *flowNode,
 		element:         intermediateCatchEvent,
-		runnerChannel:   make(chan message),
+		runnerChannel:   make(chan message, len(flowNode.Incoming)*2+1),
 		activated:       false,
 		awaitingActions: make([]chan flow_node.Action, 0),
 		eventInstances:  eventInstances,
