@@ -7,6 +7,7 @@ require (
 	github.com/antchfx/xpath v1.1.11
 	github.com/antonmedv/expr v1.8.9
 	github.com/go-enry/go-license-detector/v4 v4.2.0
+	github.com/google/gops v0.3.18
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/muyo/sno v1.2.0

@@ -11,7 +11,7 @@
         name = "bpxe";
         src = self;
 
-        buildInputs = [ go golangci-lint goimports saxon-he ];
+        buildInputs = [ go gops golangci-lint goimports saxon-he ];
 
         dontInstall = true;
 
