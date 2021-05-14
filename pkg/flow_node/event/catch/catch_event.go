@@ -45,19 +45,19 @@ type Node struct {
 }
 
 func New(process *bpmn.Process, definitions *bpmn.Definitions,
-	intermediateCatchEvent *bpmn.CatchEvent, eventIngress event.ProcessEventConsumer,
+	catchEvent *bpmn.CatchEvent, eventIngress event.ProcessEventConsumer,
 	eventEgress event.ProcessEventSource, tracer *tracing.Tracer, flowNodeMapping *flow_node.FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup, instanceBuilder event.InstanceBuilder) (node *Node, err error) {
 	flowNode, err := flow_node.New(process,
 		definitions,
-		&intermediateCatchEvent.FlowNode,
+		&catchEvent.FlowNode,
 		eventIngress, eventEgress,
 		tracer, flowNodeMapping,
 		flowWaitGroup)
 	if err != nil {
 		return
 	}
-	eventDefinitions := intermediateCatchEvent.EventDefinitions()
+	eventDefinitions := catchEvent.EventDefinitions()
 	eventInstances := make([]event.Instance, len(eventDefinitions))
 
 	for i, eventDefinition := range eventDefinitions {
@@ -66,7 +66,7 @@ func New(process *bpmn.Process, definitions *bpmn.Definitions,
 
 	node = &Node{
 		T:               *flowNode,
-		element:         intermediateCatchEvent,
+		element:         catchEvent,
 		runnerChannel:   make(chan message, len(flowNode.Incoming)*2+1),
 		activated:       false,
 		awaitingActions: make([]chan flow_node.Action, 0),
