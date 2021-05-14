@@ -17,7 +17,7 @@ import (
 	"bpxe.org/pkg/flow"
 	"bpxe.org/pkg/flow/flow_interface"
 	"bpxe.org/pkg/flow_node"
-	"bpxe.org/pkg/flow_node/event/catch_event"
+	"bpxe.org/pkg/flow_node/event/catch"
 	"bpxe.org/pkg/id"
 	"bpxe.org/pkg/tracing"
 )
@@ -145,7 +145,7 @@ func NewHarness(process *bpmn.Process,
 
 	for i := range boundaryEvents {
 		boundaryEvent := boundaryEvents[i]
-		catchEvent, err := catch_event.NewCatchEvent(node.Process, node.Definitions, &boundaryEvent.CatchEvent,
+		catchEvent, err := catch.New(node.Process, node.Definitions, &boundaryEvent.CatchEvent,
 			node.EventIngress, node, node.Tracer, node.FlowNodeMapping, node.FlowWaitGroup, node.instanceBuilder)
 		if err != nil {
 			node.Tracer.Trace(tracing.ErrorTrace{Error: err})
