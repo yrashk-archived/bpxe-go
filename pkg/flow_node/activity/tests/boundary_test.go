@@ -19,6 +19,7 @@ import (
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/flow_node/activity"
 	"bpxe.org/pkg/flow_node/activity/task"
+	"bpxe.org/pkg/flow_node/event/catch"
 	"bpxe.org/pkg/process"
 	"bpxe.org/pkg/tracing"
 	"github.com/stretchr/testify/assert"
@@ -27,7 +28,7 @@ import (
 )
 
 func TestInterruptingEvent(t *testing.T) {
-	testBoundaryEvent(t, "testdata/boundary_event.bpmn", func(visited map[string]bool) {
+	testBoundaryEvent(t, "testdata/boundary_event.bpmn", "sig1listener", func(visited map[string]bool) {
 		assert.False(t, visited["uninterrupted"])
 		assert.True(t, visited["interrupted"])
 		assert.True(t, visited["end"])
@@ -35,14 +36,14 @@ func TestInterruptingEvent(t *testing.T) {
 }
 
 func TestNonInterruptingEvent(t *testing.T) {
-	testBoundaryEvent(t, "testdata/boundary_event.bpmn", func(visited map[string]bool) {
+	testBoundaryEvent(t, "testdata/boundary_event.bpmn", "sig2listener", func(visited map[string]bool) {
 		assert.False(t, visited["interrupted"])
 		assert.True(t, visited["uninterrupted"])
 		assert.True(t, visited["end"])
 	}, event.NewSignalEvent("sig2"))
 }
 
-func testBoundaryEvent(t *testing.T, filename string, test func(visited map[string]bool), events ...event.ProcessEvent) {
+func testBoundaryEvent(t *testing.T, filename, boundary string, test func(visited map[string]bool), events ...event.ProcessEvent) {
 	var testDoc bpmn.Definitions
 	var err error
 	src, err := testdata.ReadFile(filename)
@@ -56,7 +57,13 @@ func testBoundaryEvent(t *testing.T, filename string, test func(visited map[stri
 	processElement := (*testDoc.Processes())[0]
 	proc := process.New(&processElement, &testDoc)
 	ready := make(chan bool)
-	if instance, err := proc.Instantiate(); err == nil {
+
+	// explicit tracer
+	tracer := tracing.NewTracer()
+	// this gives us some room when instance starts up
+	traces := tracer.SubscribeChannel(make(chan tracing.Trace, 32))
+
+	if instance, err := proc.Instantiate(process.WithTracer(tracer)); err == nil {
 		if node, found := testDoc.FindBy(bpmn.ExactId("task")); found {
 			if taskNode, found := instance.FlowNodeMapping().
 				ResolveElementToFlowNode(node.(bpmn.FlowNodeInterface)); found {
@@ -76,23 +83,37 @@ func testBoundaryEvent(t *testing.T, filename string, test func(visited map[stri
 		} else {
 			t.Fatalf("failed to get the flow node element for `task`")
 		}
-		// this gives us some room when instance starts up
-		traces := instance.Tracer.SubscribeChannel(make(chan tracing.Trace, 32))
+
 		err := instance.Run()
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
-	loop:
+
+		listening := false
+		activeBoundary := false
+
 		for {
+			if listening && activeBoundary {
+				break
+			}
 			trace := <-traces
+			t.Logf("%#v", trace)
 			switch trace := trace.(type) {
+			case catch.ActiveListeningTrace:
+				// Ensure the boundary event listener is actually listening
+				if id, present := trace.Node.Id(); present {
+					if *id == boundary {
+						// it is indeed listening
+						listening = true
+					}
+
+				}
 			case activity.ActiveBoundaryTrace:
 				if id, present := trace.Node.Id(); present && trace.Start {
 					if *id == "task" {
-						// got to task
-						break loop
+						// task has reached its active boundary
+						activeBoundary = true
 					}
-
 				}
 			case tracing.ErrorTrace:
 				t.Fatalf("%#v", trace)

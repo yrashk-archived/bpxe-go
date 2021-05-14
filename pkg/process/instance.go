@@ -39,11 +39,23 @@ type Instance struct {
 	idGenerator     id.Generator
 }
 
+// InstanceOption allows to modify configuration of
+// an instance in a flexible fashion (as its just a modification
+// function)
+type InstanceOption func(instance *Instance)
+
+// WithTracer overrides instance's tracer
+func WithTracer(tracer *tracing.Tracer) InstanceOption {
+	return func(instance *Instance) {
+		instance.Tracer = tracer
+	}
+}
+
 func (instance *Instance) FlowNodeMapping() *flow_node.FlowNodeMapping {
 	return instance.flowNodeMapping
 }
 
-func NewInstance(process *Process) (instance *Instance, err error) {
+func NewInstance(process *Process, options ...InstanceOption) (instance *Instance, err error) {
 	eventConsumers := make([]event.ProcessEventConsumer, 0)
 	tracer := tracing.NewTracer()
 	var idGenerator id.Generator
@@ -59,11 +71,16 @@ func NewInstance(process *Process) (instance *Instance, err error) {
 		idGenerator:     idGenerator,
 	}
 
+	// Apply options
+	for _, option := range options {
+		option(instance)
+	}
+
 	for i := range *process.Element.StartEvents() {
 		element := &(*process.Element.StartEvents())[i]
 		var startEvent *start.Node
 		startEvent, err = start.New(process.Element, process.Definitions,
-			element, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup,
+			element, instance, instance, instance.Tracer, instance.flowNodeMapping, &instance.flowWaitGroup,
 			idGenerator)
 		if err != nil {
 			return
@@ -78,7 +95,7 @@ func NewInstance(process *Process) (instance *Instance, err error) {
 		element := &(*process.Element.EndEvents())[i]
 		var endEvent *end.Node
 		endEvent, err = end.New(process.Element, process.Definitions,
-			element, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
+			element, instance, instance, instance.Tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
 		if err != nil {
 			return
 		}
@@ -92,7 +109,7 @@ func NewInstance(process *Process) (instance *Instance, err error) {
 		element := &(*process.Element.IntermediateCatchEvents())[i]
 		var intermediateCatchEvent *catch.Node
 		intermediateCatchEvent, err = catch.New(process.Element,
-			process.Definitions, &element.CatchEvent, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup,
+			process.Definitions, &element.CatchEvent, instance, instance, instance.Tracer, instance.flowNodeMapping, &instance.flowWaitGroup,
 			process)
 		if err != nil {
 			return
@@ -107,7 +124,7 @@ func NewInstance(process *Process) (instance *Instance, err error) {
 		element := &(*process.Element.Tasks())[i]
 		var aTask *activity.Harness
 		aTask, err = activity.NewHarness(process.Element, process.Definitions,
-			&element.FlowNode, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup,
+			&element.FlowNode, instance, instance, instance.Tracer, instance.flowNodeMapping, &instance.flowWaitGroup,
 			idGenerator, task.NewTask(element), process,
 		)
 		if err != nil {
@@ -123,7 +140,7 @@ func NewInstance(process *Process) (instance *Instance, err error) {
 		element := &(*process.Element.ExclusiveGateways())[i]
 		var exclusiveGateway *exclusive.Node
 		exclusiveGateway, err = exclusive.New(process.Element, process.Definitions,
-			element, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
+			element, instance, instance, instance.Tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
 		if err != nil {
 			return
 		}
@@ -137,7 +154,7 @@ func NewInstance(process *Process) (instance *Instance, err error) {
 		element := &(*process.Element.InclusiveGateways())[i]
 		var inclusiveGateway *inclusive.Node
 		inclusiveGateway, err = inclusive.New(process.Element, process.Definitions,
-			element, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
+			element, instance, instance, instance.Tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
 		if err != nil {
 			return
 		}
@@ -151,7 +168,7 @@ func NewInstance(process *Process) (instance *Instance, err error) {
 		element := &(*process.Element.ParallelGateways())[i]
 		var parallelGateway *parallel.Node
 		parallelGateway, err = parallel.New(process.Element, process.Definitions,
-			element, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
+			element, instance, instance, instance.Tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
 		if err != nil {
 			return
 		}
@@ -165,7 +182,7 @@ func NewInstance(process *Process) (instance *Instance, err error) {
 		element := &(*process.Element.EventBasedGateways())[i]
 		var eventBasedGateway *event_based.Node
 		eventBasedGateway, err = event_based.New(process.Element, process.Definitions,
-			element, instance, instance, tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
+			element, instance, instance, instance.Tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
 		if err != nil {
 			return
 		}

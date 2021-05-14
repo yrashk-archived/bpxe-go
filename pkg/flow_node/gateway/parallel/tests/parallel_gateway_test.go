@@ -223,7 +223,7 @@ func TestParallelGatewayIncompleteJoin(t *testing.T) {
 				default:
 					t.Logf("%#v", trace)
 				}
-			case <-time.After(500 * time.Millisecond):
+			case <-time.After(100 * time.Millisecond):
 				break loop
 			}
 		}

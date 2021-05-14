@@ -45,8 +45,8 @@ func NewWithIdGeneratorBuilder(element *bpmn.Process, definitions *bpmn.Definiti
 	return &process
 }
 
-func (process *Process) Instantiate() (instance *Instance, err error) {
-	instance, err = NewInstance(process)
+func (process *Process) Instantiate(options ...InstanceOption) (instance *Instance, err error) {
+	instance, err = NewInstance(process, options...)
 	if err != nil {
 		return
 	}
