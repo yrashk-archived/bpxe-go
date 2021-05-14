@@ -35,7 +35,7 @@ type processEventMessage struct {
 func (m processEventMessage) message() {}
 
 type Node struct {
-	flow_node.FlowNode
+	flow_node.T
 	element         *bpmn.CatchEvent
 	runnerChannel   chan message
 	activated       bool
@@ -48,7 +48,7 @@ func New(process *bpmn.Process, definitions *bpmn.Definitions,
 	intermediateCatchEvent *bpmn.CatchEvent, eventIngress event.ProcessEventConsumer,
 	eventEgress event.ProcessEventSource, tracer *tracing.Tracer, flowNodeMapping *flow_node.FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup, instanceBuilder event.InstanceBuilder) (node *Node, err error) {
-	flowNode, err := flow_node.NewFlowNode(process,
+	flowNode, err := flow_node.New(process,
 		definitions,
 		&intermediateCatchEvent.FlowNode,
 		eventIngress, eventEgress,
@@ -65,7 +65,7 @@ func New(process *bpmn.Process, definitions *bpmn.Definitions,
 	}
 
 	node = &Node{
-		FlowNode:        *flowNode,
+		T:               *flowNode,
 		element:         intermediateCatchEvent,
 		runnerChannel:   make(chan message, len(flowNode.Incoming)*2+1),
 		activated:       false,

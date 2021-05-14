@@ -43,7 +43,7 @@ type cancelMessage struct {
 func (m cancelMessage) message() {}
 
 type Task struct {
-	flow_node.FlowNode
+	flow_node.T
 	element        *bpmn.Task
 	runnerChannel  chan message
 	activeBoundary chan bool
@@ -72,7 +72,7 @@ func NewTask(startEvent *bpmn.Task) activity.Constructor {
 		flowNodeMapping *flow_node.FlowNodeMapping,
 		flowWaitGroup *sync.WaitGroup,
 	) (node activity.Activity, err error) {
-		flowNode, err := flow_node.NewFlowNode(process,
+		flowNode, err := flow_node.New(process,
 			definitions,
 			&startEvent.FlowNode,
 			eventIngress, eventEgress,
@@ -83,7 +83,7 @@ func NewTask(startEvent *bpmn.Task) activity.Constructor {
 		}
 		ctx, cancel := context.WithCancel(context.Background())
 		taskNode := &Task{
-			FlowNode:       *flowNode,
+			T:              *flowNode,
 			element:        startEvent,
 			runnerChannel:  make(chan message, len(flowNode.Incoming)*2+1),
 			activeBoundary: make(chan bool),

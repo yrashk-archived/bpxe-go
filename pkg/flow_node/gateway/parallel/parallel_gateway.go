@@ -37,7 +37,7 @@ type incomingMessage struct {
 func (m incomingMessage) message() {}
 
 type Node struct {
-	flow_node.FlowNode
+	flow_node.T
 	element               *bpmn.ParallelGateway
 	runnerChannel         chan message
 	reportedIncomingFlows []int
@@ -54,7 +54,7 @@ func New(process *bpmn.Process,
 	flowNodeMapping *flow_node.FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup,
 ) (node *Node, err error) {
-	flowNode, err := flow_node.NewFlowNode(process,
+	flowNode, err := flow_node.New(process,
 		definitions,
 		&parallelGateway.FlowNode,
 		eventIngress, eventEgress,
@@ -65,7 +65,7 @@ func New(process *bpmn.Process,
 	}
 
 	node = &Node{
-		FlowNode:              *flowNode,
+		T:                     *flowNode,
 		element:               parallelGateway,
 		runnerChannel:         make(chan message, len(flowNode.Incoming)*2+1),
 		reportedIncomingFlows: make([]int, 0),

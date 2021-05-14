@@ -34,7 +34,7 @@ func TestExclusiveGateway(t *testing.T) {
 		t.Fatalf("XML unmarshalling error: %v", err)
 	}
 	processElement := (*testDoc.Processes())[0]
-	proc := process.NewProcess(&processElement, &testDoc)
+	proc := process.New(&processElement, &testDoc)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
 		err := instance.Run()
@@ -87,7 +87,7 @@ func TestExclusiveGatewayWithDefault(t *testing.T) {
 		t.Fatalf("XML unmarshalling error: %v", err)
 	}
 	processElement := (*testDoc.Processes())[0]
-	proc := process.NewProcess(&processElement, &testDoc)
+	proc := process.New(&processElement, &testDoc)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
 		err := instance.Run()
@@ -141,7 +141,7 @@ func TestExclusiveGatewayWithNoDefault(t *testing.T) {
 		t.Fatalf("XML unmarshalling error: %v", err)
 	}
 	processElement := (*testDoc.Processes())[0]
-	proc := process.NewProcess(&processElement, &testDoc)
+	proc := process.New(&processElement, &testDoc)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
 		err := instance.Run()
@@ -197,7 +197,7 @@ func TestExclusiveGatewayIncompleteJoin(t *testing.T) {
 		t.Fatalf("XML unmarshalling error: %v", err)
 	}
 	processElement := (*testDoc.Processes())[0]
-	proc := process.NewProcess(&processElement, &testDoc)
+	proc := process.New(&processElement, &testDoc)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
 		err := instance.Run()

@@ -48,7 +48,7 @@ var executeCmd = &cobra.Command{
 			} else {
 				fmt.Println("Loaded an unnamed process")
 			}
-			proc := process.NewProcess(processElement, &document)
+			proc := process.New(processElement, &document)
 			if instance, err := proc.Instantiate(); err == nil {
 				traces := instance.Tracer.Subscribe()
 				err := instance.Run()

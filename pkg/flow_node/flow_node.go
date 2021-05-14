@@ -19,7 +19,7 @@ import (
 	"bpxe.org/pkg/tracing"
 )
 
-type FlowNode struct {
+type T struct {
 	Id           bpmn.Id
 	Definitions  *bpmn.Definitions
 	Incoming     []sequence_flow.SequenceFlow
@@ -43,7 +43,7 @@ func sequenceFlows(process *bpmn.Process,
 			_, ok := e.(*bpmn.SequenceFlow)
 			return ok && exactId(e)
 		}); found {
-			result[i] = sequence_flow.MakeSequenceFlow(element.(*bpmn.SequenceFlow), definitions)
+			result[i] = sequence_flow.Make(element.(*bpmn.SequenceFlow), definitions)
 		} else {
 			err = errors.NotFoundError{Expected: identifier}
 			return
@@ -52,7 +52,7 @@ func sequenceFlows(process *bpmn.Process,
 	return
 }
 
-func NewFlowNode(process *bpmn.Process,
+func New(process *bpmn.Process,
 	definitions *bpmn.Definitions,
 	flowNode *bpmn.FlowNode,
 	eventIngress event.ProcessEventConsumer,
@@ -60,7 +60,7 @@ func NewFlowNode(process *bpmn.Process,
 	tracer *tracing.Tracer,
 	flowNodeMapping *FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup,
-) (node *FlowNode, err error) {
+) (node *T, err error) {
 	incoming, err := sequenceFlows(process, definitions, flowNode.Incomings())
 	if err != nil {
 		return
@@ -78,7 +78,7 @@ func NewFlowNode(process *bpmn.Process,
 	} else {
 		ownId = *ownIdPtr
 	}
-	node = &FlowNode{
+	node = &T{
 		Id:              ownId,
 		Definitions:     definitions,
 		Incoming:        incoming,

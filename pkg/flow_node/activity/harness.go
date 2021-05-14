@@ -40,7 +40,7 @@ type incomingMessage struct {
 func (m incomingMessage) message() {}
 
 type Harness struct {
-	flow_node.FlowNode
+	flow_node.T
 	element         bpmn.FlowNodeInterface
 	runnerChannel   chan message
 	activity        Activity
@@ -96,7 +96,7 @@ func NewHarness(process *bpmn.Process,
 	constructor Constructor,
 	instanceBuilder event.InstanceBuilder,
 ) (node *Harness, err error) {
-	flowNode, err := flow_node.NewFlowNode(process,
+	flowNode, err := flow_node.New(process,
 		definitions,
 		element,
 		eventIngress, eventEgress,
@@ -129,7 +129,7 @@ func NewHarness(process *bpmn.Process,
 	}
 
 	node = &Harness{
-		FlowNode:        *flowNode,
+		T:               *flowNode,
 		element:         element,
 		runnerChannel:   make(chan message, len(flowNode.Incoming)*2+1),
 		activity:        activity,
@@ -159,8 +159,8 @@ func NewHarness(process *bpmn.Process,
 					return action
 				}
 			}
-			newFlow := flow.NewFlow(node.FlowNode.Definitions, catchEvent, node.FlowNode.Tracer,
-				node.FlowNode.FlowNodeMapping, node.FlowNode.FlowWaitGroup, node.idGenerator, actionTransformer)
+			newFlow := flow.New(node.T.Definitions, catchEvent, node.T.Tracer,
+				node.T.FlowNodeMapping, node.T.FlowWaitGroup, node.idGenerator, actionTransformer)
 			newFlow.Start()
 		}
 	}

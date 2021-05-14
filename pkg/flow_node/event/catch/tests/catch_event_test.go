@@ -114,7 +114,7 @@ func testEvent(t *testing.T, filename string, nodeId string, eventInstanceBuilde
 		t.Fatalf("XML unmarshalling error: %v", err)
 	}
 	processElement := (*testDoc.Processes())[0]
-	proc := process.NewProcess(&processElement, &testDoc)
+	proc := process.New(&processElement, &testDoc)
 	if eventInstanceBuilder != nil {
 		proc.SetEventInstanceBuilder(eventInstanceBuilder)
 	}
