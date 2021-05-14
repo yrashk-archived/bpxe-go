@@ -66,7 +66,7 @@ func TestMultipleParallelEvent(t *testing.T) {
 	select {
 	case <-ch:
 		t.Fatal("should not succeed")
-	case <-time.After(time.Millisecond * 500):
+	case <-time.After(time.Millisecond * 100):
 	}
 
 }
@@ -118,8 +118,11 @@ func testEvent(t *testing.T, filename string, nodeId string, eventInstanceBuilde
 	if eventInstanceBuilder != nil {
 		proc.SetEventInstanceBuilder(eventInstanceBuilder)
 	}
-	if instance, err := proc.Instantiate(); err == nil {
-		traces := instance.Tracer.SubscribeChannel(make(chan tracing.Trace, 64))
+
+	tracer := tracing.NewTracer()
+	traces := tracer.SubscribeChannel(make(chan tracing.Trace, 64))
+
+	if instance, err := proc.Instantiate(process.WithTracer(tracer)); err == nil {
 		err := instance.Run()
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
