@@ -104,6 +104,7 @@ loop:
 				}
 				continue loop
 			matched:
+				node.Tracer.Trace(EventObservedTrace{Node: node.element, Event: m.event})
 				for _, matched := range node.matchedEvents {
 					if !matched && node.element.ParallelMultiple() {
 						continue loop

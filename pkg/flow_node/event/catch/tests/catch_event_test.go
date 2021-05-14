@@ -11,7 +11,6 @@ package tests
 import (
 	"encoding/xml"
 	"testing"
-	"time"
 
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/event"
@@ -24,51 +23,31 @@ import (
 )
 
 func TestSignalEvent(t *testing.T) {
-	testEvent(t, "testdata/intermediate_catch_event.bpmn", "signalCatch",
-		nil, event.NewSignalEvent("global_sig1"))
+	testEvent(t, "testdata/intermediate_catch_event.bpmn", "signalCatch", nil, false, event.NewSignalEvent("global_sig1"))
 }
 
 func TestNoneEvent(t *testing.T) {
-	testEvent(t, "testdata/intermediate_catch_event.bpmn", "noneCatch",
-		nil, event.MakeNoneEvent())
+	testEvent(t, "testdata/intermediate_catch_event.bpmn", "noneCatch", nil, false, event.MakeNoneEvent())
 }
 
 func TestMessageEvent(t *testing.T) {
-	testEvent(t, "testdata/intermediate_catch_event.bpmn", "messageCatch",
-		nil, event.NewMessageEvent("msg", nil))
+	testEvent(t, "testdata/intermediate_catch_event.bpmn", "messageCatch", nil, false, event.NewMessageEvent("msg", nil))
 }
 
 func TestMultipleEvent(t *testing.T) {
 	// either
-	testEvent(t, "testdata/intermediate_catch_event_multiple.bpmn", "multipleCatch",
-		nil, event.NewMessageEvent("msg", nil))
+	testEvent(t, "testdata/intermediate_catch_event_multiple.bpmn", "multipleCatch", nil, false, event.NewMessageEvent("msg", nil))
 	// or
-	testEvent(t, "testdata/intermediate_catch_event_multiple.bpmn", "multipleCatch",
-		nil, event.NewSignalEvent("global_sig1"))
+	testEvent(t, "testdata/intermediate_catch_event_multiple.bpmn", "multipleCatch", nil, false, event.NewSignalEvent("global_sig1"))
 }
 
 func TestMultipleParallelEvent(t *testing.T) {
 	// both
 	testEvent(t, "testdata/intermediate_catch_event_multiple_parallel.bpmn", "multipleParallelCatch",
-		nil, event.NewMessageEvent("msg", nil), event.NewSignalEvent("global_sig1"))
+		nil, false, event.NewMessageEvent("msg", nil), event.NewSignalEvent("global_sig1"))
 	// either
-	ch := make(chan bool)
-	go func() {
-		testEvent(t, "testdata/intermediate_catch_event_multiple_parallel.bpmn", "multipleParallelCatch",
-			nil, event.NewMessageEvent("msg", nil))
-		ch <- true
-	}()
-	go func() {
-		testEvent(t, "testdata/intermediate_catch_event_multiple_parallel.bpmn", "multipleParallelCatch",
-			nil, event.NewSignalEvent("global_sig1"))
-		ch <- true
-	}()
-	select {
-	case <-ch:
-		t.Fatal("should not succeed")
-	case <-time.After(time.Millisecond * 100):
-	}
-
+	testEvent(t, "testdata/intermediate_catch_event_multiple_parallel.bpmn", "multipleParallelCatch", nil, true, event.NewMessageEvent("msg", nil))
+	testEvent(t, "testdata/intermediate_catch_event_multiple_parallel.bpmn", "multipleParallelCatch", nil, true, event.NewSignalEvent("global_sig1"))
 }
 
 type eventInstance struct {
@@ -93,16 +72,16 @@ func (e eventInstanceBuilder) NewEventInstance(def bpmn.EventDefinitionInterface
 func TestTimerEvent(t *testing.T) {
 	i := eventInstance{id: "timer_1"}
 	b := eventInstanceBuilder{}
-	testEvent(t, "testdata/intermediate_catch_event.bpmn", "timerCatch", &b, event.MakeTimerEvent(i))
+	testEvent(t, "testdata/intermediate_catch_event.bpmn", "timerCatch", &b, false, event.MakeTimerEvent(i))
 }
 
 func TestConditionalEvent(t *testing.T) {
 	i := eventInstance{id: "conditional_1"}
 	b := eventInstanceBuilder{}
-	testEvent(t, "testdata/intermediate_catch_event.bpmn", "conditionalCatch", &b, event.MakeTimerEvent(i))
+	testEvent(t, "testdata/intermediate_catch_event.bpmn", "conditionalCatch", &b, false, event.MakeTimerEvent(i))
 }
 
-func testEvent(t *testing.T, filename string, nodeId string, eventInstanceBuilder event.InstanceBuilder, events ...event.ProcessEvent) {
+func testEvent(t *testing.T, filename string, nodeId string, eventInstanceBuilder event.InstanceBuilder, eventObservationOnly bool, events ...event.ProcessEvent) {
 	var testDoc bpmn.Definitions
 	var err error
 	src, err := testdata.ReadFile(filename)
@@ -155,9 +134,24 @@ func testEvent(t *testing.T, filename string, nodeId string, eventInstanceBuilde
 
 		go func() {
 			defer instance.Tracer.Unsubscribe(traces)
+			eventsToObserve := events
 			for {
 				trace := <-traces
 				switch trace := trace.(type) {
+				case ev.EventObservedTrace:
+					if eventObservationOnly {
+						for i := range eventsToObserve {
+							if eventsToObserve[i] == trace.Event {
+								eventsToObserve[i] = eventsToObserve[len(eventsToObserve)-1]
+								eventsToObserve = eventsToObserve[:len(eventsToObserve)-1]
+								break
+							}
+						}
+						if len(eventsToObserve) == 0 {
+							resultChan <- true
+							return
+						}
+					}
 				case flow.FlowTrace:
 					if id, present := trace.Source.Id(); present {
 						if *id == nodeId {

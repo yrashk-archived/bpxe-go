@@ -4,7 +4,8 @@ all: check ## Build bpxe
 	go build -o bin ./cmd/bpxe
 
 test: check ## Run tests
-	go test -count=100 ./...
+	go test -count=100 ./pkg/...
+	go test ./test/...
 
 headers:
 	@go-license --config=.license.yml $(wildcard **/**.go **/**/**.go **/**/**/**.go **/**/**/**/**.go **/**/**/**/**/**.go)

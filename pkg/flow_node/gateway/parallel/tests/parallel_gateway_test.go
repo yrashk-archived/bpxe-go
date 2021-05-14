@@ -11,10 +11,10 @@ package tests
 import (
 	"encoding/xml"
 	"testing"
-	"time"
 
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/flow"
+	"bpxe.org/pkg/flow_node/gateway/parallel"
 	"bpxe.org/pkg/process"
 	"bpxe.org/pkg/tracing"
 
@@ -203,33 +203,48 @@ func TestParallelGatewayIncompleteJoin(t *testing.T) {
 		}
 		reached := make(map[string]int)
 	loop:
-		for {
-			select {
-			case trace := <-traces:
-				switch trace := trace.(type) {
-				case flow.VisitTrace:
-					t.Logf("%#v", trace)
-					if id, present := trace.Node.Id(); present {
-						if counter, ok := reached[*id]; ok {
-							reached[*id] = counter + 1
-						} else {
-							reached[*id] = 1
+		for trace := range traces {
+			switch trace := trace.(type) {
+			case parallel.IncomingFlowProcessedTrace:
+				t.Logf("%#v", trace)
+				if nodeIdPtr, present := trace.Node.Id(); present {
+					if *nodeIdPtr == "join" {
+						source, err := trace.Flow.SequenceFlow().Source()
+						assert.Nil(t, err)
+						if idPtr, present := source.Id(); present {
+							if *idPtr == "task1" {
+								// task1 already came in and has been
+								// processed
+								break loop
+							}
 						}
-					} else {
-						t.Fatalf("can't find element with Id %#v", id)
 					}
-				case tracing.ErrorTrace:
-					t.Fatalf("%#v", trace)
-				default:
-					t.Logf("%#v", trace)
 				}
-			case <-time.After(100 * time.Millisecond):
-				break loop
+			case flow.FlowTrace:
+				if idPtr, present := trace.Source.Id(); present {
+					if *idPtr == "join" {
+						t.Fatalf("should not flow from join")
+					}
+				}
+			case flow.VisitTrace:
+				t.Logf("%#v", trace)
+				if id, present := trace.Node.Id(); present {
+					if counter, ok := reached[*id]; ok {
+						reached[*id] = counter + 1
+					} else {
+						reached[*id] = 1
+					}
+				} else {
+					t.Fatalf("can't find element with Id %#v", id)
+				}
+			case tracing.ErrorTrace:
+				t.Fatalf("%#v", trace)
+			default:
+				t.Logf("%#v", trace)
 			}
 		}
 		instance.Tracer.Unsubscribe(traces)
 
-		assert.Equal(t, 1, reached["task3"])
 		assert.Equal(t, 1, reached["task1"])
 		assert.Equal(t, 0, reached["task2"])
 		assert.Equal(t, 1, reached["join"])

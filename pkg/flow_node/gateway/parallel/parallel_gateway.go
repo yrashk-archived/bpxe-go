@@ -104,6 +104,7 @@ loop:
 		case nextActionMessage:
 			node.awaitingActions = append(node.awaitingActions, m.response)
 			node.flowWhenReady()
+			node.Tracer.Trace(IncomingFlowProcessedTrace{Node: node.element, Flow: m.flow})
 		default:
 		}
 	}
