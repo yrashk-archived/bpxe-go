@@ -54,7 +54,7 @@ func testBoundaryEvent(t *testing.T, filename string, test func(visited map[stri
 		t.Fatalf("XML unmarshalling error: %v", err)
 	}
 	processElement := (*testDoc.Processes())[0]
-	proc := process.NewProcess(&processElement, &testDoc)
+	proc := process.New(&processElement, &testDoc)
 	ready := make(chan bool)
 	if instance, err := proc.Instantiate(); err == nil {
 		if node, found := testDoc.FindBy(bpmn.ExactId("task")); found {
@@ -65,7 +65,7 @@ func testBoundaryEvent(t *testing.T, filename string, test func(visited map[stri
 				aTask.SetBody(func(task *task.Task, ctx context.Context) flow_node.Action {
 					select {
 					case <-ready:
-						return flow_node.FlowAction{SequenceFlows: flow_node.AllSequenceFlows(&task.FlowNode.Outgoing)}
+						return flow_node.FlowAction{SequenceFlows: flow_node.AllSequenceFlows(&task.T.Outgoing)}
 					case <-ctx.Done():
 						return flow_node.CompleteAction{}
 					}

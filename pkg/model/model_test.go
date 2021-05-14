@@ -38,7 +38,7 @@ func TestFindProcess(t *testing.T) {
 	if err != nil {
 		t.Fatalf("XML unmarshalling error: %v", err)
 	}
-	model := NewModel(&sampleDoc)
+	model := New(&sampleDoc)
 	if proc, found := model.FindProcessBy(exactId("sample")); found {
 		if id, present := proc.Element.Id(); present {
 			assert.Equal(t, *id, "sample")

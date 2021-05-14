@@ -44,7 +44,7 @@ func (flow *Flow) SequenceFlow() *sequence_flow.SequenceFlow {
 		seqFlow, present := flow.definitions.FindBy(bpmn.ExactId(*flow.sequenceFlowId).
 			And(bpmn.ElementType((*bpmn.SequenceFlow)(nil))))
 		if present {
-			return sequence_flow.NewSequenceFlow(seqFlow.(*bpmn.SequenceFlow), flow.definitions)
+			return sequence_flow.New(seqFlow.(*bpmn.SequenceFlow), flow.definitions)
 		} else {
 			return nil
 		}
@@ -59,10 +59,10 @@ func (flow *Flow) SetTerminate(terminate flow_node.Terminate) {
 	flow.terminate = terminate
 }
 
-// Creates a new flow from a flow node
+// New creates a new flow from a flow node
 //
 // The flow does nothing until it is explicitly started.
-func NewFlow(definitions *bpmn.Definitions,
+func New(definitions *bpmn.Definitions,
 	current flow_node.FlowNodeInterface, tracer *tracing.Tracer,
 	flowNodeMapping *flow_node.FlowNodeMapping, flowWaitGroup *sync.WaitGroup,
 	idGenerator id.Generator, actionTransformer flow_node.ActionTransformer) *Flow {
@@ -193,7 +193,7 @@ func (flow *Flow) handleAdditionalSequenceFlow(sequenceFlow *sequence_flow.Seque
 	if err == nil {
 		if flowNode, found := flow.flowNodeMapping.ResolveElementToFlowNode(target); found {
 			var index int
-			newFlow := NewFlow(flow.definitions, flowNode, flow.tracer, flow.flowNodeMapping, flow.flowWaitGroup,
+			newFlow := New(flow.definitions, flowNode, flow.tracer, flow.flowNodeMapping, flow.flowWaitGroup,
 				flow.idGenerator, actionTransformer)
 			flowId = newFlow.Id()
 			if idPtr, present := sequenceFlow.Id(); present {

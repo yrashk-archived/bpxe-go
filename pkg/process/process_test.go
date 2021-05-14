@@ -31,7 +31,7 @@ func TestExplicitInstantiation(t *testing.T) {
 	}
 
 	if proc, found := sampleDoc.FindBy(bpmn.ExactId("sample")); found {
-		process := NewProcess(proc.(*bpmn.Process), &defaultDefinitions)
+		process := New(proc.(*bpmn.Process), &defaultDefinitions)
 		instance, err := process.Instantiate()
 		assert.Nil(t, err)
 		assert.NotNil(t, instance)

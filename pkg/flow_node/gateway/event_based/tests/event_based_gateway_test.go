@@ -47,7 +47,7 @@ func testEventBasedGateway(t *testing.T, test func(map[string]int), events ...ev
 		return
 	}
 	processElement := (*testDoc.Processes())[0]
-	proc := process.NewProcess(&processElement, &testDoc)
+	proc := process.New(&processElement, &testDoc)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
 		err := instance.Run()

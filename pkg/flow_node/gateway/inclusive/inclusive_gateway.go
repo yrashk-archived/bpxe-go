@@ -65,7 +65,7 @@ type flowSync struct {
 }
 
 type Node struct {
-	flow_node.FlowNode
+	flow_node.T
 	element                 *bpmn.InclusiveGateway
 	runnerChannel           chan message
 	defaultSequenceFlow     *sequence_flow.SequenceFlow
@@ -87,7 +87,7 @@ func New(process *bpmn.Process,
 	flowNodeMapping *flow_node.FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup,
 ) (node *Node, err error) {
-	flowNode, err := flow_node.NewFlowNode(process,
+	flowNode, err := flow_node.New(process,
 		definitions,
 		&inclusiveGateway.FlowNode,
 		eventIngress, eventEgress,
@@ -103,7 +103,7 @@ func New(process *bpmn.Process,
 		if node, found := flowNode.Process.FindBy(bpmn.ExactId(*seqFlow).
 			And(bpmn.ElementType((*bpmn.SequenceFlow)(nil)))); found {
 			defaultSequenceFlow = new(sequence_flow.SequenceFlow)
-			*defaultSequenceFlow = sequence_flow.MakeSequenceFlow(
+			*defaultSequenceFlow = sequence_flow.Make(
 				node.(*bpmn.SequenceFlow),
 				definitions,
 			)
@@ -125,7 +125,7 @@ func New(process *bpmn.Process,
 	)
 
 	node = &Node{
-		FlowNode:                *flowNode,
+		T:                       *flowNode,
 		element:                 inclusiveGateway,
 		runnerChannel:           make(chan message, len(flowNode.Incoming)*2+1),
 		nonDefaultSequenceFlows: nonDefaultSequenceFlows,
@@ -163,7 +163,7 @@ func (node *Node) runner() {
 					// no successful non-default sequence flows
 					if node.defaultSequenceFlow == nil {
 						// exception (Table 13.2)
-						node.FlowNode.Tracer.Trace(tracing.ErrorTrace{
+						node.T.Tracer.Trace(tracing.ErrorTrace{
 							Error: NoEffectiveSequenceFlows{
 								InclusiveGateway: node.element,
 							},

@@ -26,7 +26,7 @@ func (process *Process) SetEventInstanceBuilder(eventInstanceBuilder event.Insta
 	process.eventInstanceBuilder = eventInstanceBuilder
 }
 
-func MakeProcess(element *bpmn.Process, definitions *bpmn.Definitions, idGeneratorBuilder id.GeneratorBuilder) Process {
+func Make(element *bpmn.Process, definitions *bpmn.Definitions, idGeneratorBuilder id.GeneratorBuilder) Process {
 	return Process{
 		Element:          element,
 		Definitions:      definitions,
@@ -35,13 +35,13 @@ func MakeProcess(element *bpmn.Process, definitions *bpmn.Definitions, idGenerat
 	}
 }
 
-func NewProcess(element *bpmn.Process, definitions *bpmn.Definitions) *Process {
-	return NewProcessWithIdGeneratorBuilder(element, definitions, id.DefaultIdGeneratorBuilder)
+func New(element *bpmn.Process, definitions *bpmn.Definitions) *Process {
+	return NewWithIdGeneratorBuilder(element, definitions, id.DefaultIdGeneratorBuilder)
 }
 
-func NewProcessWithIdGeneratorBuilder(element *bpmn.Process, definitions *bpmn.Definitions,
+func NewWithIdGeneratorBuilder(element *bpmn.Process, definitions *bpmn.Definitions,
 	idGeneratorBuilder id.GeneratorBuilder) *Process {
-	process := MakeProcess(element, definitions, idGeneratorBuilder)
+	process := Make(element, definitions, idGeneratorBuilder)
 	return &process
 }
 

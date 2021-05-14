@@ -19,15 +19,15 @@ type Model struct {
 	processes []process.Process
 }
 
-func NewModel(element *bpmn.Definitions) *Model {
-	return NewModelWithIdGenerator(element, id.DefaultIdGeneratorBuilder)
+func New(element *bpmn.Definitions) *Model {
+	return NewWithIdGenerator(element, id.DefaultIdGeneratorBuilder)
 }
 
-func NewModelWithIdGenerator(element *bpmn.Definitions, idGeneratorBuilder id.GeneratorBuilder) *Model {
+func NewWithIdGenerator(element *bpmn.Definitions, idGeneratorBuilder id.GeneratorBuilder) *Model {
 	procs := element.Processes()
 	processes := make([]process.Process, len(*procs))
 	for i := range *procs {
-		processes[i] = process.MakeProcess(&(*procs)[i], element, idGeneratorBuilder)
+		processes[i] = process.Make(&(*procs)[i], element, idGeneratorBuilder)
 	}
 	return &Model{
 		Element:   element,

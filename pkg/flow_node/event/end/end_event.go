@@ -35,7 +35,7 @@ type incomingMessage struct {
 func (m incomingMessage) message() {}
 
 type Node struct {
-	flow_node.FlowNode
+	flow_node.T
 	element              *bpmn.EndEvent
 	activated            bool
 	completed            bool
@@ -53,7 +53,7 @@ func New(process *bpmn.Process,
 	flowNodeMapping *flow_node.FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup,
 ) (node *Node, err error) {
-	flowNodePtr, err := flow_node.NewFlowNode(
+	flowNodePtr, err := flow_node.New(
 		process,
 		definitions,
 		&endEvent.FlowNode,
@@ -65,7 +65,7 @@ func New(process *bpmn.Process,
 	}
 	flowNode := *flowNodePtr
 	node = &Node{
-		FlowNode:             flowNode,
+		T:                    flowNode,
 		element:              endEvent,
 		activated:            false,
 		completed:            false,
@@ -95,13 +95,13 @@ func (node *Node) runner() {
 				continue
 			}
 
-			if _, err := node.FlowNode.EventIngress.ConsumeProcessEvent(
+			if _, err := node.T.EventIngress.ConsumeProcessEvent(
 				event.MakeEndEvent(node.element),
 			); err == nil {
 				node.completed = true
 				m.response <- flow_node.CompleteAction{}
 			} else {
-				node.FlowNode.Tracer.Trace(tracing.ErrorTrace{Error: err})
+				node.T.Tracer.Trace(tracing.ErrorTrace{Error: err})
 			}
 		default:
 		}

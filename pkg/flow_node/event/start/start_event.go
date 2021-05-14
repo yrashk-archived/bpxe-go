@@ -31,7 +31,7 @@ type nextActionMessage struct {
 func (m nextActionMessage) message() {}
 
 type Node struct {
-	flow_node.FlowNode
+	flow_node.T
 	element       *bpmn.StartEvent
 	runnerChannel chan message
 	activated     bool
@@ -48,7 +48,7 @@ func New(process *bpmn.Process,
 	flowWaitGroup *sync.WaitGroup,
 	idGenerator id.Generator,
 ) (node *Node, err error) {
-	flowNode, err := flow_node.NewFlowNode(process,
+	flowNode, err := flow_node.New(process,
 		definitions,
 		&startEvent.FlowNode,
 		eventIngress, eventEgress,
@@ -58,7 +58,7 @@ func New(process *bpmn.Process,
 		return
 	}
 	node = &Node{
-		FlowNode:      *flowNode,
+		T:             *flowNode,
 		element:       startEvent,
 		runnerChannel: make(chan message, len(flowNode.Incoming)*2+1),
 		activated:     false,
@@ -93,8 +93,8 @@ func (node *Node) ConsumeProcessEvent(
 ) (result event.ConsumptionResult, err error) {
 	switch ev.(type) {
 	case *event.StartEvent:
-		newFlow := flow.NewFlow(node.FlowNode.Definitions, node, node.FlowNode.Tracer,
-			node.FlowNode.FlowNodeMapping, node.FlowNode.FlowWaitGroup, node.idGenerator, nil)
+		newFlow := flow.New(node.T.Definitions, node, node.T.Tracer,
+			node.T.FlowNodeMapping, node.T.FlowWaitGroup, node.idGenerator, nil)
 		newFlow.Start()
 	default:
 	}

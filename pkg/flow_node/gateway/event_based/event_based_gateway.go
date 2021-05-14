@@ -33,7 +33,7 @@ type nextActionMessage struct {
 func (m nextActionMessage) message() {}
 
 type Node struct {
-	flow_node.FlowNode
+	flow_node.T
 	element       *bpmn.EventBasedGateway
 	runnerChannel chan message
 	activated     bool
@@ -42,7 +42,7 @@ type Node struct {
 func New(process *bpmn.Process, definitions *bpmn.Definitions, eventBasedGateway *bpmn.EventBasedGateway,
 	eventIngress event.ProcessEventConsumer, eventEgress event.ProcessEventSource, tracer *tracing.Tracer,
 	flowNodeMapping *flow_node.FlowNodeMapping, flowWaitGroup *sync.WaitGroup) (node *Node, err error) {
-	flowNode, err := flow_node.NewFlowNode(process,
+	flowNode, err := flow_node.New(process,
 		definitions,
 		&eventBasedGateway.FlowNode,
 		eventIngress, eventEgress,
@@ -53,7 +53,7 @@ func New(process *bpmn.Process, definitions *bpmn.Definitions, eventBasedGateway
 	}
 
 	node = &Node{
-		FlowNode:      *flowNode,
+		T:             *flowNode,
 		element:       eventBasedGateway,
 		runnerChannel: make(chan message, len(flowNode.Incoming)*2+1),
 		activated:     false,

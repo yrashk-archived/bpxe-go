@@ -37,7 +37,7 @@ func TestNewFlowNode(t *testing.T) {
 	var waitGroup sync.WaitGroup
 	if proc, found := sampleDoc.FindBy(bpmn.ExactId("sample")); found {
 		if flowNode, found := sampleDoc.FindBy(bpmn.ExactId("either")); found {
-			node, err := NewFlowNode(proc.(*bpmn.Process),
+			node, err := New(proc.(*bpmn.Process),
 				&defaultDefinitions,
 				&flowNode.(*bpmn.ParallelGateway).FlowNode,
 				event.VoidProcessEventConsumer{},

@@ -20,15 +20,15 @@ type SequenceFlow struct {
 	definitions *bpmn.Definitions
 }
 
-func MakeSequenceFlow(sequenceFlow *bpmn.SequenceFlow, definitions *bpmn.Definitions) SequenceFlow {
+func Make(sequenceFlow *bpmn.SequenceFlow, definitions *bpmn.Definitions) SequenceFlow {
 	return SequenceFlow{
 		SequenceFlow: sequenceFlow,
 		definitions:  definitions,
 	}
 }
 
-func NewSequenceFlow(sequenceFlow *bpmn.SequenceFlow, definitions *bpmn.Definitions) *SequenceFlow {
-	seqFlow := MakeSequenceFlow(sequenceFlow, definitions)
+func New(sequenceFlow *bpmn.SequenceFlow, definitions *bpmn.Definitions) *SequenceFlow {
+	seqFlow := Make(sequenceFlow, definitions)
 	return &seqFlow
 }
 
