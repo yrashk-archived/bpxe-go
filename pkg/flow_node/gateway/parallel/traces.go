@@ -6,24 +6,18 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/LICENSE-Apache-2.0
 
-package catch
+package parallel
 
 import (
 	"bpxe.org/pkg/bpmn"
-	"bpxe.org/pkg/event"
+	"bpxe.org/pkg/flow/flow_interface"
 )
 
-type ActiveListeningTrace struct {
-	Node *bpmn.CatchEvent
+// IncomingFlowProcessedTrace signals that a particular flow
+// has been processed. If any action have been taken, it already happened
+type IncomingFlowProcessedTrace struct {
+	Node *bpmn.ParallelGateway
+	Flow flow_interface.T
 }
 
-func (t ActiveListeningTrace) TraceInterface() {}
-
-// EventObservedTrace signals the fact that a particular event
-// has been in fact observed by the node
-type EventObservedTrace struct {
-	Node  *bpmn.CatchEvent
-	Event event.ProcessEvent
-}
-
-func (t EventObservedTrace) TraceInterface() {}
+func (t IncomingFlowProcessedTrace) TraceInterface() {}
