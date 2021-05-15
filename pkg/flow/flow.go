@@ -27,7 +27,6 @@ type Flow struct {
 	id                id.Id
 	definitions       *bpmn.Definitions
 	current           flow_node.FlowNodeInterface
-	index             *int
 	tracer            *tracing.Tracer
 	flowNodeMapping   *flow_node.FlowNodeMapping
 	flowWaitGroup     *sync.WaitGroup
@@ -159,14 +158,6 @@ func (flow *Flow) handleSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, u
 			flow.terminate = terminate
 			flow.tracer.Trace(VisitTrace{Node: flow.current.Element()})
 			flow.actionTransformer = actionTransformer
-			var index int
-			index, err = sequenceFlow.TargetIndex()
-			if err != nil {
-				flow.tracer.Trace(tracing.ErrorTrace{Error: err})
-				flow.index = nil
-			}
-			flow.index = new(int)
-			*flow.index = index
 			flowed = true
 		} else {
 			flow.tracer.Trace(tracing.ErrorTrace{
@@ -208,7 +199,6 @@ func (flow *Flow) handleAdditionalSequenceFlow(sequenceFlow *sequence_flow.Seque
 	if flowNode, found := flow.flowNodeMapping.ResolveElementToFlowNode(target); found {
 		flowId = flow.idGenerator.New()
 		f = func() {
-			var index int
 			newFlow := New(flow.definitions, flowNode, flow.tracer, flow.flowNodeMapping, flow.flowWaitGroup,
 				flow.idGenerator, actionTransformer)
 			newFlow.id = flowId // important: override id with pre-generated one
@@ -220,13 +210,6 @@ func (flow *Flow) handleAdditionalSequenceFlow(sequenceFlow *sequence_flow.Seque
 				})
 			}
 			newFlow.terminate = terminate
-			index, err = sequenceFlow.TargetIndex()
-			if err != nil {
-				flow.tracer.Trace(tracing.ErrorTrace{Error: err})
-				newFlow.index = nil
-			}
-			newFlow.index = new(int)
-			*newFlow.index = index
 			newFlow.Start()
 		}
 		flowed = true
@@ -254,9 +237,6 @@ func (flow *Flow) Start() {
 		defer flow.flowWaitGroup.Done()
 		flow.tracer.Trace(VisitTrace{Node: flow.current.Element()})
 		for {
-			if flow.index != nil {
-				flow.current.Incoming(*flow.index)
-			}
 		await:
 			select {
 			case terminate := <-flow.termination():

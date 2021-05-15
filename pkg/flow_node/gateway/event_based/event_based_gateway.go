@@ -112,9 +112,6 @@ func (node *Node) NextAction(flow flow_interface.T) chan flow_node.Action {
 	return response
 }
 
-func (node *Node) Incoming(int) {
-}
-
 func (node *Node) Element() bpmn.FlowNodeInterface {
 	return node.element
 }

@@ -14,6 +14,5 @@ import (
 
 type FlowNodeInterface interface {
 	Outgoing
-	Incoming
 	Element() bpmn.FlowNodeInterface
 }

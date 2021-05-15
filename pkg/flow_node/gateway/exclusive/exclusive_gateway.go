@@ -45,12 +45,6 @@ type nextActionMessage struct {
 
 func (m nextActionMessage) message() {}
 
-type incomingMessage struct {
-	index int
-}
-
-func (m incomingMessage) message() {}
-
 type probingReport struct {
 	result []int
 	flowId id.Id
@@ -208,10 +202,6 @@ func (node *Node) NextAction(flow flow_interface.T) chan flow_node.Action {
 	response := make(chan flow_node.Action)
 	node.runnerChannel <- nextActionMessage{response: response, flow: flow}
 	return response
-}
-
-func (node *Node) Incoming(index int) {
-	node.runnerChannel <- incomingMessage{index: index}
 }
 
 func (node *Node) Element() bpmn.FlowNodeInterface {
