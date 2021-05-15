@@ -1,10 +1,31 @@
 <img src="https://github.com/bpxe/bpxe/blob/master/logo.svg" width="100%" height="150">
 
+---
+
+## Problem: creating and maintaining robust business systems
+
+Creating a proof-of-concept business system is relatively easy. Happy execution path,
+no catastrophic failures, not much thought given to reliability. Data is easily
+kept in a few tables. Scale is not important.
+
+This all starts changing, however, when this starts maturing. The logic needs to be
+maintained and kept in sync with business needs. Corner cases nobody thought of or
+tested for keep appearing. Failures do occur. Incosistent state happens. Suddenly (but
+arguably, expectably), developers are burdended with a lot more work. Onboarding becomes
+more difficult as understanding the intricacies of the system takes longer.
+
+Ultimately, the cost of development and shipping keeps rising, while velocity is coming
+down. And that's a problem.
+
+---
+
 # BPXE: Business Process eXecution Engine
 
-BPMN 2.0 based business process execution engine implemented in Go. BPMN stands
-for Business Process Model and Notation. BPMN's goal is to help stakeholders to
-have a shared understanding of processes.
+BPXE is a BPMN 2.0-based business process execution engine and is a proposed solution to the
+problem statement above.
+
+BPMN stands for Business Process Model and Notation. It is a [specification](https://en.wikipedia.org/wiki/Business_Process_Model_and_Notation)
+that defines visual notation and execution semantics.
 
 BPXE focuses on the execution aspect of such notation, effectively allowing the
 processes described in BPMN to function as if they were programs. BPXE is not
