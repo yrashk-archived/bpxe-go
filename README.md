@@ -9,8 +9,23 @@ have a shared understanding of processes.
 BPXE focuses on the execution aspect of such notation, effectively allowing the
 processes described in BPMN to function as if they were programs. BPXE is not
 the only such engine, as there are many commercially or community supported
-ones. The motivation behind the creation of BPXE was to create an engine with a
-particular focus on correctness and robustness.
+ones.
+
+Having visualized processes that are also determinisitcally executable is key to
+maintaining a coherent understanding of what the process is supposed to do across
+teams and specialties.
+
+## Processes as Source of Truth
+
+Equally important aspect of BPXE is that it makes processes and their executions
+a durable source of truth. This means that process instances can query previous
+executions of any processes to make further decisions.
+
+As an example, consider a Purchasing process, which chooses a special path if it
+queries previous execution and finds out that when given the same or similar shopping
+cart, majority of those process executions were abandoned (i.e. customer did not complete
+a purchase). This kind of logic can be easily integrated into a process and updated as needed,
+giving a much better level of insight and control at a much lower modification cost.
 
 ## Goals
 
