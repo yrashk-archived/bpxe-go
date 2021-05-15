@@ -179,8 +179,19 @@ func (flow *Flow) handleSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, u
 	return
 }
 
+// handleAdditionalSequenceFlow returns a new flowId (if it will flow), flow start function and a flag
+// that indicates whether it'll flow.
+//
+// The reason behind the way this function works is that we don't want these additional sequence flows
+// to flow until after we logged the fact that they'll flow (using FlowTrace). This makes it consistent
+// with the behaviour of handleSequenceFlow since it doesn't really flow anywhere but simply sets the current
+// flow to continue flowing.
+//
+// Having this FlowTrace consistency is extremely important because otherwise there will be cases when
+// the FlowTrace will come through *after* traces created by newly started flows, completely messing up
+// the order of traces which is expected to be linear.
 func (flow *Flow) handleAdditionalSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, unconditional bool,
-	actionTransformer flow_node.ActionTransformer, terminate flow_node.Terminate) (flowId id.Id, flowed bool) {
+	actionTransformer flow_node.ActionTransformer, terminate flow_node.Terminate) (flowId id.Id, f func(), flowed bool) {
 	ok, err := flow.testSequenceFlow(sequenceFlow, unconditional)
 	if err != nil {
 		flow.tracer.Trace(tracing.ErrorTrace{Error: err})
@@ -190,12 +201,17 @@ func (flow *Flow) handleAdditionalSequenceFlow(sequenceFlow *sequence_flow.Seque
 		return
 	}
 	target, err := sequenceFlow.Target()
-	if err == nil {
-		if flowNode, found := flow.flowNodeMapping.ResolveElementToFlowNode(target); found {
+	if err != nil {
+		flow.tracer.Trace(tracing.ErrorTrace{Error: err})
+		return
+	}
+	if flowNode, found := flow.flowNodeMapping.ResolveElementToFlowNode(target); found {
+		flowId = flow.idGenerator.New()
+		f = func() {
 			var index int
 			newFlow := New(flow.definitions, flowNode, flow.tracer, flow.flowNodeMapping, flow.flowWaitGroup,
 				flow.idGenerator, actionTransformer)
-			flowId = newFlow.Id()
+			newFlow.id = flowId // important: override id with pre-generated one
 			if idPtr, present := sequenceFlow.Id(); present {
 				newFlow.sequenceFlowId = idPtr
 			} else {
@@ -212,14 +228,12 @@ func (flow *Flow) handleAdditionalSequenceFlow(sequenceFlow *sequence_flow.Seque
 			newFlow.index = new(int)
 			*newFlow.index = index
 			newFlow.Start()
-			flowed = true
-		} else {
-			flow.tracer.Trace(tracing.ErrorTrace{
-				Error: errors.NotFoundError{Expected: fmt.Sprintf("flow node for element %#v", target)},
-			})
 		}
+		flowed = true
 	} else {
-		flow.tracer.Trace(tracing.ErrorTrace{Error: err})
+		flow.tracer.Trace(tracing.ErrorTrace{
+			Error: errors.NotFoundError{Expected: fmt.Sprintf("flow node for element %#v", target)},
+		})
 	}
 	return
 }
@@ -291,11 +305,13 @@ func (flow *Flow) Start() {
 						}
 
 						rest := sequenceFlows[1:]
+						flowFuncs := make([]func(), 0)
 						for i, sequenceFlow := range rest {
-							flowId, flowed := flow.handleAdditionalSequenceFlow(sequenceFlow, unconditional[i+1],
+							flowId, flowFunc, flowed := flow.handleAdditionalSequenceFlow(sequenceFlow, unconditional[i+1],
 								a.ActionTransformer, a.Terminate)
 							if flowed {
 								effectiveFlows = append(effectiveFlows, Snapshot{sequenceFlow: sequenceFlow, flowId: flowId})
+								flowFuncs = append(flowFuncs, flowFunc)
 							}
 						}
 
@@ -304,6 +320,9 @@ func (flow *Flow) Start() {
 								Source: source,
 								Flows:  effectiveFlows,
 							})
+							for _, flowFunc := range flowFuncs {
+								flowFunc()
+							}
 						} else {
 							// no flows to continue with, abort
 							flow.tracer.Trace(FlowTerminationTrace{

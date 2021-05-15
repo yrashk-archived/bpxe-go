@@ -73,6 +73,7 @@ type Node struct {
 	probing                 *chan flow_node.Action
 	activated               *flowSync
 	awaiting                []id.Id
+	arrived                 []id.Id
 	sync                    []chan flow_node.Action
 	*flowTracker
 	synchronized bool
@@ -130,7 +131,7 @@ func New(process *bpmn.Process,
 		runnerChannel:           make(chan message, len(flowNode.Incoming)*2+1),
 		nonDefaultSequenceFlows: nonDefaultSequenceFlows,
 		defaultSequenceFlow:     defaultSequenceFlow,
-		flowTracker:             newFlowTracker(tracer),
+		flowTracker:             newFlowTracker(tracer, inclusiveGateway),
 	}
 	go node.runner()
 	return
@@ -183,32 +184,26 @@ func (node *Node) runner() {
 						node.sync = append(node.sync, m.response)
 						node.probing = &m.response
 						// and now we wait until the probe has returned
-						continue
 					}
-				}
-				if node.activated == nil {
-					// Haven't been activated yet
-					node.activated = &flowSync{response: m.response, flow: m.flow}
-					node.awaiting = node.flowTracker.activeFlowsInCohort(m.flow.Id())
-					node.sync = make([]chan flow_node.Action, 0)
 				} else {
-					// Already activated
-					for i, awaitingId := range node.awaiting {
-						if awaitingId == m.flow.Id() {
-							// Remove
-							node.awaiting[i] = node.awaiting[len(node.awaiting)-1]
-							node.awaiting = node.awaiting[:len(node.awaiting)-1]
-							break
-						}
+					if node.activated == nil {
+						// Haven't been activated yet
+						node.activated = &flowSync{response: m.response, flow: m.flow}
+						node.awaiting = node.flowTracker.activeFlowsInCohort(m.flow.Id())
+						node.arrived = []id.Id{m.flow.Id()}
+						node.sync = make([]chan flow_node.Action, 0)
+					} else {
+						// Already activated
+						node.arrived = append(node.arrived, m.flow.Id())
+						node.sync = append(node.sync, m.response)
 					}
-					node.sync = append(node.sync, m.response)
+					node.trySync()
 				}
-				node.trySync()
 
 			default:
 			}
 		case <-activity:
-			if node.activated != nil {
+			if !node.synchronized && node.activated != nil {
 				node.awaiting = node.flowTracker.activeFlowsInCohort(node.activated.flow.Id())
 				node.trySync()
 			}
@@ -217,21 +212,31 @@ func (node *Node) runner() {
 }
 
 func (node *Node) trySync() {
-	if !node.synchronized && len(node.awaiting) == 0 {
-		// We've got everybody
-		anId := node.activated.flow.Id()
-		// Probe outgoing sequence flow using the first flow
-		node.activated.response <- flow_node.ProbeAction{
-			SequenceFlows: node.nonDefaultSequenceFlows,
-			ProbeReport: func(indices []int) {
-				node.runnerChannel <- probingReport{
-					result: indices,
-					flowId: anId,
+	if !node.synchronized && len(node.arrived) >= len(node.awaiting) {
+		// Have we got everybody?
+		matches := 0
+		for i := range node.arrived {
+			for j := range node.awaiting {
+				if node.awaiting[j] == node.arrived[i] {
+					matches++
 				}
-			},
+			}
 		}
+		if matches == len(node.awaiting) {
+			anId := node.activated.flow.Id()
+			// Probe outgoing sequence flow using the first flow
+			node.activated.response <- flow_node.ProbeAction{
+				SequenceFlows: node.nonDefaultSequenceFlows,
+				ProbeReport: func(indices []int) {
+					node.runnerChannel <- probingReport{
+						result: indices,
+						flowId: anId,
+					}
+				},
+			}
 
-		node.synchronized = true
+			node.synchronized = true
+		}
 	}
 }
 
