@@ -210,7 +210,7 @@ func (instance *Instance) RegisterProcessEventConsumer(ev event.ProcessEventCons
 func (instance *Instance) Run() (err error) {
 	// Start cease flow monitor
 	go instance.ceaseFlowMonitor()()
-	// Implicit start
+	// Explicit start
 	evt := event.MakeStartEvent()
 	_, err = instance.ConsumeProcessEvent(&evt)
 	if err != nil {
