@@ -208,11 +208,24 @@ func (instance *Instance) RegisterProcessEventConsumer(ev event.ProcessEventCons
 }
 
 func (instance *Instance) Run() (err error) {
-	lockChan := make(chan bool)
-	go func() {
-		traces := instance.Tracer.Subscribe()
-		instance.complete.Lock()
-		lockChan <- true
+	// Start cease flow monitor
+	go instance.ceaseFlowMonitor()()
+	// Implicit start
+	evt := event.MakeStartEvent()
+	_, err = instance.ConsumeProcessEvent(&evt)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func (instance *Instance) ceaseFlowMonitor() func() {
+	// Subscribing to traces early as otherwise events produced
+	// after the goroutine below is started are not going to be
+	// sent to it.
+	traces := instance.Tracer.Subscribe()
+	instance.complete.Lock()
+	return func() {
 		/* 13.4.6 End Events:
 
 		The Process instance is [...] completed, if
@@ -264,25 +277,17 @@ func (instance *Instance) Run() (err error) {
 		// Send out a cease flow trace
 		instance.Tracer.Trace(flow.CeaseFlowTrace{})
 		instance.complete.Unlock()
-	}()
-	<-lockChan
-	close(lockChan)
-	evt := event.MakeStartEvent()
-	_, err = instance.ConsumeProcessEvent(&evt)
-	if err != nil {
-		return
 	}
-	return
 }
 
-// Waits until the instance is complete. Returns true if the instance was complete,
-// false if the context signalled `Done`
+// WaitUntilComplete waits until the instance is complete.
+// Returns true if the instance was complete, false if the context signalled `Done`
 func (instance *Instance) WaitUntilComplete(ctx context.Context) (complete bool) {
 	signal := make(chan bool)
 	go func() {
 		instance.complete.Lock()
+		defer instance.complete.Unlock()
 		signal <- true
-		instance.complete.Unlock()
 	}()
 	select {
 	case <-ctx.Done():
