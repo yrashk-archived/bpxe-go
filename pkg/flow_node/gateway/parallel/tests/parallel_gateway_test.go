@@ -9,9 +9,9 @@
 package tests
 
 import (
-	"encoding/xml"
 	"testing"
 
+	"bpxe.org/internal"
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/flow"
 	"bpxe.org/pkg/flow_node/gateway/parallel"
@@ -21,19 +21,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var testParallelGateway bpmn.Definitions
+
+func init() {
+	internal.LoadTestFile("testdata/parallel_gateway_fork_join.bpmn", testdata, &testParallelGateway)
+}
+
 func TestParallelGateway(t *testing.T) {
-	var testDoc bpmn.Definitions
-	var err error
-	src, err := testdata.ReadFile("testdata/parallel_gateway_fork_join.bpmn")
-	if err != nil {
-		t.Fatalf("Can't read file: %v", err)
-	}
-	err = xml.Unmarshal(src, &testDoc)
-	if err != nil {
-		t.Fatalf("XML unmarshalling error: %v", err)
-	}
-	processElement := (*testDoc.Processes())[0]
-	proc := process.New(&processElement, &testDoc)
+	processElement := (*testParallelGateway.Processes())[0]
+	proc := process.New(&processElement, &testParallelGateway)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
 		err := instance.Run()
@@ -75,19 +71,15 @@ func TestParallelGateway(t *testing.T) {
 	}
 }
 
+var testParallelGatewayMtoN bpmn.Definitions
+
+func init() {
+	internal.LoadTestFile("testdata/parallel_gateway_m_n.bpmn", testdata, &testParallelGatewayMtoN)
+}
+
 func TestParallelGatewayMtoN(t *testing.T) {
-	var testDoc bpmn.Definitions
-	var err error
-	src, err := testdata.ReadFile("testdata/parallel_gateway_m_n.bpmn")
-	if err != nil {
-		t.Fatalf("Can't read file: %v", err)
-	}
-	err = xml.Unmarshal(src, &testDoc)
-	if err != nil {
-		t.Fatalf("XML unmarshalling error: %v", err)
-	}
-	processElement := (*testDoc.Processes())[0]
-	proc := process.New(&processElement, &testDoc)
+	processElement := (*testParallelGatewayMtoN.Processes())[0]
+	proc := process.New(&processElement, &testParallelGatewayMtoN)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
 		err := instance.Run()
@@ -128,19 +120,15 @@ func TestParallelGatewayMtoN(t *testing.T) {
 	}
 }
 
+var testParallelGatewayNtoM bpmn.Definitions
+
+func init() {
+	internal.LoadTestFile("testdata/parallel_gateway_n_m.bpmn", testdata, &testParallelGatewayNtoM)
+}
+
 func TestParallelGatewayNtoM(t *testing.T) {
-	var testDoc bpmn.Definitions
-	var err error
-	src, err := testdata.ReadFile("testdata/parallel_gateway_n_m.bpmn")
-	if err != nil {
-		t.Fatalf("Can't read file: %v", err)
-	}
-	err = xml.Unmarshal(src, &testDoc)
-	if err != nil {
-		t.Fatalf("XML unmarshalling error: %v", err)
-	}
-	processElement := (*testDoc.Processes())[0]
-	proc := process.New(&processElement, &testDoc)
+	processElement := (*testParallelGatewayNtoM.Processes())[0]
+	proc := process.New(&processElement, &testParallelGatewayNtoM)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
 		err := instance.Run()
@@ -182,19 +170,15 @@ func TestParallelGatewayNtoM(t *testing.T) {
 	}
 }
 
+var testParallelGatewayIncompleteJoin bpmn.Definitions
+
+func init() {
+	internal.LoadTestFile("testdata/parallel_gateway_fork_incomplete_join.bpmn", testdata, &testParallelGatewayIncompleteJoin)
+}
+
 func TestParallelGatewayIncompleteJoin(t *testing.T) {
-	var testDoc bpmn.Definitions
-	var err error
-	src, err := testdata.ReadFile("testdata/parallel_gateway_fork_incomplete_join.bpmn")
-	if err != nil {
-		t.Fatalf("Can't read file: %v", err)
-	}
-	err = xml.Unmarshal(src, &testDoc)
-	if err != nil {
-		t.Fatalf("XML unmarshalling error: %v", err)
-	}
-	processElement := (*testDoc.Processes())[0]
-	proc := process.New(&processElement, &testDoc)
+	processElement := (*testParallelGatewayIncompleteJoin.Processes())[0]
+	proc := process.New(&processElement, &testParallelGatewayIncompleteJoin)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
 		err := instance.Run()

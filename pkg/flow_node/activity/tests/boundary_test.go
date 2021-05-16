@@ -10,9 +10,9 @@ package tests
 
 import (
 	"context"
-	"encoding/xml"
 	"testing"
 
+	"bpxe.org/internal"
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow"
@@ -27,8 +27,14 @@ import (
 	_ "github.com/stretchr/testify/assert"
 )
 
+var testDoc bpmn.Definitions
+
+func init() {
+	internal.LoadTestFile("testdata/boundary_event.bpmn", testdata, &testDoc)
+}
+
 func TestInterruptingEvent(t *testing.T) {
-	testBoundaryEvent(t, "testdata/boundary_event.bpmn", "sig1listener", func(visited map[string]bool) {
+	testBoundaryEvent(t, "sig1listener", func(visited map[string]bool) {
 		assert.False(t, visited["uninterrupted"])
 		assert.True(t, visited["interrupted"])
 		assert.True(t, visited["end"])
@@ -36,24 +42,14 @@ func TestInterruptingEvent(t *testing.T) {
 }
 
 func TestNonInterruptingEvent(t *testing.T) {
-	testBoundaryEvent(t, "testdata/boundary_event.bpmn", "sig2listener", func(visited map[string]bool) {
+	testBoundaryEvent(t, "sig2listener", func(visited map[string]bool) {
 		assert.False(t, visited["interrupted"])
 		assert.True(t, visited["uninterrupted"])
 		assert.True(t, visited["end"])
 	}, event.NewSignalEvent("sig2"))
 }
 
-func testBoundaryEvent(t *testing.T, filename, boundary string, test func(visited map[string]bool), events ...event.ProcessEvent) {
-	var testDoc bpmn.Definitions
-	var err error
-	src, err := testdata.ReadFile(filename)
-	if err != nil {
-		t.Fatalf("Can't read file: %v", err)
-	}
-	err = xml.Unmarshal(src, &testDoc)
-	if err != nil {
-		t.Fatalf("XML unmarshalling error: %v", err)
-	}
+func testBoundaryEvent(t *testing.T, boundary string, test func(visited map[string]bool), events ...event.ProcessEvent) {
 	processElement := (*testDoc.Processes())[0]
 	proc := process.New(&processElement, &testDoc)
 	ready := make(chan bool)
