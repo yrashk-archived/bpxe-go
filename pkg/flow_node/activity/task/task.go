@@ -30,12 +30,6 @@ type nextActionMessage struct {
 
 func (m nextActionMessage) message() {}
 
-type incomingMessage struct {
-	index int
-}
-
-func (m incomingMessage) message() {}
-
 type cancelMessage struct {
 	response chan bool
 }
@@ -125,10 +119,6 @@ func (node *Task) NextAction(flow_interface.T) chan flow_node.Action {
 	response := make(chan flow_node.Action)
 	node.runnerChannel <- nextActionMessage{response: response}
 	return response
-}
-
-func (node *Task) Incoming(index int) {
-	node.runnerChannel <- incomingMessage{index: index}
 }
 
 func (node *Task) Element() bpmn.FlowNodeInterface {

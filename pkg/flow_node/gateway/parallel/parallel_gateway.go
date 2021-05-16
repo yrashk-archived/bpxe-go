@@ -30,17 +30,11 @@ type nextActionMessage struct {
 
 func (m nextActionMessage) message() {}
 
-type incomingMessage struct {
-	index int
-}
-
-func (m incomingMessage) message() {}
-
 type Node struct {
 	flow_node.T
 	element               *bpmn.ParallelGateway
 	runnerChannel         chan message
-	reportedIncomingFlows []int
+	reportedIncomingFlows int
 	awaitingActions       []chan flow_node.Action
 	noOfIncomingFlows     int
 }
@@ -68,7 +62,7 @@ func New(process *bpmn.Process,
 		T:                     *flowNode,
 		element:               parallelGateway,
 		runnerChannel:         make(chan message, len(flowNode.Incoming)*2+1),
-		reportedIncomingFlows: make([]int, 0),
+		reportedIncomingFlows: 0,
 		awaitingActions:       make([]chan flow_node.Action, 0),
 		noOfIncomingFlows:     len(flowNode.Incoming),
 	}
@@ -77,9 +71,8 @@ func New(process *bpmn.Process,
 }
 
 func (node *Node) flowWhenReady() {
-	if len(node.reportedIncomingFlows) == node.noOfIncomingFlows &&
-		len(node.awaitingActions) == node.noOfIncomingFlows {
-		node.reportedIncomingFlows = make([]int, 0)
+	if node.reportedIncomingFlows == node.noOfIncomingFlows {
+		node.reportedIncomingFlows = 0
 		awaitingActions := node.awaitingActions
 		node.awaitingActions = make([]chan flow_node.Action, 0)
 		sequenceFlows := flow_node.AllSequenceFlows(&node.Outgoing)
@@ -89,19 +82,11 @@ func (node *Node) flowWhenReady() {
 }
 
 func (node *Node) runner() {
-loop:
 	for {
 		msg := <-node.runnerChannel
 		switch m := msg.(type) {
-		case incomingMessage:
-			for _, incomingIndex := range node.reportedIncomingFlows {
-				if m.index == incomingIndex {
-					continue loop
-				}
-			}
-			node.reportedIncomingFlows = append(node.reportedIncomingFlows, m.index)
-			node.flowWhenReady()
 		case nextActionMessage:
+			node.reportedIncomingFlows++
 			node.awaitingActions = append(node.awaitingActions, m.response)
 			node.flowWhenReady()
 			node.Tracer.Trace(IncomingFlowProcessedTrace{Node: node.element, Flow: m.flow})
@@ -114,10 +99,6 @@ func (node *Node) NextAction(flow flow_interface.T) chan flow_node.Action {
 	response := make(chan flow_node.Action)
 	node.runnerChannel <- nextActionMessage{response: response, flow: flow}
 	return response
-}
-
-func (node *Node) Incoming(index int) {
-	node.runnerChannel <- incomingMessage{index: index}
 }
 
 func (node *Node) Element() bpmn.FlowNodeInterface {

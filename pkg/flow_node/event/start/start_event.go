@@ -108,11 +108,6 @@ func (node *Node) NextAction(flow_interface.T) chan flow_node.Action {
 	return response
 }
 
-func (node *Node) Incoming(int) {
-	// Do nothing, there are no incoming flows for start events
-	// but we have to implement it to satisfy FlowNodeInterface
-}
-
 func (node *Node) Element() bpmn.FlowNodeInterface {
 	return node.element
 }

@@ -33,12 +33,6 @@ type nextActionMessage struct {
 
 func (m nextActionMessage) message() {}
 
-type incomingMessage struct {
-	index int
-}
-
-func (m incomingMessage) message() {}
-
 type Harness struct {
 	flow_node.T
 	element         bpmn.FlowNodeInterface
@@ -183,8 +177,6 @@ func (node *Harness) runner() {
 			}
 		case msg := <-node.runnerChannel:
 			switch m := msg.(type) {
-			case incomingMessage:
-				node.activity.Incoming(m.index)
 			case nextActionMessage:
 				m.response <- node.activity.NextAction(m.flow)
 			default:
@@ -197,10 +189,6 @@ func (node *Harness) NextAction(flow flow_interface.T) chan flow_node.Action {
 	response := make(chan chan flow_node.Action)
 	node.runnerChannel <- nextActionMessage{flow: flow, response: response}
 	return <-response
-}
-
-func (node *Harness) Incoming(index int) {
-	node.runnerChannel <- incomingMessage{index: index}
 }
 
 func (node *Harness) Element() bpmn.FlowNodeInterface {
