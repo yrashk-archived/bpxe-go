@@ -9,10 +9,10 @@
 package tests
 
 import (
-	"encoding/xml"
 	"errors"
 	"testing"
 
+	"bpxe.org/internal"
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/flow"
 	"bpxe.org/pkg/flow_node/gateway/inclusive"
@@ -22,19 +22,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var testInclusiveGateway bpmn.Definitions
+
+func init() {
+	internal.LoadTestFile("testdata/inclusive_gateway.bpmn", testdata, &testInclusiveGateway)
+}
+
 func TestInclusiveGateway(t *testing.T) {
-	var testDoc bpmn.Definitions
-	var err error
-	src, err := testdata.ReadFile("testdata/inclusive_gateway.bpmn")
-	if err != nil {
-		t.Fatalf("Can't read file: %v", err)
-	}
-	err = xml.Unmarshal(src, &testDoc)
-	if err != nil {
-		t.Fatalf("XML unmarshalling error: %v", err)
-	}
-	processElement := (*testDoc.Processes())[0]
-	proc := process.New(&processElement, &testDoc)
+	processElement := (*testInclusiveGateway.Processes())[0]
+	proc := process.New(&processElement, &testInclusiveGateway)
 	tracer := tracing.NewTracer()
 	traces := tracer.SubscribeChannel(make(chan tracing.Trace, 32))
 	if instance, err := proc.Instantiate(process.WithTracer(tracer)); err == nil {
@@ -82,19 +78,15 @@ func TestInclusiveGateway(t *testing.T) {
 	}
 }
 
+var testInclusiveGatewayDefault bpmn.Definitions
+
+func init() {
+	internal.LoadTestFile("testdata/inclusive_gateway_default.bpmn", testdata, &testInclusiveGatewayDefault)
+}
+
 func TestInclusiveGatewayDefault(t *testing.T) {
-	var testDoc bpmn.Definitions
-	var err error
-	src, err := testdata.ReadFile("testdata/inclusive_gateway_default.bpmn")
-	if err != nil {
-		t.Fatalf("Can't read file: %v", err)
-	}
-	err = xml.Unmarshal(src, &testDoc)
-	if err != nil {
-		t.Fatalf("XML unmarshalling error: %v", err)
-	}
-	processElement := (*testDoc.Processes())[0]
-	proc := process.New(&processElement, &testDoc)
+	processElement := (*testInclusiveGatewayDefault.Processes())[0]
+	proc := process.New(&processElement, &testInclusiveGatewayDefault)
 	tracer := tracing.NewTracer()
 	traces := tracer.SubscribeChannel(make(chan tracing.Trace, 32))
 	if instance, err := proc.Instantiate(process.WithTracer(tracer)); err == nil {
@@ -143,19 +135,15 @@ func TestInclusiveGatewayDefault(t *testing.T) {
 	}
 }
 
+var testInclusiveGatewayNoDefault bpmn.Definitions
+
+func init() {
+	internal.LoadTestFile("testdata/inclusive_gateway_no_default.bpmn", testdata, &testInclusiveGatewayNoDefault)
+}
+
 func TestInclusiveGatewayNoDefault(t *testing.T) {
-	var testDoc bpmn.Definitions
-	var err error
-	src, err := testdata.ReadFile("testdata/inclusive_gateway_no_default.bpmn")
-	if err != nil {
-		t.Fatalf("Can't read file: %v", err)
-	}
-	err = xml.Unmarshal(src, &testDoc)
-	if err != nil {
-		t.Fatalf("XML unmarshalling error: %v", err)
-	}
-	processElement := (*testDoc.Processes())[0]
-	proc := process.New(&processElement, &testDoc)
+	processElement := (*testInclusiveGatewayNoDefault.Processes())[0]
+	proc := process.New(&processElement, &testInclusiveGatewayNoDefault)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
 		err := instance.Run()

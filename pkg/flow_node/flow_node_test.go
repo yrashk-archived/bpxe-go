@@ -9,10 +9,10 @@
 package flow_node
 
 import (
-	"encoding/xml"
 	"sync"
 	"testing"
 
+	"bpxe.org/internal"
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/tracing"
@@ -22,18 +22,13 @@ import (
 
 var defaultDefinitions = bpmn.DefaultDefinitions()
 
-func TestNewFlowNode(t *testing.T) {
-	var sampleDoc bpmn.Definitions
-	var err error
-	sample, err := testdata.ReadFile("testdata/sample.bpmn")
-	if err != nil {
-		t.Fatalf("Can't read file: %v", err)
-	}
-	err = xml.Unmarshal(sample, &sampleDoc)
-	if err != nil {
-		t.Fatalf("XML unmarshalling error: %v", err)
-	}
+var sampleDoc bpmn.Definitions
 
+func init() {
+	internal.LoadTestFile("testdata/sample.bpmn", testdata, &sampleDoc)
+}
+
+func TestNewFlowNode(t *testing.T) {
 	var waitGroup sync.WaitGroup
 	if proc, found := sampleDoc.FindBy(bpmn.ExactId("sample")); found {
 		if flowNode, found := sampleDoc.FindBy(bpmn.ExactId("either")); found {

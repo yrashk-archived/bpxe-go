@@ -9,10 +9,10 @@
 package tests
 
 import (
-	"encoding/xml"
 	"errors"
 	"testing"
 
+	"bpxe.org/internal"
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/flow"
 	"bpxe.org/pkg/flow_node/gateway/exclusive"
@@ -22,19 +22,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var testExclusiveGateway bpmn.Definitions
+
+func init() {
+	internal.LoadTestFile("testdata/exclusive_gateway.bpmn", testdata, &testExclusiveGateway)
+}
+
 func TestExclusiveGateway(t *testing.T) {
-	var testDoc bpmn.Definitions
-	var err error
-	src, err := testdata.ReadFile("testdata/exclusive_gateway.bpmn")
-	if err != nil {
-		t.Fatalf("Can't read file: %v", err)
-	}
-	err = xml.Unmarshal(src, &testDoc)
-	if err != nil {
-		t.Fatalf("XML unmarshalling error: %v", err)
-	}
-	processElement := (*testDoc.Processes())[0]
-	proc := process.New(&processElement, &testDoc)
+	processElement := (*testExclusiveGateway.Processes())[0]
+	proc := process.New(&processElement, &testExclusiveGateway)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
 		err := instance.Run()
@@ -75,19 +71,15 @@ func TestExclusiveGateway(t *testing.T) {
 	}
 }
 
+var testExclusiveGatewayWithDefault bpmn.Definitions
+
+func init() {
+	internal.LoadTestFile("testdata/exclusive_gateway_default.bpmn", testdata, &testExclusiveGatewayWithDefault)
+}
+
 func TestExclusiveGatewayWithDefault(t *testing.T) {
-	var testDoc bpmn.Definitions
-	var err error
-	src, err := testdata.ReadFile("testdata/exclusive_gateway_default.bpmn")
-	if err != nil {
-		t.Fatalf("Can't read file: %v", err)
-	}
-	err = xml.Unmarshal(src, &testDoc)
-	if err != nil {
-		t.Fatalf("XML unmarshalling error: %v", err)
-	}
-	processElement := (*testDoc.Processes())[0]
-	proc := process.New(&processElement, &testDoc)
+	processElement := (*testExclusiveGatewayWithDefault.Processes())[0]
+	proc := process.New(&processElement, &testExclusiveGatewayWithDefault)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
 		err := instance.Run()
@@ -129,19 +121,15 @@ func TestExclusiveGatewayWithDefault(t *testing.T) {
 	}
 }
 
+var testExclusiveGatewayWithNoDefault bpmn.Definitions
+
+func init() {
+	internal.LoadTestFile("testdata/exclusive_gateway_no_default.bpmn", testdata, &testExclusiveGatewayWithNoDefault)
+}
+
 func TestExclusiveGatewayWithNoDefault(t *testing.T) {
-	var testDoc bpmn.Definitions
-	var err error
-	src, err := testdata.ReadFile("testdata/exclusive_gateway_no_default.bpmn")
-	if err != nil {
-		t.Fatalf("Can't read file: %v", err)
-	}
-	err = xml.Unmarshal(src, &testDoc)
-	if err != nil {
-		t.Fatalf("XML unmarshalling error: %v", err)
-	}
-	processElement := (*testDoc.Processes())[0]
-	proc := process.New(&processElement, &testDoc)
+	processElement := (*testExclusiveGatewayWithNoDefault.Processes())[0]
+	proc := process.New(&processElement, &testExclusiveGatewayWithNoDefault)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
 		err := instance.Run()
@@ -185,19 +173,15 @@ func TestExclusiveGatewayWithNoDefault(t *testing.T) {
 	}
 }
 
+var testExclusiveGatewayIncompleteJoin bpmn.Definitions
+
+func init() {
+	internal.LoadTestFile("testdata/exclusive_gateway_multiple_incoming.bpmn", testdata, &testExclusiveGatewayIncompleteJoin)
+}
+
 func TestExclusiveGatewayIncompleteJoin(t *testing.T) {
-	var testDoc bpmn.Definitions
-	var err error
-	src, err := testdata.ReadFile("testdata/exclusive_gateway_multiple_incoming.bpmn")
-	if err != nil {
-		t.Fatalf("Can't read file: %v", err)
-	}
-	err = xml.Unmarshal(src, &testDoc)
-	if err != nil {
-		t.Fatalf("XML unmarshalling error: %v", err)
-	}
-	processElement := (*testDoc.Processes())[0]
-	proc := process.New(&processElement, &testDoc)
+	processElement := (*testExclusiveGatewayIncompleteJoin.Processes())[0]
+	proc := process.New(&processElement, &testExclusiveGatewayIncompleteJoin)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
 		err := instance.Run()

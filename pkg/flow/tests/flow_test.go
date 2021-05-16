@@ -9,9 +9,9 @@
 package tests
 
 import (
-	"encoding/xml"
 	"testing"
 
+	"bpxe.org/internal"
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/flow"
 	"bpxe.org/pkg/process"
@@ -20,19 +20,15 @@ import (
 	_ "github.com/stretchr/testify/assert"
 )
 
+var testCondExpr bpmn.Definitions
+
+func init() {
+	internal.LoadTestFile("testdata/condexpr.bpmn", testdata, &testCondExpr)
+}
+
 func TestTrueFormalExpression(t *testing.T) {
-	var testDoc bpmn.Definitions
-	var err error
-	src, err := testdata.ReadFile("testdata/condexpr.bpmn")
-	if err != nil {
-		t.Fatalf("Can't read file: %v", err)
-	}
-	err = xml.Unmarshal(src, &testDoc)
-	if err != nil {
-		t.Fatalf("XML unmarshalling error: %v", err)
-	}
-	processElement := (*testDoc.Processes())[0]
-	proc := process.New(&processElement, &testDoc)
+	processElement := (*testCondExpr.Processes())[0]
+	proc := process.New(&processElement, &testCondExpr)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
 		err := instance.Run()
@@ -63,19 +59,15 @@ func TestTrueFormalExpression(t *testing.T) {
 	}
 }
 
+var testCondExprFalse bpmn.Definitions
+
+func init() {
+	internal.LoadTestFile("testdata/condexpr_false.bpmn", testdata, &testCondExprFalse)
+}
+
 func TestFalseFormalExpression(t *testing.T) {
-	var testDoc bpmn.Definitions
-	var err error
-	src, err := testdata.ReadFile("testdata/condexpr_false.bpmn")
-	if err != nil {
-		t.Fatalf("Can't read file: %v", err)
-	}
-	err = xml.Unmarshal(src, &testDoc)
-	if err != nil {
-		t.Fatalf("XML unmarshalling error: %v", err)
-	}
-	processElement := (*testDoc.Processes())[0]
-	proc := process.New(&processElement, &testDoc)
+	processElement := (*testCondExprFalse.Processes())[0]
+	proc := process.New(&processElement, &testCondExprFalse)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
 		err := instance.Run()

@@ -9,27 +9,22 @@
 package process
 
 import (
-	"encoding/xml"
 	"testing"
 
+	"bpxe.org/internal"
 	"bpxe.org/pkg/bpmn"
 	"github.com/stretchr/testify/assert"
 )
 
 var defaultDefinitions = bpmn.DefaultDefinitions()
 
-func TestExplicitInstantiation(t *testing.T) {
-	var sampleDoc bpmn.Definitions
-	var err error
-	sample, err := testdata.ReadFile("testdata/sample.bpmn")
-	if err != nil {
-		t.Fatalf("Can't read file: %v", err)
-	}
-	err = xml.Unmarshal(sample, &sampleDoc)
-	if err != nil {
-		t.Fatalf("XML unmarshalling error: %v", err)
-	}
+var sampleDoc bpmn.Definitions
 
+func init() {
+	internal.LoadTestFile("testdata/sample.bpmn", testdata, &sampleDoc)
+}
+
+func TestExplicitInstantiation(t *testing.T) {
 	if proc, found := sampleDoc.FindBy(bpmn.ExactId("sample")); found {
 		process := New(proc.(*bpmn.Process), &defaultDefinitions)
 		instance, err := process.Instantiate()

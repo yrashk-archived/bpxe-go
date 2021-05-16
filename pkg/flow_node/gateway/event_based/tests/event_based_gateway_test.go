@@ -10,9 +10,9 @@ package tests
 
 import (
 	"context"
-	"encoding/xml"
 	"testing"
 
+	"bpxe.org/internal"
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow"
@@ -21,6 +21,12 @@ import (
 	"bpxe.org/pkg/tracing"
 	"github.com/stretchr/testify/assert"
 )
+
+var testDoc bpmn.Definitions
+
+func init() {
+	internal.LoadTestFile("testdata/event_based_gateway.bpmn", testdata, &testDoc)
+}
 
 func TestEventBasedGateway(t *testing.T) {
 	testEventBasedGateway(t, func(reached map[string]int) {
@@ -34,18 +40,6 @@ func TestEventBasedGateway(t *testing.T) {
 }
 
 func testEventBasedGateway(t *testing.T, test func(map[string]int), events ...event.ProcessEvent) {
-	var testDoc bpmn.Definitions
-	var err error
-	src, err := testdata.ReadFile("testdata/event_based_gateway.bpmn")
-	if err != nil {
-		t.Errorf("Can't read file: %v", err)
-		return
-	}
-	err = xml.Unmarshal(src, &testDoc)
-	if err != nil {
-		t.Errorf("XML unmarshalling error: %v", err)
-		return
-	}
 	processElement := (*testDoc.Processes())[0]
 	proc := process.New(&processElement, &testDoc)
 	if instance, err := proc.Instantiate(); err == nil {

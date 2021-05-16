@@ -9,9 +9,9 @@
 package model
 
 import (
-	"encoding/xml"
 	"testing"
 
+	"bpxe.org/internal"
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/process"
 	"github.com/stretchr/testify/assert"
@@ -27,17 +27,13 @@ func exactId(s string) func(p *process.Process) bool {
 	}
 }
 
+var sampleDoc bpmn.Definitions
+
+func init() {
+	internal.LoadTestFile("testdata/sample.bpmn", testdata, &sampleDoc)
+}
+
 func TestFindProcess(t *testing.T) {
-	var sampleDoc bpmn.Definitions
-	var err error
-	sample, err := testdata.ReadFile("testdata/sample.bpmn")
-	if err != nil {
-		t.Fatalf("Can't read file: %v", err)
-	}
-	err = xml.Unmarshal(sample, &sampleDoc)
-	if err != nil {
-		t.Fatalf("XML unmarshalling error: %v", err)
-	}
 	model := New(&sampleDoc)
 	if proc, found := model.FindProcessBy(exactId("sample")); found {
 		if id, present := proc.Element.Id(); present {
