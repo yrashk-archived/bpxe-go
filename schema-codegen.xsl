@@ -330,8 +330,8 @@
                 </xsl:when>
                 <xsl:when test="./@maxOccurs = 'unbounded'">
                     <xsl:text>
-                        for _, e := range t.</xsl:text><xsl:value-of select="local:field-name(.)"/><xsl:text xml:space="preserve">{
-                        if result, found = e.FindBy(f); found {
+                        for i := range t.</xsl:text><xsl:value-of select="local:field-name(.)"/><xsl:text xml:space="preserve">{
+                        if result, found = t.</xsl:text><xsl:value-of select="local:field-name(.)"/><xsl:text xml:space="preserve">[i].FindBy(f); found {
                                return
                          }
                          }
