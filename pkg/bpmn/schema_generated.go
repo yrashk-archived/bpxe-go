@@ -152,146 +152,146 @@ func (t *Definitions) FindBy(f ElementPredicate) (result Element, found bool) {
 		return
 	}
 
-	for _, e := range t.ImportField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ImportField {
+		if result, found = t.ImportField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ExtensionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ExtensionField {
+		if result, found = t.ExtensionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.CategoryField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CategoryField {
+		if result, found = t.CategoryField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.CollaborationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CollaborationField {
+		if result, found = t.CollaborationField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.CorrelationPropertyField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CorrelationPropertyField {
+		if result, found = t.CorrelationPropertyField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.DataStoreField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataStoreField {
+		if result, found = t.DataStoreField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.EndPointField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.EndPointField {
+		if result, found = t.EndPointField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ErrorField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ErrorField {
+		if result, found = t.ErrorField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.EscalationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.EscalationField {
+		if result, found = t.EscalationField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.EventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.EventDefinitionField {
+		if result, found = t.EventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.GlobalBusinessRuleTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.GlobalBusinessRuleTaskField {
+		if result, found = t.GlobalBusinessRuleTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.GlobalManualTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.GlobalManualTaskField {
+		if result, found = t.GlobalManualTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.GlobalScriptTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.GlobalScriptTaskField {
+		if result, found = t.GlobalScriptTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.GlobalTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.GlobalTaskField {
+		if result, found = t.GlobalTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.GlobalUserTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.GlobalUserTaskField {
+		if result, found = t.GlobalUserTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.InterfaceField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.InterfaceField {
+		if result, found = t.InterfaceField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ItemDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ItemDefinitionField {
+		if result, found = t.ItemDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.MessageField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.MessageField {
+		if result, found = t.MessageField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.PartnerEntityField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.PartnerEntityField {
+		if result, found = t.PartnerEntityField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.PartnerRoleField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.PartnerRoleField {
+		if result, found = t.PartnerRoleField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ProcessField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ProcessField {
+		if result, found = t.ProcessField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ResourceField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ResourceField {
+		if result, found = t.ResourceField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SignalField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SignalField {
+		if result, found = t.SignalField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.RelationshipField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.RelationshipField {
+		if result, found = t.RelationshipField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -766,26 +766,26 @@ func (t *Activity) FindBy(f ElementPredicate) (result Element, found bool) {
 		}
 	}
 
-	for _, e := range t.PropertyField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.PropertyField {
+		if result, found = t.PropertyField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.DataInputAssociationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataInputAssociationField {
+		if result, found = t.DataInputAssociationField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.DataOutputAssociationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataOutputAssociationField {
+		if result, found = t.DataOutputAssociationField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ResourceRoleField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ResourceRoleField {
+		if result, found = t.ResourceRoleField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -1246,8 +1246,8 @@ func (t *BaseElement) FindBy(f ElementPredicate) (result Element, found bool) {
 		return
 	}
 
-	for _, e := range t.DocumentationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DocumentationField {
+		if result, found = t.DocumentationField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -1324,8 +1324,8 @@ func (t *BaseElementWithMixedContent) FindBy(f ElementPredicate) (result Element
 		return
 	}
 
-	for _, e := range t.DocumentationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DocumentationField {
+		if result, found = t.DocumentationField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -1535,8 +1535,8 @@ func (t *CallableElement) FindBy(f ElementPredicate) (result Element, found bool
 		}
 	}
 
-	for _, e := range t.IoBindingField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.IoBindingField {
+		if result, found = t.IoBindingField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -1668,8 +1668,8 @@ func (t *CallChoreography) FindBy(f ElementPredicate) (result Element, found boo
 		return
 	}
 
-	for _, e := range t.ParticipantAssociationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ParticipantAssociationField {
+		if result, found = t.ParticipantAssociationField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -1734,8 +1734,8 @@ func (t *CallConversation) FindBy(f ElementPredicate) (result Element, found boo
 		return
 	}
 
-	for _, e := range t.ParticipantAssociationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ParticipantAssociationField {
+		if result, found = t.ParticipantAssociationField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -1880,14 +1880,14 @@ func (t *CatchEvent) FindBy(f ElementPredicate) (result Element, found bool) {
 		return
 	}
 
-	for _, e := range t.DataOutputField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataOutputField {
+		if result, found = t.DataOutputField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.DataOutputAssociationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataOutputAssociationField {
+		if result, found = t.DataOutputAssociationField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -1898,62 +1898,62 @@ func (t *CatchEvent) FindBy(f ElementPredicate) (result Element, found bool) {
 		}
 	}
 
-	for _, e := range t.CancelEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CancelEventDefinitionField {
+		if result, found = t.CancelEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.CompensateEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CompensateEventDefinitionField {
+		if result, found = t.CompensateEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ConditionalEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ConditionalEventDefinitionField {
+		if result, found = t.ConditionalEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ErrorEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ErrorEventDefinitionField {
+		if result, found = t.ErrorEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.EscalationEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.EscalationEventDefinitionField {
+		if result, found = t.EscalationEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.LinkEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.LinkEventDefinitionField {
+		if result, found = t.LinkEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.MessageEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.MessageEventDefinitionField {
+		if result, found = t.MessageEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SignalEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SignalEventDefinitionField {
+		if result, found = t.SignalEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.TerminateEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.TerminateEventDefinitionField {
+		if result, found = t.TerminateEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.TimerEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.TimerEventDefinitionField {
+		if result, found = t.TimerEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -2158,8 +2158,8 @@ func (t *Category) FindBy(f ElementPredicate) (result Element, found bool) {
 		return
 	}
 
-	for _, e := range t.CategoryValueField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CategoryValueField {
+		if result, found = t.CategoryValueField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -2362,188 +2362,188 @@ func (t *Choreography) FindBy(f ElementPredicate) (result Element, found bool) {
 		return
 	}
 
-	for _, e := range t.AdHocSubProcessField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.AdHocSubProcessField {
+		if result, found = t.AdHocSubProcessField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.BoundaryEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.BoundaryEventField {
+		if result, found = t.BoundaryEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.BusinessRuleTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.BusinessRuleTaskField {
+		if result, found = t.BusinessRuleTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.CallActivityField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CallActivityField {
+		if result, found = t.CallActivityField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.CallChoreographyField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CallChoreographyField {
+		if result, found = t.CallChoreographyField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ChoreographyTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ChoreographyTaskField {
+		if result, found = t.ChoreographyTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ComplexGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ComplexGatewayField {
+		if result, found = t.ComplexGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.DataObjectField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataObjectField {
+		if result, found = t.DataObjectField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.DataObjectReferenceField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataObjectReferenceField {
+		if result, found = t.DataObjectReferenceField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.DataStoreReferenceField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataStoreReferenceField {
+		if result, found = t.DataStoreReferenceField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.EndEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.EndEventField {
+		if result, found = t.EndEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.EventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.EventField {
+		if result, found = t.EventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.EventBasedGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.EventBasedGatewayField {
+		if result, found = t.EventBasedGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ExclusiveGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ExclusiveGatewayField {
+		if result, found = t.ExclusiveGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ImplicitThrowEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ImplicitThrowEventField {
+		if result, found = t.ImplicitThrowEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.InclusiveGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.InclusiveGatewayField {
+		if result, found = t.InclusiveGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.IntermediateCatchEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.IntermediateCatchEventField {
+		if result, found = t.IntermediateCatchEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.IntermediateThrowEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.IntermediateThrowEventField {
+		if result, found = t.IntermediateThrowEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ManualTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ManualTaskField {
+		if result, found = t.ManualTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ParallelGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ParallelGatewayField {
+		if result, found = t.ParallelGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ReceiveTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ReceiveTaskField {
+		if result, found = t.ReceiveTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ScriptTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ScriptTaskField {
+		if result, found = t.ScriptTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SendTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SendTaskField {
+		if result, found = t.SendTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SequenceFlowField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SequenceFlowField {
+		if result, found = t.SequenceFlowField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ServiceTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ServiceTaskField {
+		if result, found = t.ServiceTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.StartEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.StartEventField {
+		if result, found = t.StartEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SubChoreographyField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SubChoreographyField {
+		if result, found = t.SubChoreographyField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SubProcessField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SubProcessField {
+		if result, found = t.SubProcessField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.TaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.TaskField {
+		if result, found = t.TaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.TransactionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.TransactionField {
+		if result, found = t.TransactionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.UserTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.UserTaskField {
+		if result, found = t.UserTaskField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -2946,8 +2946,8 @@ func (t *ChoreographyActivity) FindBy(f ElementPredicate) (result Element, found
 		return
 	}
 
-	for _, e := range t.CorrelationKeyField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CorrelationKeyField {
+		if result, found = t.CorrelationKeyField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -3121,80 +3121,80 @@ func (t *Collaboration) FindBy(f ElementPredicate) (result Element, found bool) 
 		return
 	}
 
-	for _, e := range t.ParticipantField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ParticipantField {
+		if result, found = t.ParticipantField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.MessageFlowField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.MessageFlowField {
+		if result, found = t.MessageFlowField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.AssociationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.AssociationField {
+		if result, found = t.AssociationField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.GroupField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.GroupField {
+		if result, found = t.GroupField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.TextAnnotationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.TextAnnotationField {
+		if result, found = t.TextAnnotationField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.CallConversationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CallConversationField {
+		if result, found = t.CallConversationField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ConversationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ConversationField {
+		if result, found = t.ConversationField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SubConversationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SubConversationField {
+		if result, found = t.SubConversationField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ConversationAssociationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ConversationAssociationField {
+		if result, found = t.ConversationAssociationField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ParticipantAssociationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ParticipantAssociationField {
+		if result, found = t.ParticipantAssociationField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.MessageFlowAssociationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.MessageFlowAssociationField {
+		if result, found = t.MessageFlowAssociationField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.CorrelationKeyField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CorrelationKeyField {
+		if result, found = t.CorrelationKeyField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ConversationLinkField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ConversationLinkField {
+		if result, found = t.ConversationLinkField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -3818,8 +3818,8 @@ func (t *ConversationNode) FindBy(f ElementPredicate) (result Element, found boo
 		return
 	}
 
-	for _, e := range t.CorrelationKeyField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CorrelationKeyField {
+		if result, found = t.CorrelationKeyField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -3961,8 +3961,8 @@ func (t *CorrelationProperty) FindBy(f ElementPredicate) (result Element, found 
 		return
 	}
 
-	for _, e := range t.CorrelationPropertyRetrievalExpressionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CorrelationPropertyRetrievalExpressionField {
+		if result, found = t.CorrelationPropertyRetrievalExpressionField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -4159,8 +4159,8 @@ func (t *CorrelationSubscription) FindBy(f ElementPredicate) (result Element, fo
 		return
 	}
 
-	for _, e := range t.CorrelationPropertyBindingField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CorrelationPropertyBindingField {
+		if result, found = t.CorrelationPropertyBindingField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -4234,8 +4234,8 @@ func (t *DataAssociation) FindBy(f ElementPredicate) (result Element, found bool
 		}
 	}
 
-	for _, e := range t.AssignmentField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.AssignmentField {
+		if result, found = t.AssignmentField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -5382,8 +5382,8 @@ func (t *Event) FindBy(f ElementPredicate) (result Element, found bool) {
 		return
 	}
 
-	for _, e := range t.PropertyField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.PropertyField {
+		if result, found = t.PropertyField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -5632,8 +5632,8 @@ func (t *Extension) FindBy(f ElementPredicate) (result Element, found bool) {
 		return
 	}
 
-	for _, e := range t.DocumentationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DocumentationField {
+		if result, found = t.DocumentationField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -6254,8 +6254,8 @@ func (t *GlobalTask) FindBy(f ElementPredicate) (result Element, found bool) {
 		return
 	}
 
-	for _, e := range t.ResourceRoleField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ResourceRoleField {
+		if result, found = t.ResourceRoleField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -6312,8 +6312,8 @@ func (t *GlobalUserTask) FindBy(f ElementPredicate) (result Element, found bool)
 		return
 	}
 
-	for _, e := range t.RenderingField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.RenderingField {
+		if result, found = t.RenderingField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -6646,8 +6646,8 @@ func (t *Interface) FindBy(f ElementPredicate) (result Element, found bool) {
 		return
 	}
 
-	for _, e := range t.OperationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.OperationField {
+		if result, found = t.OperationField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -6866,26 +6866,26 @@ func (t *InputOutputSpecification) FindBy(f ElementPredicate) (result Element, f
 		return
 	}
 
-	for _, e := range t.DataInputField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataInputField {
+		if result, found = t.DataInputField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.DataOutputField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataOutputField {
+		if result, found = t.DataOutputField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.InputSetField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.InputSetField {
+		if result, found = t.InputSetField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.OutputSetField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.OutputSetField {
+		if result, found = t.OutputSetField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -7155,8 +7155,8 @@ func (t *LaneSet) FindBy(f ElementPredicate) (result Element, found bool) {
 		return
 	}
 
-	for _, e := range t.LaneField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.LaneField {
+		if result, found = t.LaneField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -7718,8 +7718,8 @@ func (t *MultiInstanceLoopCharacteristics) FindBy(f ElementPredicate) (result El
 		}
 	}
 
-	for _, e := range t.ComplexBehaviorDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ComplexBehaviorDefinitionField {
+		if result, found = t.ComplexBehaviorDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -8673,230 +8673,230 @@ func (t *Process) FindBy(f ElementPredicate) (result Element, found bool) {
 		}
 	}
 
-	for _, e := range t.PropertyField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.PropertyField {
+		if result, found = t.PropertyField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.LaneSetField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.LaneSetField {
+		if result, found = t.LaneSetField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.AdHocSubProcessField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.AdHocSubProcessField {
+		if result, found = t.AdHocSubProcessField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.BoundaryEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.BoundaryEventField {
+		if result, found = t.BoundaryEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.BusinessRuleTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.BusinessRuleTaskField {
+		if result, found = t.BusinessRuleTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.CallActivityField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CallActivityField {
+		if result, found = t.CallActivityField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.CallChoreographyField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CallChoreographyField {
+		if result, found = t.CallChoreographyField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ChoreographyTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ChoreographyTaskField {
+		if result, found = t.ChoreographyTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ComplexGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ComplexGatewayField {
+		if result, found = t.ComplexGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.DataObjectField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataObjectField {
+		if result, found = t.DataObjectField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.DataObjectReferenceField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataObjectReferenceField {
+		if result, found = t.DataObjectReferenceField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.DataStoreReferenceField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataStoreReferenceField {
+		if result, found = t.DataStoreReferenceField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.EndEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.EndEventField {
+		if result, found = t.EndEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.EventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.EventField {
+		if result, found = t.EventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.EventBasedGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.EventBasedGatewayField {
+		if result, found = t.EventBasedGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ExclusiveGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ExclusiveGatewayField {
+		if result, found = t.ExclusiveGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ImplicitThrowEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ImplicitThrowEventField {
+		if result, found = t.ImplicitThrowEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.InclusiveGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.InclusiveGatewayField {
+		if result, found = t.InclusiveGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.IntermediateCatchEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.IntermediateCatchEventField {
+		if result, found = t.IntermediateCatchEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.IntermediateThrowEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.IntermediateThrowEventField {
+		if result, found = t.IntermediateThrowEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ManualTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ManualTaskField {
+		if result, found = t.ManualTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ParallelGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ParallelGatewayField {
+		if result, found = t.ParallelGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ReceiveTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ReceiveTaskField {
+		if result, found = t.ReceiveTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ScriptTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ScriptTaskField {
+		if result, found = t.ScriptTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SendTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SendTaskField {
+		if result, found = t.SendTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SequenceFlowField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SequenceFlowField {
+		if result, found = t.SequenceFlowField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ServiceTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ServiceTaskField {
+		if result, found = t.ServiceTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.StartEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.StartEventField {
+		if result, found = t.StartEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SubChoreographyField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SubChoreographyField {
+		if result, found = t.SubChoreographyField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SubProcessField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SubProcessField {
+		if result, found = t.SubProcessField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.TaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.TaskField {
+		if result, found = t.TaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.TransactionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.TransactionField {
+		if result, found = t.TransactionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.UserTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.UserTaskField {
+		if result, found = t.UserTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.AssociationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.AssociationField {
+		if result, found = t.AssociationField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.GroupField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.GroupField {
+		if result, found = t.GroupField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.TextAnnotationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.TextAnnotationField {
+		if result, found = t.TextAnnotationField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ResourceRoleField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ResourceRoleField {
+		if result, found = t.ResourceRoleField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.CorrelationSubscriptionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CorrelationSubscriptionField {
+		if result, found = t.CorrelationSubscriptionField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -9719,8 +9719,8 @@ func (t *Resource) FindBy(f ElementPredicate) (result Element, found bool) {
 		return
 	}
 
-	for _, e := range t.ResourceParameterField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ResourceParameterField {
+		if result, found = t.ResourceParameterField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -9976,8 +9976,8 @@ func (t *ResourceRole) FindBy(f ElementPredicate) (result Element, found bool) {
 		return
 	}
 
-	for _, e := range t.ResourceParameterBindingField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ResourceParameterBindingField {
+		if result, found = t.ResourceParameterBindingField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -10781,206 +10781,206 @@ func (t *SubChoreography) FindBy(f ElementPredicate) (result Element, found bool
 		return
 	}
 
-	for _, e := range t.AdHocSubProcessField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.AdHocSubProcessField {
+		if result, found = t.AdHocSubProcessField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.BoundaryEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.BoundaryEventField {
+		if result, found = t.BoundaryEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.BusinessRuleTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.BusinessRuleTaskField {
+		if result, found = t.BusinessRuleTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.CallActivityField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CallActivityField {
+		if result, found = t.CallActivityField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.CallChoreographyField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CallChoreographyField {
+		if result, found = t.CallChoreographyField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ChoreographyTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ChoreographyTaskField {
+		if result, found = t.ChoreographyTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ComplexGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ComplexGatewayField {
+		if result, found = t.ComplexGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.DataObjectField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataObjectField {
+		if result, found = t.DataObjectField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.DataObjectReferenceField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataObjectReferenceField {
+		if result, found = t.DataObjectReferenceField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.DataStoreReferenceField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataStoreReferenceField {
+		if result, found = t.DataStoreReferenceField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.EndEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.EndEventField {
+		if result, found = t.EndEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.EventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.EventField {
+		if result, found = t.EventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.EventBasedGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.EventBasedGatewayField {
+		if result, found = t.EventBasedGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ExclusiveGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ExclusiveGatewayField {
+		if result, found = t.ExclusiveGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ImplicitThrowEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ImplicitThrowEventField {
+		if result, found = t.ImplicitThrowEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.InclusiveGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.InclusiveGatewayField {
+		if result, found = t.InclusiveGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.IntermediateCatchEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.IntermediateCatchEventField {
+		if result, found = t.IntermediateCatchEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.IntermediateThrowEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.IntermediateThrowEventField {
+		if result, found = t.IntermediateThrowEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ManualTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ManualTaskField {
+		if result, found = t.ManualTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ParallelGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ParallelGatewayField {
+		if result, found = t.ParallelGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ReceiveTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ReceiveTaskField {
+		if result, found = t.ReceiveTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ScriptTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ScriptTaskField {
+		if result, found = t.ScriptTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SendTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SendTaskField {
+		if result, found = t.SendTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SequenceFlowField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SequenceFlowField {
+		if result, found = t.SequenceFlowField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ServiceTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ServiceTaskField {
+		if result, found = t.ServiceTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.StartEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.StartEventField {
+		if result, found = t.StartEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SubChoreographyField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SubChoreographyField {
+		if result, found = t.SubChoreographyField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SubProcessField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SubProcessField {
+		if result, found = t.SubProcessField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.TaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.TaskField {
+		if result, found = t.TaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.TransactionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.TransactionField {
+		if result, found = t.TransactionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.UserTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.UserTaskField {
+		if result, found = t.UserTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.AssociationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.AssociationField {
+		if result, found = t.AssociationField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.GroupField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.GroupField {
+		if result, found = t.GroupField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.TextAnnotationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.TextAnnotationField {
+		if result, found = t.TextAnnotationField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -11416,20 +11416,20 @@ func (t *SubConversation) FindBy(f ElementPredicate) (result Element, found bool
 		return
 	}
 
-	for _, e := range t.CallConversationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CallConversationField {
+		if result, found = t.CallConversationField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ConversationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ConversationField {
+		if result, found = t.ConversationField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SubConversationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SubConversationField {
+		if result, found = t.SubConversationField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -11622,212 +11622,212 @@ func (t *SubProcess) FindBy(f ElementPredicate) (result Element, found bool) {
 		return
 	}
 
-	for _, e := range t.LaneSetField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.LaneSetField {
+		if result, found = t.LaneSetField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.AdHocSubProcessField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.AdHocSubProcessField {
+		if result, found = t.AdHocSubProcessField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.BoundaryEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.BoundaryEventField {
+		if result, found = t.BoundaryEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.BusinessRuleTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.BusinessRuleTaskField {
+		if result, found = t.BusinessRuleTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.CallActivityField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CallActivityField {
+		if result, found = t.CallActivityField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.CallChoreographyField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CallChoreographyField {
+		if result, found = t.CallChoreographyField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ChoreographyTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ChoreographyTaskField {
+		if result, found = t.ChoreographyTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ComplexGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ComplexGatewayField {
+		if result, found = t.ComplexGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.DataObjectField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataObjectField {
+		if result, found = t.DataObjectField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.DataObjectReferenceField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataObjectReferenceField {
+		if result, found = t.DataObjectReferenceField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.DataStoreReferenceField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataStoreReferenceField {
+		if result, found = t.DataStoreReferenceField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.EndEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.EndEventField {
+		if result, found = t.EndEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.EventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.EventField {
+		if result, found = t.EventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.EventBasedGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.EventBasedGatewayField {
+		if result, found = t.EventBasedGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ExclusiveGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ExclusiveGatewayField {
+		if result, found = t.ExclusiveGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ImplicitThrowEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ImplicitThrowEventField {
+		if result, found = t.ImplicitThrowEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.InclusiveGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.InclusiveGatewayField {
+		if result, found = t.InclusiveGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.IntermediateCatchEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.IntermediateCatchEventField {
+		if result, found = t.IntermediateCatchEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.IntermediateThrowEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.IntermediateThrowEventField {
+		if result, found = t.IntermediateThrowEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ManualTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ManualTaskField {
+		if result, found = t.ManualTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ParallelGatewayField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ParallelGatewayField {
+		if result, found = t.ParallelGatewayField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ReceiveTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ReceiveTaskField {
+		if result, found = t.ReceiveTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ScriptTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ScriptTaskField {
+		if result, found = t.ScriptTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SendTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SendTaskField {
+		if result, found = t.SendTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SequenceFlowField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SequenceFlowField {
+		if result, found = t.SequenceFlowField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ServiceTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ServiceTaskField {
+		if result, found = t.ServiceTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.StartEventField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.StartEventField {
+		if result, found = t.StartEventField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SubChoreographyField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SubChoreographyField {
+		if result, found = t.SubChoreographyField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SubProcessField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SubProcessField {
+		if result, found = t.SubProcessField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.TaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.TaskField {
+		if result, found = t.TaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.TransactionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.TransactionField {
+		if result, found = t.TransactionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.UserTaskField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.UserTaskField {
+		if result, found = t.UserTaskField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.AssociationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.AssociationField {
+		if result, found = t.AssociationField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.GroupField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.GroupField {
+		if result, found = t.GroupField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.TextAnnotationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.TextAnnotationField {
+		if result, found = t.TextAnnotationField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -12491,14 +12491,14 @@ func (t *ThrowEvent) FindBy(f ElementPredicate) (result Element, found bool) {
 		return
 	}
 
-	for _, e := range t.DataInputField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataInputField {
+		if result, found = t.DataInputField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.DataInputAssociationField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.DataInputAssociationField {
+		if result, found = t.DataInputAssociationField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -12509,62 +12509,62 @@ func (t *ThrowEvent) FindBy(f ElementPredicate) (result Element, found bool) {
 		}
 	}
 
-	for _, e := range t.CancelEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CancelEventDefinitionField {
+		if result, found = t.CancelEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.CompensateEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.CompensateEventDefinitionField {
+		if result, found = t.CompensateEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ConditionalEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ConditionalEventDefinitionField {
+		if result, found = t.ConditionalEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.ErrorEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.ErrorEventDefinitionField {
+		if result, found = t.ErrorEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.EscalationEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.EscalationEventDefinitionField {
+		if result, found = t.EscalationEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.LinkEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.LinkEventDefinitionField {
+		if result, found = t.LinkEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.MessageEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.MessageEventDefinitionField {
+		if result, found = t.MessageEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.SignalEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.SignalEventDefinitionField {
+		if result, found = t.SignalEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.TerminateEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.TerminateEventDefinitionField {
+		if result, found = t.TerminateEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
 
-	for _, e := range t.TimerEventDefinitionField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.TimerEventDefinitionField {
+		if result, found = t.TimerEventDefinitionField[i].FindBy(f); found {
 			return
 		}
 	}
@@ -12907,8 +12907,8 @@ func (t *UserTask) FindBy(f ElementPredicate) (result Element, found bool) {
 		return
 	}
 
-	for _, e := range t.RenderingField {
-		if result, found = e.FindBy(f); found {
+	for i := range t.RenderingField {
+		if result, found = t.RenderingField[i].FindBy(f); found {
 			return
 		}
 	}
