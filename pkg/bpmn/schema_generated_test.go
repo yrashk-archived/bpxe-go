@@ -422,6 +422,16 @@ func TestInputOutputSpecificationInterface(t *testing.T) {
 	var _ InputOutputSpecificationInterface = &InputOutputSpecification{}
 
 }
+func TestItemAwareInterface(t *testing.T) {
+	// won't compile if the interaces are not implemented
+	var _ ItemAwareInterface = &ItemAware{}
+
+}
+func TestItemAwareElementInterface(t *testing.T) {
+	// won't compile if the interaces are not implemented
+	var _ ItemAwareElementInterface = &ItemAwareElement{}
+
+}
 func TestItemDefinitionInterface(t *testing.T) {
 	// won't compile if the interaces are not implemented
 	var _ ItemDefinitionInterface = &ItemDefinition{}

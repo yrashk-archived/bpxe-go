@@ -14,6 +14,7 @@ import (
 	"sync"
 
 	"bpxe.org/pkg/bpmn"
+	"bpxe.org/pkg/data"
 	"bpxe.org/pkg/errors"
 	"bpxe.org/pkg/expression"
 	"bpxe.org/pkg/flow_node"
@@ -34,6 +35,7 @@ type Flow struct {
 	actionTransformer flow_node.ActionTransformer
 	terminate         flow_node.Terminate
 	sequenceFlowId    *string
+	itemAwareLocator  data.ItemAwareLocator
 }
 
 func (flow *Flow) SequenceFlow() *sequence_flow.SequenceFlow {
@@ -64,7 +66,9 @@ func (flow *Flow) SetTerminate(terminate flow_node.Terminate) {
 func New(definitions *bpmn.Definitions,
 	current flow_node.FlowNodeInterface, tracer *tracing.Tracer,
 	flowNodeMapping *flow_node.FlowNodeMapping, flowWaitGroup *sync.WaitGroup,
-	idGenerator id.Generator, actionTransformer flow_node.ActionTransformer) *Flow {
+	idGenerator id.Generator, actionTransformer flow_node.ActionTransformer,
+	itemAwareLocator data.ItemAwareLocator,
+) *Flow {
 	return &Flow{
 		id:                idGenerator.New(),
 		definitions:       definitions,
@@ -74,6 +78,7 @@ func New(definitions *bpmn.Definitions,
 		flowWaitGroup:     flowWaitGroup,
 		idGenerator:       idGenerator,
 		actionTransformer: actionTransformer,
+		itemAwareLocator:  itemAwareLocator,
 	}
 }
 
@@ -94,6 +99,7 @@ func (flow *Flow) testSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, unc
 			}
 
 			engine := expression.GetEngine(lang)
+			engine.SetItemAwareLocator(flow.itemAwareLocator)
 			source := strings.Trim(*e.TextPayload(), " \n")
 			var compiled expression.CompiledExpression
 			compiled, err = engine.CompileExpression(source)
@@ -200,7 +206,7 @@ func (flow *Flow) handleAdditionalSequenceFlow(sequenceFlow *sequence_flow.Seque
 		flowId = flow.idGenerator.New()
 		f = func() {
 			newFlow := New(flow.definitions, flowNode, flow.tracer, flow.flowNodeMapping, flow.flowWaitGroup,
-				flow.idGenerator, actionTransformer)
+				flow.idGenerator, actionTransformer, flow.itemAwareLocator)
 			newFlow.id = flowId // important: override id with pre-generated one
 			if idPtr, present := sequenceFlow.Id(); present {
 				newFlow.sequenceFlowId = idPtr

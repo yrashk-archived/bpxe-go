@@ -11,6 +11,7 @@ package expression
 import (
 	"testing"
 
+	"bpxe.org/pkg/data"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,6 +22,21 @@ func TestExpr(t *testing.T) {
 	result, err := engine.EvaluateExpression(compiled, map[string]interface{}{
 		"a": 2,
 	})
+	assert.Nil(t, err)
+	assert.True(t, result.(bool))
+}
+
+func TestExpr_getDataObject(t *testing.T) {
+	var engine = NewExpr()
+	container := data.NewContainer(nil)
+	container.Put(1)
+	var objs dataObjects = map[string]data.ItemAware{
+		"dataObject": container,
+	}
+	engine.SetItemAwareLocator(objs)
+	compiled, err := engine.CompileExpression("getDataObject('dataObject') > 0")
+	assert.Nil(t, err)
+	result, err := engine.EvaluateExpression(compiled, map[string]interface{}{})
 	assert.Nil(t, err)
 	assert.True(t, result.(bool))
 }

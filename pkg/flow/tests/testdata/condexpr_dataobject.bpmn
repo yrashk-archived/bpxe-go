@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0hdorjb" targetNamespace="http://bpmn.io/schema/bpmn" expressionLanguage="https://github.com/antonmedv/expr" exporter="Camunda Modeler" exporterVersion="4.7.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.14.0">
+  <bpmn:process id="Process_1x4ppsr" isExecutable="true">
+    <bpmn:startEvent id="start">
+      <bpmn:outgoing>Flow_0iuzsse</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="Gateway_14p39vu">
+      <bpmn:incoming>Flow_0iuzsse</bpmn:incoming>
+      <bpmn:outgoing>cond1</bpmn:outgoing>
+      <bpmn:outgoing>cond2</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0iuzsse" sourceRef="start" targetRef="Gateway_14p39vu" />
+    <bpmn:task id="a1" name="a1">
+      <bpmn:incoming>cond1</bpmn:incoming>
+      <bpmn:outgoing>Flow_0gwt8id</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="cond1" name="cond1" sourceRef="Gateway_14p39vu" targetRef="a1">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">getDataObject('cond1o')</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:task id="a2" name="a2">
+      <bpmn:incoming>cond2</bpmn:incoming>
+      <bpmn:outgoing>Flow_04cxx78</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="cond2" name="cond2" sourceRef="Gateway_14p39vu" targetRef="a2">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">getDataObject('cond2o')</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="end">
+      <bpmn:incoming>Flow_0gwt8id</bpmn:incoming>
+      <bpmn:incoming>Flow_04cxx78</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0gwt8id" sourceRef="a1" targetRef="end" />
+    <bpmn:sequenceFlow id="Flow_04cxx78" sourceRef="a2" targetRef="end" />
+    <bpmn:dataObject id="cond2o" name="cond2o" />
+    <bpmn:dataObject id="cond1o" name="cond1o" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1x4ppsr">
+      <bpmndi:BPMNEdge id="Flow_04cxx78_di" bpmnElement="Flow_04cxx78">
+        <di:waypoint x="470" y="230" />
+        <di:waypoint x="501" y="230" />
+        <di:waypoint x="501" y="117" />
+        <di:waypoint x="532" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0gwt8id_di" bpmnElement="Flow_0gwt8id">
+        <di:waypoint x="470" y="117" />
+        <di:waypoint x="532" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0lkl4uy_di" bpmnElement="cond2">
+        <di:waypoint x="290" y="142" />
+        <di:waypoint x="290" y="230" />
+        <di:waypoint x="370" y="230" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="290" y="183" width="30" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ksa6la_di" bpmnElement="cond1">
+        <di:waypoint x="315" y="117" />
+        <di:waypoint x="370" y="117" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="328" y="99" width="30" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0iuzsse_di" bpmnElement="Flow_0iuzsse">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="265" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="start">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_14p39vu_di" bpmnElement="Gateway_14p39vu" isMarkerVisible="true">
+        <dc:Bounds x="265" y="92" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ricf4t_di" bpmnElement="a1">
+        <dc:Bounds x="370" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0w23q9e_di" bpmnElement="a2">
+        <dc:Bounds x="370" y="190" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_07rvpsv_di" bpmnElement="end">
+        <dc:Bounds x="532" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

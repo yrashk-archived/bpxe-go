@@ -10,6 +10,7 @@ package event
 
 import (
 	"bpxe.org/pkg/bpmn"
+	"bpxe.org/pkg/data"
 )
 
 type ProcessEvent interface {
@@ -57,14 +58,15 @@ func (ev NoneEvent) MatchesEventInstance(instance Instance) bool {
 // Signal event
 type SignalEvent struct {
 	signalRef string
+	item      data.Item
 }
 
-func MakeSignalEvent(signalRef string) SignalEvent {
-	return SignalEvent{signalRef: signalRef}
+func MakeSignalEvent(signalRef string, items ...data.Item) SignalEvent {
+	return SignalEvent{signalRef: signalRef, item: data.ItemOrCollection(items)}
 }
 
-func NewSignalEvent(signalRef string) *SignalEvent {
-	event := MakeSignalEvent(signalRef)
+func NewSignalEvent(signalRef string, items ...data.Item) *SignalEvent {
+	event := MakeSignalEvent(signalRef, items)
 	return &event
 }
 
@@ -142,17 +144,19 @@ func (ev *CompensationEvent) ActivityRef() *string {
 type MessageEvent struct {
 	messageRef   string
 	operationRef *string
+	item         data.Item
 }
 
-func MakeMessageEvent(messageRef string, operationRef *string) MessageEvent {
+func MakeMessageEvent(messageRef string, operationRef *string, items ...data.Item) MessageEvent {
 	return MessageEvent{
 		messageRef:   messageRef,
 		operationRef: operationRef,
+		item:         data.ItemOrCollection(items),
 	}
 }
 
-func NewMessageEvent(messageRef string, operationRef *string) *MessageEvent {
-	event := MakeMessageEvent(messageRef, operationRef)
+func NewMessageEvent(messageRef string, operationRef *string, items ...data.Item) *MessageEvent {
+	event := MakeMessageEvent(messageRef, operationRef, items...)
 	return &event
 }
 
@@ -201,10 +205,11 @@ func (ev *MessageEvent) OperationRef() (result *string, present bool) {
 // Escalation event
 type EscalationEvent struct {
 	escalationRef string
+	item          data.Item
 }
 
-func MakeEscalationEvent(escalationRef string) EscalationEvent {
-	return EscalationEvent{escalationRef: escalationRef}
+func MakeEscalationEvent(escalationRef string, items ...data.Item) EscalationEvent {
+	return EscalationEvent{escalationRef: escalationRef, item: data.ItemOrCollection(items)}
 }
 
 func (ev *EscalationEvent) MatchesEventInstance(instance Instance) bool {
@@ -300,10 +305,11 @@ func (ev *LinkEvent) Target() (result *string, present bool) {
 // Error event
 type ErrorEvent struct {
 	errorRef string
+	item     data.Item
 }
 
-func MakeErrorEvent(errorRef string) ErrorEvent {
-	return ErrorEvent{errorRef: errorRef}
+func MakeErrorEvent(errorRef string, items ...data.Item) ErrorEvent {
+	return ErrorEvent{errorRef: errorRef, item: data.ItemOrCollection(items)}
 }
 
 func (ev *ErrorEvent) MatchesEventInstance(instance Instance) bool {

@@ -10,9 +10,12 @@ package process
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"bpxe.org/pkg/bpmn"
+	"bpxe.org/pkg/data"
+	"bpxe.org/pkg/errors"
 	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow"
 	"bpxe.org/pkg/flow_node"
@@ -30,13 +33,71 @@ import (
 )
 
 type Instance struct {
-	process         *Process
-	eventConsumers  []event.ProcessEventConsumer
-	Tracer          *tracing.Tracer
-	flowNodeMapping *flow_node.FlowNodeMapping
-	flowWaitGroup   sync.WaitGroup
-	complete        sync.RWMutex
-	idGenerator     id.Generator
+	process                    *Process
+	eventConsumers             []event.ProcessEventConsumer
+	Tracer                     *tracing.Tracer
+	flowNodeMapping            *flow_node.FlowNodeMapping
+	flowWaitGroup              sync.WaitGroup
+	complete                   sync.RWMutex
+	idGenerator                id.Generator
+	dataObjectsByName          map[string]data.ItemAware
+	dataObjects                map[bpmn.Id]data.ItemAware
+	dataObjectReferencesByName map[string]data.ItemAware
+	dataObjectReferences       map[bpmn.Id]data.ItemAware
+	propertiesByName           map[string]data.ItemAware
+	properties                 map[bpmn.Id]data.ItemAware
+}
+
+func (instance *Instance) FindItemAwareById(id bpmn.IdRef) (itemAware data.ItemAware, found bool) {
+	for k := range instance.dataObjects {
+		if k == id {
+			found = true
+			itemAware = instance.dataObjects[k]
+			goto ready
+		}
+	}
+	for k := range instance.dataObjectReferences {
+		if k == id {
+			found = true
+			itemAware = instance.dataObjectReferences[k]
+			goto ready
+		}
+	}
+	for k := range instance.properties {
+		if k == id {
+			found = true
+			itemAware = instance.properties[k]
+			goto ready
+		}
+	}
+ready:
+	return
+}
+
+func (instance *Instance) FindItemAwareByName(name string) (itemAware data.ItemAware, found bool) {
+	for k := range instance.dataObjectsByName {
+		if k == name {
+			found = true
+			itemAware = instance.dataObjectsByName[k]
+			goto ready
+		}
+	}
+	for k := range instance.dataObjectReferencesByName {
+		if k == name {
+			found = true
+			itemAware = instance.dataObjectReferencesByName[k]
+			goto ready
+		}
+	}
+	for k := range instance.propertiesByName {
+		if k == name {
+			found = true
+			itemAware = instance.propertiesByName[k]
+			goto ready
+		}
+	}
+ready:
+	return
 }
 
 // InstanceOption allows to modify configuration of
@@ -64,11 +125,17 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 		return
 	}
 	instance = &Instance{
-		process:         process,
-		eventConsumers:  eventConsumers,
-		Tracer:          tracer,
-		flowNodeMapping: flow_node.NewLockedFlowNodeMapping(),
-		idGenerator:     idGenerator,
+		process:                    process,
+		eventConsumers:             eventConsumers,
+		Tracer:                     tracer,
+		flowNodeMapping:            flow_node.NewLockedFlowNodeMapping(),
+		idGenerator:                idGenerator,
+		dataObjectsByName:          make(map[string]data.ItemAware),
+		dataObjectReferencesByName: make(map[string]data.ItemAware),
+		propertiesByName:           make(map[string]data.ItemAware),
+		dataObjects:                make(map[string]data.ItemAware),
+		dataObjectReferences:       make(map[string]data.ItemAware),
+		properties:                 make(map[string]data.ItemAware),
 	}
 
 	// Apply options
@@ -76,12 +143,81 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 		option(instance)
 	}
 
+	// Item aware elements
+
+	for i := range *process.Element.DataObjects() {
+		dataObject := &(*process.Element.DataObjects())[i]
+		var name string
+		if namePtr, present := dataObject.Name(); present {
+			name = *namePtr
+		} else {
+			name = idGenerator.New().String()
+		}
+		container := data.NewContainer(dataObject)
+		instance.dataObjectsByName[name] = container
+		if idPtr, present := dataObject.Id(); present {
+			instance.dataObjects[*idPtr] = container
+		}
+	}
+
+	for i := range *process.Element.DataObjectReferences() {
+		dataObjectReference := &(*process.Element.DataObjectReferences())[i]
+		var name string
+		if namePtr, present := dataObjectReference.Name(); present {
+			name = *namePtr
+		} else {
+			name = idGenerator.New().String()
+		}
+		var container data.ItemAware
+		if dataObjPtr, present := dataObjectReference.DataObjectRef(); present {
+			for dataObjectId := range instance.dataObjects {
+				if dataObjectId == *dataObjPtr {
+					container = instance.dataObjects[dataObjectId]
+					break
+				}
+			}
+			if container == nil {
+				err = errors.NotFoundError{
+					Expected: fmt.Sprintf("data object with ID %s", *dataObjPtr),
+				}
+				return
+			}
+		} else {
+			err = errors.InvalidArgumentError{
+				Expected: "data object reference to have dataObjectRef",
+				Actual:   dataObjectReference,
+			}
+			return
+		}
+		instance.dataObjectReferencesByName[name] = container
+		if idPtr, present := dataObjectReference.Id(); present {
+			instance.dataObjectReferences[*idPtr] = container
+		}
+	}
+
+	for i := range *process.Element.Properties() {
+		property := &(*process.Element.Properties())[i]
+		var name string
+		if namePtr, present := property.Name(); present {
+			name = *namePtr
+		} else {
+			name = idGenerator.New().String()
+		}
+		container := data.NewContainer(property)
+		instance.propertiesByName[name] = container
+		if idPtr, present := property.Id(); present {
+			instance.properties[*idPtr] = container
+		}
+	}
+
+	// Flow nodes
+
 	for i := range *process.Element.StartEvents() {
 		element := &(*process.Element.StartEvents())[i]
 		var startEvent *start.Node
 		startEvent, err = start.New(process.Element, process.Definitions,
 			element, instance, instance, instance.Tracer, instance.flowNodeMapping, &instance.flowWaitGroup,
-			idGenerator)
+			idGenerator, instance)
 		if err != nil {
 			return
 		}
@@ -125,7 +261,7 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 		var aTask *activity.Harness
 		aTask, err = activity.NewHarness(process.Element, process.Definitions,
 			&element.FlowNode, instance, instance, instance.Tracer, instance.flowNodeMapping, &instance.flowWaitGroup,
-			idGenerator, task.NewTask(element), process,
+			idGenerator, task.NewTask(element), process, instance,
 		)
 		if err != nil {
 			return

@@ -11,6 +11,7 @@ package expression
 import (
 	"reflect"
 
+	"bpxe.org/pkg/data"
 	"bpxe.org/pkg/errors"
 	"github.com/antonmedv/expr"
 	"github.com/antonmedv/expr/vm"
@@ -19,27 +20,55 @@ import (
 // Expr language engine
 //
 // https://github.com/antonmedv/expr
-type Expr struct{}
+type Expr struct {
+	env              map[string]interface{}
+	itemAwareLocator data.ItemAwareLocator
+}
 
-func MakeExpr() Expr {
-	return Expr{}
+func (engine *Expr) SetItemAwareLocator(itemAwareLocator data.ItemAwareLocator) {
+	engine.itemAwareLocator = itemAwareLocator
 }
 
 func NewExpr() *Expr {
-	engine := MakeExpr()
-	return &engine
+	engine := &Expr{}
+	engine.env = map[string]interface{}{
+		"getDataObject": func(args ...string) data.Item {
+			var name string
+			if len(args) == 1 {
+				name = args[0]
+			}
+			itemAware, found := engine.itemAwareLocator.FindItemAwareByName(name)
+			if !found {
+				return nil
+			}
+			item := <-itemAware.Get()
+			return item
+		},
+	}
+	return engine
 }
 
 func (engine *Expr) CompileExpression(source string) (result CompiledExpression, err error) {
-	result, err = expr.Compile(source)
+	result, err = expr.Compile(source, expr.Env(engine.env), expr.AllowUndefinedVariables())
 	return
 }
 
 func (engine *Expr) EvaluateExpression(e CompiledExpression,
 	data interface{},
 ) (result Result, err error) {
+	actualData := data
+	if data == nil {
+		actualData = engine.env
+	} else if e, ok := data.(map[string]interface{}); ok {
+		env := engine.env
+		for k, v := range e {
+			env[k] = v
+		}
+		actualData = env
+	}
+
 	if expression, ok := e.(*vm.Program); ok {
-		result, err = expr.Run(expression, data)
+		result, err = expr.Run(expression, actualData)
 	} else {
 		err = errors.InvalidArgumentError{
 			Expected: "CompiledExpression to be *github.com/antonmedv/expr/vm#Program",

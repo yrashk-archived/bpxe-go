@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
 	xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema-modified.xsd"
 	targetNamespace="http://www.omg.org/spec/BPMN/20100524/MODEL">
 
 	<xsd:element name="activity" type="tActivity"/>
@@ -478,8 +476,12 @@
 	<xsd:element name="dataInput" type="tDataInput"/>
 	<xsd:complexType name="tDataInput">
 		<xsd:complexContent>
-			<xsd:extension base="tItemAwareElement">
+			<xsd:extension base="tBaseElement">
+				<xsd:sequence>
+					<xsd:element ref="dataState" minOccurs="0" maxOccurs="1"/>
+				</xsd:sequence>
 				<xsd:attribute name="name" type="xsd:string" use="optional"/>
+				<xsd:attribute name="itemSubjectRef" type="xsd:QName"/>
 				<xsd:attribute name="isCollection" type="xsd:boolean" default="false"/>
 			</xsd:extension>
 		</xsd:complexContent>
@@ -495,8 +497,11 @@
 	<xsd:element name="dataObject" type="tDataObject" substitutionGroup="flowElement"/>
 	<xsd:complexType name="tDataObject">
 		<xsd:complexContent>
-			<xsd:extension base="tFlowElement"/>
-			<xsd:extension base="tItemAware">
+			<xsd:extension base="tFlowElement">
+				<xsd:sequence>
+					<xsd:element ref="dataState" minOccurs="0" maxOccurs="1"/>
+				</xsd:sequence>
+				<xsd:attribute name="itemSubjectRef" type="xsd:QName"/>
 				<xsd:attribute name="isCollection" type="xsd:boolean" default="false"/>
 			</xsd:extension>
 		</xsd:complexContent>
@@ -506,8 +511,11 @@
 		substitutionGroup="flowElement"/>
 	<xsd:complexType name="tDataObjectReference">
 		<xsd:complexContent>
-			<xsd:extension base="tFlowElement"/>
-			<xsd:extension base="tItemAware">
+			<xsd:extension base="tFlowElement">
+				<xsd:sequence>
+					<xsd:element ref="dataState" minOccurs="0" maxOccurs="1"/>
+				</xsd:sequence>
+				<xsd:attribute name="itemSubjectRef" type="xsd:QName"/>
 				<xsd:attribute name="dataObjectRef" type="xsd:IDREF"/>
 			</xsd:extension>
 		</xsd:complexContent>
@@ -516,8 +524,12 @@
 	<xsd:element name="dataOutput" type="tDataOutput"/>
 	<xsd:complexType name="tDataOutput">
 		<xsd:complexContent>
-			<xsd:extension base="tItemAwareElement">
+			<xsd:extension base="tBaseElement">
+				<xsd:sequence>
+					<xsd:element ref="dataState" minOccurs="0" maxOccurs="1"/>
+				</xsd:sequence>
 				<xsd:attribute name="name" type="xsd:string" use="optional"/>
+				<xsd:attribute name="itemSubjectRef" type="xsd:QName"/>
 				<xsd:attribute name="isCollection" type="xsd:boolean" default="false"/>
 			</xsd:extension>
 		</xsd:complexContent>
@@ -542,11 +554,14 @@
 	<xsd:element name="dataStore" type="tDataStore" substitutionGroup="rootElement"/>
 	<xsd:complexType name="tDataStore">
 		<xsd:complexContent>
-			<xsd:extension base="tRootElement"/>
-			<xsd:extension base="tItemAware">
+			<xsd:extension base="tRootElement">
+				<xsd:sequence>
+					<xsd:element ref="dataState" minOccurs="0" maxOccurs="1"/>
+				</xsd:sequence>
 				<xsd:attribute name="name" type="xsd:string"/>
 				<xsd:attribute name="capacity" type="xsd:integer"/>
 				<xsd:attribute name="isUnlimited" type="xsd:boolean" default="true"/>
+				<xsd:attribute name="itemSubjectRef" type="xsd:QName"/>
 			</xsd:extension>
 		</xsd:complexContent>
 	</xsd:complexType>
@@ -555,8 +570,11 @@
 		substitutionGroup="flowElement"/>
 	<xsd:complexType name="tDataStoreReference">
 		<xsd:complexContent>
-			<xsd:extension base="tFlowElement"/>
-			<xsd:extension base="tItemAware">
+			<xsd:extension base="tFlowElement">
+				<xsd:sequence>
+					<xsd:element ref="dataState" minOccurs="0" maxOccurs="1"/>
+				</xsd:sequence>
+				<xsd:attribute name="itemSubjectRef" type="xsd:QName"/>
 				<xsd:attribute name="dataStoreRef" type="xsd:QName"/>
 			</xsd:extension>
 		</xsd:complexContent>
@@ -941,20 +959,6 @@
 		</xsd:complexContent>
 	</xsd:complexType>
 
-	<xsd:complexType name="tItemAware" abstract="true">
-				<xsd:sequence>
-					<xsd:element ref="dataState" minOccurs="0" maxOccurs="1"/>
-				</xsd:sequence>
-				<xsd:attribute name="itemSubjectRef" type="xsd:QName"/>
-	</xsd:complexType>
-	
-	<xsd:complexType name="tItemAwareElement" abstract="true">
-		<xsd:complexContent>
-			<xsd:extension base="tBaseElement"/>
-			<xsd:extension base="tItemAware"/>
-		</xsd:complexContent>
-	</xsd:complexType>
-
 	<xsd:element name="itemDefinition" type="tItemDefinition" substitutionGroup="rootElement"/>
 	<xsd:complexType name="tItemDefinition">
 		<xsd:complexContent>
@@ -1276,8 +1280,12 @@
 	<xsd:element name="property" type="tProperty"/>
 	<xsd:complexType name="tProperty">
 		<xsd:complexContent>
-			<xsd:extension base="tItemAwareElement">
+			<xsd:extension base="tBaseElement">
+				<xsd:sequence>
+					<xsd:element ref="dataState" minOccurs="0" maxOccurs="1"/>
+				</xsd:sequence>
 				<xsd:attribute name="name" type="xsd:string"/>
+				<xsd:attribute name="itemSubjectRef" type="xsd:QName"/>
 			</xsd:extension>
 		</xsd:complexContent>
 	</xsd:complexType>

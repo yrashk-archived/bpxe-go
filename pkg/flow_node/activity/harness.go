@@ -13,6 +13,7 @@ import (
 	"sync/atomic"
 
 	"bpxe.org/pkg/bpmn"
+	"bpxe.org/pkg/data"
 	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow"
 	"bpxe.org/pkg/flow/flow_interface"
@@ -89,6 +90,7 @@ func NewHarness(process *bpmn.Process,
 	idGenerator id.Generator,
 	constructor Constructor,
 	instanceBuilder event.InstanceBuilder,
+	itemAwareLocator data.ItemAwareLocator,
 ) (node *Harness, err error) {
 	flowNode, err := flow_node.New(process,
 		definitions,
@@ -154,7 +156,7 @@ func NewHarness(process *bpmn.Process,
 				}
 			}
 			newFlow := flow.New(node.T.Definitions, catchEvent, node.T.Tracer,
-				node.T.FlowNodeMapping, node.T.FlowWaitGroup, node.idGenerator, actionTransformer)
+				node.T.FlowNodeMapping, node.T.FlowWaitGroup, node.idGenerator, actionTransformer, itemAwareLocator)
 			newFlow.Start()
 		}
 	}
