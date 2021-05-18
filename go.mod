@@ -3,8 +3,8 @@ module bpxe.org
 go 1.16
 
 require (
-	github.com/antchfx/jsonquery v1.1.4
-	github.com/antchfx/xpath v1.1.11
+	github.com/ChrisTrenkamp/xsel v0.9.6
+	github.com/Chronokeeper/anyxml v0.0.0-20160530174208-54457d8e98c6
 	github.com/antonmedv/expr v1.8.9
 	github.com/go-enry/go-license-detector/v4 v4.2.0
 	github.com/google/gops v0.3.18

@@ -10,12 +10,14 @@ package expression
 
 import (
 	"bytes"
-	"encoding/json"
 	"reflect"
 
 	"bpxe.org/pkg/errors"
-	"github.com/antchfx/jsonquery"
-	"github.com/antchfx/xpath"
+	"github.com/ChrisTrenkamp/xsel/exec"
+	"github.com/ChrisTrenkamp/xsel/grammar"
+	"github.com/ChrisTrenkamp/xsel/parser"
+	"github.com/ChrisTrenkamp/xsel/store"
+	"github.com/Chronokeeper/anyxml"
 )
 
 // XPath language engine
@@ -33,36 +35,52 @@ func NewXPath() *XPath {
 }
 
 func (engine *XPath) CompileExpression(source string) (result CompiledExpression, err error) {
-	result, err = xpath.Compile(source)
+	compiled, err := grammar.Build(source)
+	if err == nil {
+		result = &compiled
+	}
 	return
 }
 
 func (engine *XPath) EvaluateExpression(e CompiledExpression,
 	data interface{},
 ) (result Result, err error) {
-	if expression, ok := e.(*xpath.Expr); ok {
+	if expression, ok := e.(*grammar.Grammar); ok {
 		// Here, in order to save some prototyping type,
-		// instead of implementing `NodeNavigator` for `interface{}`,
-		// we use `jsonquery` over `interface{}` serialized as JSON.
+		// instead of implementing `parser.Parser` for `interface{}`,
+		// we use it over `interface{}` serialized as XML.
 		// This is not very efficient but does the job for now.
-		// Eventually, a direct implementation of `NodeNavigator`
+		// Eventually, a direct implementation of `parser.Parser`
 		// over `interface{}` should be developed to optimize this path.
-		var jsonified []byte
-		var doc *jsonquery.Node
-		jsonified, err = json.Marshal(data)
+
+		var serialized []byte
+		serialized, err = anyxml.Xml(data)
 		if err != nil {
 			result = nil
 			return
 		}
-		doc, err = jsonquery.Parse(bytes.NewReader(jsonified))
+		p := parser.ReadXml(bytes.NewBuffer(serialized))
+		var cursor store.Cursor
+		cursor, err = store.CreateInMemory(p)
 		if err != nil {
-			result = nil
 			return
 		}
-		result = expression.Evaluate(jsonquery.CreateXPathNavigator(doc))
+		var res exec.Result
+		res, err = exec.Exec(cursor, expression)
+		if err != nil {
+			return
+		}
+		switch res := res.(type) {
+		case exec.String:
+			result = res.String()
+		case exec.Bool:
+			result = res.Bool()
+		case exec.Number:
+			result = res.Number()
+		}
 	} else {
 		err = errors.InvalidArgumentError{
-			Expected: "CompiledExpression to be *github.com/antchfx/xpath#Expr",
+			Expected: "CompiledExpression to be *github.com/ChrisTrenkamp/xsel/grammar#Grammar",
 			Actual:   reflect.TypeOf(e),
 		}
 	}
