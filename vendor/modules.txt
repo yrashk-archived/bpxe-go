@@ -1,9 +1,19 @@
-# github.com/antchfx/jsonquery v1.1.4
+# github.com/ChrisTrenkamp/xsel v0.9.6
 ## explicit
-github.com/antchfx/jsonquery
-# github.com/antchfx/xpath v1.1.11
+github.com/ChrisTrenkamp/xsel/exec
+github.com/ChrisTrenkamp/xsel/grammar
+github.com/ChrisTrenkamp/xsel/grammar/lexer
+github.com/ChrisTrenkamp/xsel/grammar/parser
+github.com/ChrisTrenkamp/xsel/grammar/parser/bsr
+github.com/ChrisTrenkamp/xsel/grammar/parser/slot
+github.com/ChrisTrenkamp/xsel/grammar/parser/symbols
+github.com/ChrisTrenkamp/xsel/grammar/token
+github.com/ChrisTrenkamp/xsel/node
+github.com/ChrisTrenkamp/xsel/parser
+github.com/ChrisTrenkamp/xsel/store
+# github.com/Chronokeeper/anyxml v0.0.0-20160530174208-54457d8e98c6
 ## explicit
-github.com/antchfx/xpath
+github.com/Chronokeeper/anyxml
 # github.com/antonmedv/expr v1.8.9
 ## explicit
 github.com/antonmedv/expr
@@ -96,8 +106,6 @@ github.com/go-git/go-git/v5/utils/merkletrie/filesystem
 github.com/go-git/go-git/v5/utils/merkletrie/index
 github.com/go-git/go-git/v5/utils/merkletrie/internal/frame
 github.com/go-git/go-git/v5/utils/merkletrie/noder
-# github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e
-github.com/golang/groupcache/lru
 # github.com/google/gops v0.3.18
 ## explicit
 github.com/google/gops/agent
@@ -205,18 +213,34 @@ golang.org/x/crypto/ssh/internal/bcrypt_pbkdf
 golang.org/x/crypto/ssh/knownhosts
 # golang.org/x/exp v0.0.0-20191030013958-a1ab85dbe136
 golang.org/x/exp/rand
-# golang.org/x/net v0.0.0-20200301022130-244492dfa37a
+# golang.org/x/net v0.0.0-20210331212208-0fccb6fa2b5c
 golang.org/x/net/context
 golang.org/x/net/html
 golang.org/x/net/html/atom
+golang.org/x/net/html/charset
 golang.org/x/net/internal/socks
 golang.org/x/net/proxy
-# golang.org/x/sys v0.0.0-20210217105451-b926d437f341
+# golang.org/x/sys v0.0.0-20210330210617-4fbd30eecc44
 golang.org/x/sys/cpu
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
 golang.org/x/sys/windows
 # golang.org/x/text v0.3.6
+golang.org/x/text/encoding
+golang.org/x/text/encoding/charmap
+golang.org/x/text/encoding/htmlindex
+golang.org/x/text/encoding/internal
+golang.org/x/text/encoding/internal/identifier
+golang.org/x/text/encoding/japanese
+golang.org/x/text/encoding/korean
+golang.org/x/text/encoding/simplifiedchinese
+golang.org/x/text/encoding/traditionalchinese
+golang.org/x/text/encoding/unicode
+golang.org/x/text/internal/language
+golang.org/x/text/internal/language/compact
+golang.org/x/text/internal/tag
+golang.org/x/text/internal/utf8internal
+golang.org/x/text/language
 golang.org/x/text/runes
 golang.org/x/text/transform
 golang.org/x/text/unicode/norm
