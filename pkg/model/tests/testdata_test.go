@@ -6,16 +6,9 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/LICENSE-Apache-2.0
 
-package event
+package tests
 
-type Source interface {
-	RegisterEventConsumer(Consumer) error
-}
+import "embed"
 
-type VoidSource struct{}
-
-func (t VoidSource) RegisterEventConsumer(
-	consumer Consumer,
-) (err error) {
-	return
-}
+//go:embed testdata
+var testdata embed.FS

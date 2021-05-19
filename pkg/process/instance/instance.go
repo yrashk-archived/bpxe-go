@@ -6,7 +6,7 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/LICENSE-Apache-2.0
 
-package process
+package instance
 
 import (
 	"context"
@@ -33,8 +33,7 @@ import (
 )
 
 type Instance struct {
-	process                    *Process
-	eventConsumers             []event.ProcessEventConsumer
+	process                    *bpmn.Process
 	Tracer                     *tracing.Tracer
 	flowNodeMapping            *flow_node.FlowNodeMapping
 	flowWaitGroup              sync.WaitGroup
@@ -46,6 +45,29 @@ type Instance struct {
 	dataObjectReferences       map[bpmn.Id]data.ItemAware
 	propertiesByName           map[string]data.ItemAware
 	properties                 map[bpmn.Id]data.ItemAware
+	EventIngress               event.Consumer
+	EventEgress                event.Source
+	idGeneratorBuilder         id.GeneratorBuilder
+	eventInstanceBuilder       event.InstanceBuilder
+	eventConsumersLock         sync.RWMutex
+	eventConsumers             []event.Consumer
+}
+
+func (instance *Instance) ConsumeEvent(ev event.Event) (result event.ConsumptionResult, err error) {
+	instance.eventConsumersLock.RLock()
+	// We're copying the list of consumers here to ensure that
+	// new consumers can subscribe during event forwarding
+	eventConsumers := instance.eventConsumers
+	instance.eventConsumersLock.RUnlock()
+	result, err = event.ForwardEvent(ev, &eventConsumers)
+	return
+}
+
+func (instance *Instance) RegisterEventConsumer(ev event.Consumer) (err error) {
+	instance.eventConsumersLock.Lock()
+	instance.eventConsumers = append(instance.eventConsumers, ev)
+	instance.eventConsumersLock.Unlock()
+	return
 }
 
 func (instance *Instance) FindItemAwareById(id bpmn.IdRef) (itemAware data.ItemAware, found bool) {
@@ -100,15 +122,15 @@ ready:
 	return
 }
 
-// InstanceOption allows to modify configuration of
+// Option allows to modify configuration of
 // an instance in a flexible fashion (as its just a modification
 // function)
 //
 // It also allows to augment or replace the context.
-type InstanceOption func(ctx context.Context, instance *Instance) context.Context
+type Option func(ctx context.Context, instance *Instance) context.Context
 
 // WithTracer overrides instance's tracer
-func WithTracer(tracer *tracing.Tracer) InstanceOption {
+func WithTracer(tracer *tracing.Tracer) Option {
 	return func(ctx context.Context, instance *Instance) context.Context {
 		instance.Tracer = tracer
 		return ctx
@@ -117,9 +139,37 @@ func WithTracer(tracer *tracing.Tracer) InstanceOption {
 
 // WithContext will pass a given context to a new instance
 // instead of implicitly generated one
-func WithContext(newCtx context.Context) InstanceOption {
+func WithContext(newCtx context.Context) Option {
 	return func(ctx context.Context, instance *Instance) context.Context {
 		return newCtx
+	}
+}
+
+func WithIdGenerator(builder id.GeneratorBuilder) Option {
+	return func(ctx context.Context, instance *Instance) context.Context {
+		instance.idGeneratorBuilder = builder
+		return ctx
+	}
+}
+
+func WithEventIngress(consumer event.Consumer) Option {
+	return func(ctx context.Context, instance *Instance) context.Context {
+		instance.EventIngress = consumer
+		return ctx
+	}
+}
+
+func WithEventEgress(source event.Source) Option {
+	return func(ctx context.Context, instance *Instance) context.Context {
+		instance.EventEgress = source
+		return ctx
+	}
+}
+
+func WithEventInstanceBuilder(builder event.InstanceBuilder) Option {
+	return func(ctx context.Context, instance *Instance) context.Context {
+		instance.eventInstanceBuilder = builder
+		return ctx
 	}
 }
 
@@ -127,12 +177,9 @@ func (instance *Instance) FlowNodeMapping() *flow_node.FlowNodeMapping {
 	return instance.flowNodeMapping
 }
 
-func NewInstance(process *Process, options ...InstanceOption) (instance *Instance, err error) {
-	eventConsumers := make([]event.ProcessEventConsumer, 0)
-
+func NewInstance(element *bpmn.Process, definitions *bpmn.Definitions, options ...Option) (instance *Instance, err error) {
 	instance = &Instance{
-		process:                    process,
-		eventConsumers:             eventConsumers,
+		process:                    element,
 		flowNodeMapping:            flow_node.NewLockedFlowNodeMapping(),
 		dataObjectsByName:          make(map[string]data.ItemAware),
 		dataObjectReferencesByName: make(map[string]data.ItemAware),
@@ -153,18 +200,27 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 		instance.Tracer = tracing.NewTracer(ctx)
 	}
 
+	if instance.idGeneratorBuilder == nil {
+		instance.idGeneratorBuilder = id.DefaultIdGeneratorBuilder
+	}
+
 	var idGenerator id.Generator
-	idGenerator, err = process.GeneratorBuilder.NewIdGenerator(ctx, instance.Tracer)
+	idGenerator, err = instance.idGeneratorBuilder.NewIdGenerator(ctx, instance.Tracer)
 	if err != nil {
 		return
 	}
 
 	instance.idGenerator = idGenerator
 
+	err = instance.EventEgress.RegisterEventConsumer(instance)
+	if err != nil {
+		return
+	}
+
 	// Item aware elements
 
-	for i := range *process.Element.DataObjects() {
-		dataObject := &(*process.Element.DataObjects())[i]
+	for i := range *instance.process.DataObjects() {
+		dataObject := &(*instance.process.DataObjects())[i]
 		var name string
 		if namePtr, present := dataObject.Name(); present {
 			name = *namePtr
@@ -178,8 +234,8 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 		}
 	}
 
-	for i := range *process.Element.DataObjectReferences() {
-		dataObjectReference := &(*process.Element.DataObjectReferences())[i]
+	for i := range *instance.process.DataObjectReferences() {
+		dataObjectReference := &(*instance.process.DataObjectReferences())[i]
 		var name string
 		if namePtr, present := dataObjectReference.Name(); present {
 			name = *namePtr
@@ -213,8 +269,8 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 		}
 	}
 
-	for i := range *process.Element.Properties() {
-		property := &(*process.Element.Properties())[i]
+	for i := range *instance.process.Properties() {
+		property := &(*instance.process.Properties())[i]
 		var name string
 		if namePtr, present := property.Name(); present {
 			name = *namePtr
@@ -231,17 +287,28 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 	// Flow nodes
 
 	wiringMaker := func(element *bpmn.FlowNode) (*flow_node.Wiring, error) {
-		return flow_node.New(process.Element,
-			process.Definitions,
-			element, instance, instance,
+		return flow_node.New(instance.process,
+			definitions,
+			element,
+			// Event ingress/egress orchestration:
+			//
+			// Flow nodes will send their message to `instance.EventIngress`
+			// (which is typically the model), but consume their messages from
+			// `instance`, which is turn a subscriber of `instance.EventEgress`
+			// (again, typically, the model).
+			//
+			// This allows us to use ConsumeEvent on this instance to send
+			// events only to the instance (useful for things like event-based
+			// process instantiation)
+			instance.EventIngress, instance,
 			instance.Tracer, instance.flowNodeMapping,
-			&instance.flowWaitGroup)
+			&instance.flowWaitGroup, instance.eventInstanceBuilder)
 	}
 
 	var wiring *flow_node.Wiring
 
-	for i := range *process.Element.StartEvents() {
-		element := &(*process.Element.StartEvents())[i]
+	for i := range *instance.process.StartEvents() {
+		element := &(*instance.process.StartEvents())[i]
 		wiring, err = wiringMaker(&element.FlowNode)
 		if err != nil {
 			return
@@ -257,8 +324,8 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 		}
 	}
 
-	for i := range *process.Element.EndEvents() {
-		element := &(*process.Element.EndEvents())[i]
+	for i := range *instance.process.EndEvents() {
+		element := &(*instance.process.EndEvents())[i]
 		wiring, err = wiringMaker(&element.FlowNode)
 		if err != nil {
 			return
@@ -274,14 +341,14 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 		}
 	}
 
-	for i := range *process.Element.IntermediateCatchEvents() {
-		element := &(*process.Element.IntermediateCatchEvents())[i]
+	for i := range *instance.process.IntermediateCatchEvents() {
+		element := &(*instance.process.IntermediateCatchEvents())[i]
 		wiring, err = wiringMaker(&element.FlowNode)
 		if err != nil {
 			return
 		}
 		var intermediateCatchEvent *catch.Node
-		intermediateCatchEvent, err = catch.New(ctx, wiring, &element.CatchEvent, process)
+		intermediateCatchEvent, err = catch.New(ctx, wiring, &element.CatchEvent)
 		if err != nil {
 			return
 		}
@@ -291,15 +358,15 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 		}
 	}
 
-	for i := range *process.Element.Tasks() {
-		element := &(*process.Element.Tasks())[i]
+	for i := range *instance.process.Tasks() {
+		element := &(*instance.process.Tasks())[i]
 		wiring, err = wiringMaker(&element.FlowNode)
 		if err != nil {
 			return
 		}
 		var aTask *activity.Harness
 		aTask, err = activity.NewHarness(ctx, wiring, &element.FlowNode,
-			idGenerator, task.NewTask(ctx, element), process, instance,
+			idGenerator, task.NewTask(ctx, element), instance,
 		)
 		if err != nil {
 			return
@@ -310,8 +377,8 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 		}
 	}
 
-	for i := range *process.Element.ExclusiveGateways() {
-		element := &(*process.Element.ExclusiveGateways())[i]
+	for i := range *instance.process.ExclusiveGateways() {
+		element := &(*instance.process.ExclusiveGateways())[i]
 		wiring, err = wiringMaker(&element.FlowNode)
 		if err != nil {
 			return
@@ -327,8 +394,8 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 		}
 	}
 
-	for i := range *process.Element.InclusiveGateways() {
-		element := &(*process.Element.InclusiveGateways())[i]
+	for i := range *instance.process.InclusiveGateways() {
+		element := &(*instance.process.InclusiveGateways())[i]
 		wiring, err = wiringMaker(&element.FlowNode)
 		if err != nil {
 			return
@@ -344,8 +411,8 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 		}
 	}
 
-	for i := range *process.Element.ParallelGateways() {
-		element := &(*process.Element.ParallelGateways())[i]
+	for i := range *instance.process.ParallelGateways() {
+		element := &(*instance.process.ParallelGateways())[i]
 		var parallelGateway *parallel.Node
 		wiring, err = wiringMaker(&element.FlowNode)
 		if err != nil {
@@ -361,8 +428,8 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 		}
 	}
 
-	for i := range *process.Element.EventBasedGateways() {
-		element := &(*process.Element.EventBasedGateways())[i]
+	for i := range *instance.process.EventBasedGateways() {
+		element := &(*instance.process.EventBasedGateways())[i]
 		wiring, err = wiringMaker(&element.FlowNode)
 		if err != nil {
 			return
@@ -387,16 +454,6 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 	return
 }
 
-func (instance *Instance) ConsumeProcessEvent(ev event.ProcessEvent) (result event.ConsumptionResult, err error) {
-	result, err = event.ForwardProcessEvent(ev, &instance.eventConsumers)
-	return
-}
-
-func (instance *Instance) RegisterProcessEventConsumer(ev event.ProcessEventConsumer) (err error) {
-	instance.eventConsumers = append(instance.eventConsumers, ev)
-	return
-}
-
 // StartWith explicitly starts the instance by triggering a given start event
 func (instance *Instance) StartWith(ctx context.Context, startEvent bpmn.StartEventInterface) (err error) {
 	flowNode, found := instance.flowNodeMapping.ResolveElementToFlowNode(startEvent)
@@ -405,7 +462,7 @@ func (instance *Instance) StartWith(ctx context.Context, startEvent bpmn.StartEv
 		elementId = *idPtr
 	}
 	processId := "<unnamed>"
-	if idPtr, present := instance.process.Element.Id(); present {
+	if idPtr, present := instance.process.Id(); present {
 		processId = *idPtr
 	}
 	if !found {
@@ -426,8 +483,8 @@ func (instance *Instance) StartWith(ctx context.Context, startEvent bpmn.StartEv
 
 // StartAll explicitly starts the instance by triggering all start events, if any
 func (instance *Instance) StartAll(ctx context.Context) (err error) {
-	for i := range *instance.process.Element.StartEvents() {
-		err = instance.StartWith(ctx, &(*instance.process.Element.StartEvents())[i])
+	for i := range *instance.process.StartEvents() {
+		err = instance.StartWith(ctx, &(*instance.process.StartEvents())[i])
 		if err != nil {
 			return
 		}
@@ -466,7 +523,7 @@ func (instance *Instance) ceaseFlowMonitor() func(ctx context.Context, sender tr
 		// [(1.2) will be addded when we actually support them]
 
 		for {
-			if len(startEventsActivated) == len(*instance.process.Element.StartEvents()) {
+			if len(startEventsActivated) == len(*instance.process.StartEvents()) {
 				break
 			}
 

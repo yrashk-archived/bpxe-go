@@ -6,16 +6,4 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/LICENSE-Apache-2.0
 
-package event
-
-type Source interface {
-	RegisterEventConsumer(Consumer) error
-}
-
-type VoidSource struct{}
-
-func (t VoidSource) RegisterEventConsumer(
-	consumer Consumer,
-) (err error) {
-	return
-}
+package tests

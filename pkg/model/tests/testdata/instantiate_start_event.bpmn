@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1n7pd2d" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.14.0">
+  <bpmn:process id="Process_17ixslg" isExecutable="true">
+    <bpmn:startEvent id="SignalStartEvent">
+      <bpmn:outgoing>Flow_1rnz2eg</bpmn:outgoing>
+      <bpmn:signalEventDefinition id="SignalEventDefinition_0rikp1k" signalRef="sig1" />
+    </bpmn:startEvent>
+    <bpmn:task id="sig1a" name="sig1a">
+      <bpmn:incoming>Flow_1rnz2eg</bpmn:incoming>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_1rnz2eg" sourceRef="SignalStartEvent" targetRef="sig1a" />
+    <bpmn:startEvent id="MultipleStartEvent">
+      <bpmn:outgoing>Flow_1psirta</bpmn:outgoing>
+      <bpmn:signalEventDefinition id="SignalEventDefinition_16c89ob" signalRef="sig2" />
+      <bpmn:signalEventDefinition id="SignalEventDefinition_16c89oa" signalRef="sig3" />
+    </bpmn:startEvent>
+    <bpmn:task id="sig2_sig3a" name="sig2 or sig3">
+      <bpmn:incoming>Flow_1psirta</bpmn:incoming>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_1psirta" sourceRef="MultipleStartEvent" targetRef="sig2_sig3a" />
+    <bpmn:startEvent id="ParallelMultipleStartEvent" parallelMultiple="true">
+      <bpmn:outgoing>Flow_0qo7zwm</bpmn:outgoing>
+      <bpmn:signalEventDefinition id="SignalEventDefinition_0spzsje" signalRef="sig2" />
+      <bpmn:signalEventDefinition id="SignalEventDefinition_0vvuqhu" signalRef="sig3" />
+    </bpmn:startEvent>
+    <bpmn:task id="sig2_and_sig3a" name="sig2 and sig3">
+      <bpmn:incoming>Flow_0qo7zwm</bpmn:incoming>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_0qo7zwm" sourceRef="ParallelMultipleStartEvent" targetRef="sig2_and_sig3a" />
+  </bpmn:process>
+  <bpmn:signal id="sig1" name="sig1" />
+  <bpmn:signal id="Signal_0ua1q75" name="Signal_1fj93gl" />
+  <bpmn:signal id="sig2" name="sig2" />
+  <bpmn:signal id="sig3" name="sig3" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_17ixslg">
+      <bpmndi:BPMNEdge id="Flow_1psirta_di" bpmnElement="Flow_1psirta">
+        <di:waypoint x="215" y="290" />
+        <di:waypoint x="270" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1rnz2eg_di" bpmnElement="Flow_1rnz2eg">
+        <di:waypoint x="215" y="97" />
+        <di:waypoint x="270" y="97" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0qo7zwm_di" bpmnElement="Flow_0qo7zwm">
+        <di:waypoint x="215" y="400" />
+        <di:waypoint x="270" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1m9fa0l_di" bpmnElement="SignalStartEvent">
+        <dc:Bounds x="179" y="79" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0mbb9ew_di" bpmnElement="sig1a">
+        <dc:Bounds x="270" y="57" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1gexgrc_di" bpmnElement="MultipleStartEvent">
+        <dc:Bounds x="179" y="272" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_111jy6v_di" bpmnElement="sig2_sig3a">
+        <dc:Bounds x="270" y="250" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1o6fjq1_di" bpmnElement="ParallelMultipleStartEvent">
+        <dc:Bounds x="179" y="382" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_14ll332_di" bpmnElement="sig2_and_sig3a">
+        <dc:Bounds x="270" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

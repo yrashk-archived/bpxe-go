@@ -18,6 +18,7 @@ import (
 	"bpxe.org/pkg/flow"
 	ev "bpxe.org/pkg/flow_node/event/catch"
 	"bpxe.org/pkg/process"
+	"bpxe.org/pkg/process/instance"
 	"bpxe.org/pkg/tracing"
 
 	"github.com/stretchr/testify/assert"
@@ -82,7 +83,7 @@ func TestConditionalEvent(t *testing.T) {
 	testEvent(t, "testdata/intermediate_catch_event.bpmn", "conditionalCatch", &b, false, event.MakeTimerEvent(i))
 }
 
-func testEvent(t *testing.T, filename string, nodeId string, eventInstanceBuilder event.InstanceBuilder, eventObservationOnly bool, events ...event.ProcessEvent) {
+func testEvent(t *testing.T, filename string, nodeId string, eventInstanceBuilder event.InstanceBuilder, eventObservationOnly bool, events ...event.Event) {
 	var testDoc bpmn.Definitions
 	var err error
 	src, err := testdata.ReadFile(filename)
@@ -94,16 +95,13 @@ func testEvent(t *testing.T, filename string, nodeId string, eventInstanceBuilde
 		t.Fatalf("XML unmarshalling error: %v", err)
 	}
 	processElement := (*testDoc.Processes())[0]
-	proc := process.New(&processElement, &testDoc)
-	if eventInstanceBuilder != nil {
-		proc.SetEventInstanceBuilder(eventInstanceBuilder)
-	}
+	proc := process.New(&processElement, &testDoc, process.WithEventInstanceBuilder(eventInstanceBuilder))
 
 	tracer := tracing.NewTracer(context.Background())
 	traces := tracer.SubscribeChannel(make(chan tracing.Trace, 64))
 
-	if instance, err := proc.Instantiate(process.WithTracer(tracer)); err == nil {
-		err := instance.StartAll(context.Background())
+	if inst, err := proc.Instantiate(instance.WithTracer(tracer)); err == nil {
+		err := inst.StartAll(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
@@ -134,7 +132,7 @@ func testEvent(t *testing.T, filename string, nodeId string, eventInstanceBuilde
 		assert.True(t, <-resultChan)
 
 		go func() {
-			defer instance.Tracer.Unsubscribe(traces)
+			defer inst.Tracer.Unsubscribe(traces)
 			eventsToObserve := events
 			for {
 				trace := <-traces
@@ -173,7 +171,7 @@ func testEvent(t *testing.T, filename string, nodeId string, eventInstanceBuilde
 		}()
 
 		for _, evt := range events {
-			_, err = instance.ConsumeProcessEvent(evt)
+			_, err = inst.ConsumeEvent(evt)
 			assert.Nil(t, err)
 		}
 

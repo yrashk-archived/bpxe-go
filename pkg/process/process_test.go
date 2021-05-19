@@ -15,6 +15,7 @@ import (
 	"bpxe.org/internal"
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/flow_node"
+	"bpxe.org/pkg/process/instance"
 	"bpxe.org/pkg/tracing"
 	"github.com/stretchr/testify/assert"
 )
@@ -30,9 +31,9 @@ func init() {
 func TestExplicitInstantiation(t *testing.T) {
 	if proc, found := sampleDoc.FindBy(bpmn.ExactId("sample")); found {
 		process := New(proc.(*bpmn.Process), &defaultDefinitions)
-		instance, err := process.Instantiate()
+		inst, err := process.Instantiate()
 		assert.Nil(t, err)
-		assert.NotNil(t, instance)
+		assert.NotNil(t, inst)
 	} else {
 		t.Fatalf("Can't find process `sample`")
 	}
@@ -47,9 +48,9 @@ func TestCancellation(t *testing.T) {
 		tracer := tracing.NewTracer(ctx)
 		traces := tracer.SubscribeChannel(make(chan tracing.Trace, 128))
 
-		instance, err := process.Instantiate(WithContext(ctx), WithTracer(tracer))
+		inst, err := process.Instantiate(instance.WithContext(ctx), instance.WithTracer(tracer))
 		assert.Nil(t, err)
-		assert.NotNil(t, instance)
+		assert.NotNil(t, inst)
 
 		cancel()
 

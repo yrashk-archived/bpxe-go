@@ -34,3 +34,9 @@ func NewInstance(def bpmn.EventDefinitionInterface) Instance {
 type InstanceBuilder interface {
 	NewEventInstance(def bpmn.EventDefinitionInterface) Instance
 }
+
+type DefaultInstanceBuilder struct{}
+
+func (d DefaultInstanceBuilder) NewEventInstance(def bpmn.EventDefinitionInterface) Instance {
+	return NewInstance(def)
+}

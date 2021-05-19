@@ -18,6 +18,7 @@ import (
 	"bpxe.org/pkg/flow"
 	"bpxe.org/pkg/flow_node/gateway/inclusive"
 	"bpxe.org/pkg/process"
+	"bpxe.org/pkg/process/instance"
 	"bpxe.org/pkg/tracing"
 
 	"github.com/stretchr/testify/assert"
@@ -34,8 +35,8 @@ func TestInclusiveGateway(t *testing.T) {
 	proc := process.New(&processElement, &testInclusiveGateway)
 	tracer := tracing.NewTracer(context.Background())
 	traces := tracer.SubscribeChannel(make(chan tracing.Trace, 32))
-	if instance, err := proc.Instantiate(process.WithTracer(tracer)); err == nil {
-		err := instance.StartAll(context.Background())
+	if inst, err := proc.Instantiate(instance.WithTracer(tracer)); err == nil {
+		err := inst.StartAll(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
@@ -73,7 +74,7 @@ func TestInclusiveGateway(t *testing.T) {
 				t.Logf("%#v", trace)
 			}
 		}
-		instance.Tracer.Unsubscribe(traces)
+		inst.Tracer.Unsubscribe(traces)
 	} else {
 		t.Fatalf("failed to instantiate the process: %s", err)
 	}
@@ -90,8 +91,8 @@ func TestInclusiveGatewayDefault(t *testing.T) {
 	proc := process.New(&processElement, &testInclusiveGatewayDefault)
 	tracer := tracing.NewTracer(context.Background())
 	traces := tracer.SubscribeChannel(make(chan tracing.Trace, 32))
-	if instance, err := proc.Instantiate(process.WithTracer(tracer)); err == nil {
-		err := instance.StartAll(context.Background())
+	if inst, err := proc.Instantiate(instance.WithTracer(tracer)); err == nil {
+		err := inst.StartAll(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
@@ -130,7 +131,7 @@ func TestInclusiveGatewayDefault(t *testing.T) {
 				t.Logf("%#v", trace)
 			}
 		}
-		instance.Tracer.Unsubscribe(traces)
+		inst.Tracer.Unsubscribe(traces)
 	} else {
 		t.Fatalf("failed to instantiate the process: %s", err)
 	}
@@ -145,9 +146,9 @@ func init() {
 func TestInclusiveGatewayNoDefault(t *testing.T) {
 	processElement := (*testInclusiveGatewayNoDefault.Processes())[0]
 	proc := process.New(&processElement, &testInclusiveGatewayNoDefault)
-	if instance, err := proc.Instantiate(); err == nil {
-		traces := instance.Tracer.Subscribe()
-		err := instance.StartAll(context.Background())
+	if inst, err := proc.Instantiate(); err == nil {
+		traces := inst.Tracer.Subscribe()
+		err := inst.StartAll(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
@@ -167,7 +168,7 @@ func TestInclusiveGatewayNoDefault(t *testing.T) {
 				t.Logf("%#v", trace)
 			}
 		}
-		instance.Tracer.Unsubscribe(traces)
+		inst.Tracer.Unsubscribe(traces)
 	} else {
 		t.Fatalf("failed to instantiate the process: %s", err)
 	}

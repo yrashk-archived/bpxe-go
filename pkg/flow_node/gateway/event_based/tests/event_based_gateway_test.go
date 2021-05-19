@@ -39,7 +39,7 @@ func TestEventBasedGateway(t *testing.T) {
 	}, event.NewMessageEvent("Msg1", nil))
 }
 
-func testEventBasedGateway(t *testing.T, test func(map[string]int), events ...event.ProcessEvent) {
+func testEventBasedGateway(t *testing.T, test func(map[string]int), events ...event.Event) {
 	processElement := (*testDoc.Processes())[0]
 	proc := process.New(&processElement, &testDoc)
 	if instance, err := proc.Instantiate(); err == nil {
@@ -113,7 +113,7 @@ func testEventBasedGateway(t *testing.T, test func(map[string]int), events ...ev
 		}()
 
 		for _, evt := range events {
-			_, err := instance.ConsumeProcessEvent(evt)
+			_, err := instance.ConsumeEvent(evt)
 			if err != nil {
 				t.Error(err)
 				return
