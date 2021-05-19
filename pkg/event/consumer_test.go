@@ -22,6 +22,12 @@ func (c erroringConsumer) ConsumeProcessEvent(ProcessEvent) (ConsumptionResult, 
 	return ConsumptionError, errors.New("some error")
 }
 
+type testEvent struct{}
+
+func (t testEvent) MatchesEventInstance(instance Instance) bool {
+	return false
+}
+
 func TestForwardProcessEvent(t *testing.T) {
 	someErroringConsumers := []ProcessEventConsumer{erroringConsumer{},
 		VoidProcessEventConsumer{}}
@@ -34,18 +40,18 @@ func TestForwardProcessEvent(t *testing.T) {
 	var err error
 	var ok bool
 
-	result, err = ForwardProcessEvent(MakeStartEvent(), &someErroringConsumers)
+	result, err = ForwardProcessEvent(testEvent{}, &someErroringConsumers)
 	assert.Equal(t, PartiallyConsumed, result)
 	assert.NotNil(t, err)
 	ok = errors.As(err, &multiErr)
 	assert.True(t, ok)
 	assert.Equal(t, 1, multiErr.Len())
 
-	result, err = ForwardProcessEvent(MakeStartEvent(), &noErroringConsumers)
+	result, err = ForwardProcessEvent(testEvent{}, &noErroringConsumers)
 	assert.Equal(t, Consumed, result)
 	assert.Nil(t, err)
 
-	result, err = ForwardProcessEvent(MakeStartEvent(), &allErroringConsumers)
+	result, err = ForwardProcessEvent(testEvent{}, &allErroringConsumers)
 	assert.Equal(t, ConsumptionError, result)
 	assert.NotNil(t, err)
 	ok = errors.As(err, &multiErr)

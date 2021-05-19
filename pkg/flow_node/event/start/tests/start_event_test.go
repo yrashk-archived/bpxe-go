@@ -32,7 +32,7 @@ func TestStartEvent(t *testing.T) {
 	proc := process.New(&processElement, &testDoc)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
-		err := instance.Start(context.Background())
+		err := instance.StartAll(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}

@@ -17,18 +17,6 @@ type ProcessEvent interface {
 	MatchesEventInstance(Instance) bool
 }
 
-// Process has started
-type StartEvent struct{}
-
-func MakeStartEvent() StartEvent {
-	return StartEvent{}
-}
-
-func (ev StartEvent) MatchesEventInstance(instance Instance) bool {
-	// always false because there's no event definition that matches
-	return false
-}
-
 // Process has ended
 type EndEvent struct {
 	Element *bpmn.EndEvent

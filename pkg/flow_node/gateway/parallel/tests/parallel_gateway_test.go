@@ -35,7 +35,7 @@ func TestParallelGateway(t *testing.T) {
 	proc := process.New(&processElement, &testParallelGateway)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
-		err := instance.Start(context.Background())
+		err := instance.StartAll(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
@@ -85,7 +85,7 @@ func TestParallelGatewayMtoN(t *testing.T) {
 	proc := process.New(&processElement, &testParallelGatewayMtoN)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
-		err := instance.Start(context.Background())
+		err := instance.StartAll(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
@@ -134,7 +134,7 @@ func TestParallelGatewayNtoM(t *testing.T) {
 	proc := process.New(&processElement, &testParallelGatewayNtoM)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
-		err := instance.Start(context.Background())
+		err := instance.StartAll(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
@@ -184,7 +184,7 @@ func TestParallelGatewayIncompleteJoin(t *testing.T) {
 	proc := process.New(&processElement, &testParallelGatewayIncompleteJoin)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
-		err := instance.Start(context.Background())
+		err := instance.StartAll(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
