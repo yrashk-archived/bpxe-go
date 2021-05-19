@@ -25,7 +25,8 @@ type getMessage struct {
 func (g getMessage) implementsRunnerMessage() {}
 
 type putMessage struct {
-	item Item
+	item    Item
+	channel chan struct{}
 }
 
 func (p putMessage) implementsRunnerMessage() {}
@@ -58,6 +59,7 @@ func (c *Container) run(ctx context.Context) {
 				msg.channel <- c.item
 			case putMessage:
 				c.item = msg.item
+				close(msg.channel)
 			}
 		case <-ctx.Done():
 			return
@@ -65,12 +67,22 @@ func (c *Container) run(ctx context.Context) {
 	}
 }
 
-func (c *Container) Get() <-chan Item {
+func (c *Container) Get(ctx context.Context) <-chan Item {
 	ch := make(chan Item)
-	c.runnerChannel <- getMessage{channel: ch}
-	return ch
+	select {
+	case c.runnerChannel <- getMessage{channel: ch}:
+		return ch
+	case <-ctx.Done():
+		return nil
+	}
 }
 
-func (c *Container) Put(item Item) {
-	c.runnerChannel <- putMessage{item: item}
+func (c *Container) Put(ctx context.Context, item Item) <-chan struct{} {
+	ch := make(chan struct{})
+	select {
+	case c.runnerChannel <- putMessage{item: item, channel: ch}:
+		return ch
+	case <-ctx.Done():
+		return nil
+	}
 }

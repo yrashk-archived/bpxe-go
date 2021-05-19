@@ -9,6 +9,7 @@
 package expr
 
 import (
+	"context"
 	"reflect"
 
 	"bpxe.org/pkg/data"
@@ -30,7 +31,7 @@ func (engine *Expr) SetItemAwareLocator(itemAwareLocator data.ItemAwareLocator) 
 	engine.itemAwareLocator = itemAwareLocator
 }
 
-func New() *Expr {
+func New(ctx context.Context) *Expr {
 	engine := &Expr{}
 	engine.env = map[string]interface{}{
 		"getDataObject": func(args ...string) data.Item {
@@ -42,8 +43,16 @@ func New() *Expr {
 			if !found {
 				return nil
 			}
-			item := <-itemAware.Get()
-			return item
+			ch := itemAware.Get(ctx)
+			if ch == nil {
+				return nil
+			}
+			select {
+			case <-ctx.Done():
+				return nil
+			case item := <-ch:
+				return item
+			}
 		},
 	}
 	return engine
@@ -80,7 +89,7 @@ func (engine *Expr) EvaluateExpression(e expression.CompiledExpression,
 }
 
 func init() {
-	expression.RegisterEngine("https://github.com/antonmedv/expr", func() expression.Engine {
-		return New()
+	expression.RegisterEngine("https://github.com/antonmedv/expr", func(ctx context.Context) expression.Engine {
+		return New(ctx)
 	})
 }
