@@ -188,6 +188,7 @@ github.com/spf13/viper
 # github.com/stretchr/testify v1.7.0
 ## explicit
 github.com/stretchr/testify/assert
+github.com/stretchr/testify/require
 # github.com/subosito/gotenv v1.2.0
 github.com/subosito/gotenv
 # github.com/xanzy/ssh-agent v0.2.1

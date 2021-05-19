@@ -12,6 +12,7 @@ import (
 	"sync"
 
 	"bpxe.org/pkg/bpmn"
+	"bpxe.org/pkg/data"
 	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow"
 	"bpxe.org/pkg/flow/flow_interface"
@@ -32,10 +33,11 @@ func (m nextActionMessage) message() {}
 
 type Node struct {
 	flow_node.T
-	element       *bpmn.StartEvent
-	runnerChannel chan message
-	activated     bool
-	idGenerator   id.Generator
+	element          *bpmn.StartEvent
+	runnerChannel    chan message
+	activated        bool
+	idGenerator      id.Generator
+	itemAwareLocator data.ItemAwareLocator
 }
 
 func New(process *bpmn.Process,
@@ -47,6 +49,7 @@ func New(process *bpmn.Process,
 	flowNodeMapping *flow_node.FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup,
 	idGenerator id.Generator,
+	itemAwareLocator data.ItemAwareLocator,
 ) (node *Node, err error) {
 	flowNode, err := flow_node.New(process,
 		definitions,
@@ -58,11 +61,12 @@ func New(process *bpmn.Process,
 		return
 	}
 	node = &Node{
-		T:             *flowNode,
-		element:       startEvent,
-		runnerChannel: make(chan message, len(flowNode.Incoming)*2+1),
-		activated:     false,
-		idGenerator:   idGenerator,
+		T:                *flowNode,
+		element:          startEvent,
+		runnerChannel:    make(chan message, len(flowNode.Incoming)*2+1),
+		activated:        false,
+		idGenerator:      idGenerator,
+		itemAwareLocator: itemAwareLocator,
 	}
 	go node.runner()
 	err = node.EventEgress.RegisterProcessEventConsumer(node)
@@ -94,7 +98,9 @@ func (node *Node) ConsumeProcessEvent(
 	switch ev.(type) {
 	case *event.StartEvent:
 		newFlow := flow.New(node.T.Definitions, node, node.T.Tracer,
-			node.T.FlowNodeMapping, node.T.FlowWaitGroup, node.idGenerator, nil)
+			node.T.FlowNodeMapping, node.T.FlowWaitGroup, node.idGenerator, nil,
+			node.itemAwareLocator,
+		)
 		newFlow.Start()
 	default:
 	}

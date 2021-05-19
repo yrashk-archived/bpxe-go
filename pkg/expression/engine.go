@@ -8,6 +8,10 @@
 
 package expression
 
+import (
+	"bpxe.org/pkg/data"
+)
+
 type Compiler interface {
 	CompileExpression(source string) (CompiledExpression, error)
 }
@@ -23,4 +27,5 @@ type Result interface{}
 type Engine interface {
 	Compiler
 	Evaluator
+	SetItemAwareLocator(itemAwareLocator data.ItemAwareLocator)
 }

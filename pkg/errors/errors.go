@@ -44,3 +44,12 @@ type RequirementExpectationError struct {
 func (e RequirementExpectationError) Error() string {
 	return fmt.Sprintf("Requirement expectation failed: expected %v, got %v", e.Expected, e.Actual)
 }
+
+type NotSupportedError struct {
+	What   string
+	Reason string
+}
+
+func (e NotSupportedError) Error() string {
+	return fmt.Sprintf("%s is not supported because %s", e.What, e.Reason)
+}

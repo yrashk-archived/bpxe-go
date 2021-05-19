@@ -71,11 +71,11 @@
         <xsl:text>type </xsl:text>
         <xsl:value-of select="local:struct-case($type/@name)"/>
         <xsl:text> struct {  </xsl:text>
-        <xsl:if test="exists(./xs:complexContent/xs:extension[@base])">
-            <xsl:value-of select="local:struct-case(./xs:complexContent/xs:extension/@base)"/>
+        <xsl:for-each select="./xs:complexContent/xs:extension[@base]">
+            <xsl:value-of select="local:struct-case(./@base)"/>
             <xsl:text xml:space="preserve">
             </xsl:text>
-        </xsl:if>
+        </xsl:for-each>
         <xsl:for-each select=".//xs:attribute">
             <xsl:value-of select="local:field-name(.)"/>
             <xsl:text xml:space="preserve"> </xsl:text>
@@ -108,7 +108,9 @@
                 <xsl:otherwise/>
             </xsl:choose>
         </xsl:for-each>
-        <xsl:text>TextPayloadField string `xml:",chardata"`</xsl:text>
+        <xsl:if test="not($type/@abstract)">
+            <xsl:text>TextPayloadField string `xml:",chardata"`</xsl:text>
+        </xsl:if>
         <xsl:text xml:space="preserve"> }
         </xsl:text>
         <!-- Constructor -->
@@ -160,13 +162,13 @@
         <xsl:text xml:space="preserve">{
         </xsl:text>
         
-        <xsl:if test="exists(./xs:complexContent/xs:extension[@base])">
-            <xsl:value-of select="local:struct-case(./xs:complexContent/xs:extension/@base)"/>
+        <xsl:for-each select="./xs:complexContent/xs:extension[@base]">
+            <xsl:value-of select="local:struct-case(./@base)"/>
             <xsl:text>: Default</xsl:text>
-            <xsl:value-of select="local:struct-case(./xs:complexContent/xs:extension/@base)"/>
+            <xsl:value-of select="local:struct-case(./@base)"/>
             <xsl:text xml:space="preserve">(),
             </xsl:text>
-        </xsl:if>
+        </xsl:for-each>
         
         <xsl:for-each select=".//xs:attribute[exists(@default)]">
             <xsl:if test="not(contains(./@default, '#'))">
@@ -202,11 +204,11 @@
             Element
         </xsl:text>
            
-        <xsl:if test="exists(./xs:complexContent/xs:extension[@base])">
-            <xsl:value-of select="local:struct-case(./xs:complexContent/xs:extension/@base)"/>
+        <xsl:for-each select="./xs:complexContent/xs:extension[@base]">
+            <xsl:value-of select="local:struct-case(./@base)"/>
             <xsl:text xml:space="preserve">Interface
             </xsl:text>
-        </xsl:if>
+        </xsl:for-each>
         
         <!-- Getters -->
         <xsl:for-each select=".//xs:attribute">
@@ -287,19 +289,23 @@
             </xsl:choose>
         </xsl:for-each>
         <!-- Text payload -->
-        <xsl:text>
-            TextPayload() *string
-        </xsl:text>
+        <xsl:if test="not($type/@abstract)">
+            <xsl:text>
+                TextPayload() *string
+            </xsl:text>
+        </xsl:if>
         
         <xsl:text xml:space="preserve"> }
         </xsl:text>
         <!-- Interface implementation -->
-        <xsl:text xml:space="preserve">
+        <xsl:if test="not($type/@abstract)">
+            <xsl:text xml:space="preserve">
             func (t *</xsl:text><xsl:value-of select="local:struct-case($type/@name)"/>
-        <xsl:text xml:space="preserve">) TextPayload() *string {
+            <xsl:text xml:space="preserve">) TextPayload() *string {
             return &amp;t.TextPayloadField
          }
         </xsl:text>
+        </xsl:if>
         
         <xsl:text xml:space="preserve">func (t *</xsl:text><xsl:value-of select="local:struct-case($type/@name)"/>
         <xsl:text xml:space="preserve">) FindBy(f ElementPredicate) (result Element, found bool) {
@@ -312,13 +318,13 @@
             return
             }
         </xsl:text>
-        <xsl:if test="exists(./xs:complexContent/xs:extension[@base])">
-            <xsl:text>if result, found = t.</xsl:text><xsl:value-of select="local:struct-case(./xs:complexContent/xs:extension/@base)"/>
+        <xsl:for-each select="./xs:complexContent/xs:extension[@base]">
+            <xsl:text>if result, found = t.</xsl:text><xsl:value-of select="local:struct-case(./@base)"/>
             <xsl:text xml:space="preserve">.FindBy(f); found {
                 return
             }
             </xsl:text>
-        </xsl:if>
+        </xsl:for-each>
         <xsl:for-each select="local:specific-elements(.)">
             <xsl:variable name="ref" select="./@ref"/>
             <xsl:choose>

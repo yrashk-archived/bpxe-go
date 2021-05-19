@@ -698,7 +698,6 @@ type Activity struct {
 	ResourceRoleField                     []ResourceRole                    `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL resourceRole"`
 	MultiInstanceLoopCharacteristicsField *MultiInstanceLoopCharacteristics `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL multiInstanceLoopCharacteristics"`
 	StandardLoopCharacteristicsField      *StandardLoopCharacteristics      `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL standardLoopCharacteristics"`
-	TextPayloadField                      string                            `xml:",chardata"`
 }
 
 var defaultActivityIsForCompensationField bool = false
@@ -740,13 +739,8 @@ type ActivityInterface interface {
 	SetResourceRoles(value []ResourceRole)
 	SetMultiInstanceLoopCharacteristics(value *MultiInstanceLoopCharacteristics)
 	SetStandardLoopCharacteristics(value *StandardLoopCharacteristics)
-
-	TextPayload() *string
 }
 
-func (t *Activity) TextPayload() *string {
-	return &t.TextPayloadField
-}
 func (t *Activity) FindBy(f ElementPredicate) (result Element, found bool) {
 	if t == nil {
 		return
@@ -999,7 +993,6 @@ func (t *AdHocSubProcess) SetCompletionCondition(value *AnExpression) {
 
 type Artifact struct {
 	BaseElement
-	TextPayloadField string `xml:",chardata"`
 }
 
 func DefaultArtifact() Artifact {
@@ -1011,13 +1004,8 @@ func DefaultArtifact() Artifact {
 type ArtifactInterface interface {
 	Element
 	BaseElementInterface
-
-	TextPayload() *string
 }
 
-func (t *Artifact) TextPayload() *string {
-	return &t.TextPayloadField
-}
 func (t *Artifact) FindBy(f ElementPredicate) (result Element, found bool) {
 	if t == nil {
 		return
@@ -1214,7 +1202,6 @@ type BaseElement struct {
 	IdField                *Id                `xml:"id,attr"`
 	DocumentationField     []Documentation    `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL documentation"`
 	ExtensionElementsField *ExtensionElements `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL extensionElements"`
-	TextPayloadField       string             `xml:",chardata"`
 }
 
 func DefaultBaseElement() BaseElement {
@@ -1229,13 +1216,8 @@ type BaseElementInterface interface {
 	SetId(value *Id)
 	SetDocumentations(value []Documentation)
 	SetExtensionElements(value *ExtensionElements)
-
-	TextPayload() *string
 }
 
-func (t *BaseElement) TextPayload() *string {
-	return &t.TextPayloadField
-}
 func (t *BaseElement) FindBy(f ElementPredicate) (result Element, found bool) {
 	if t == nil {
 		return
@@ -1292,7 +1274,6 @@ type BaseElementWithMixedContent struct {
 	IdField                *Id                `xml:"id,attr"`
 	DocumentationField     []Documentation    `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL documentation"`
 	ExtensionElementsField *ExtensionElements `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL extensionElements"`
-	TextPayloadField       string             `xml:",chardata"`
 }
 
 func DefaultBaseElementWithMixedContent() BaseElementWithMixedContent {
@@ -1307,13 +1288,8 @@ type BaseElementWithMixedContentInterface interface {
 	SetId(value *Id)
 	SetDocumentations(value []Documentation)
 	SetExtensionElements(value *ExtensionElements)
-
-	TextPayload() *string
 }
 
-func (t *BaseElementWithMixedContent) TextPayload() *string {
-	return &t.TextPayloadField
-}
 func (t *BaseElementWithMixedContent) FindBy(f ElementPredicate) (result Element, found bool) {
 	if t == nil {
 		return
@@ -1814,7 +1790,6 @@ type CatchEvent struct {
 	TerminateEventDefinitionField   []TerminateEventDefinition   `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL terminateEventDefinition"`
 	TimerEventDefinitionField       []TimerEventDefinition       `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL timerEventDefinition"`
 	EventDefinitionRefField         []QName                      `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL eventDefinitionRef"`
-	TextPayloadField                string                       `xml:",chardata"`
 }
 
 var defaultCatchEventParallelMultipleField bool = false
@@ -1860,13 +1835,8 @@ type CatchEventInterface interface {
 	SetTerminateEventDefinitions(value []TerminateEventDefinition)
 	SetTimerEventDefinitions(value []TimerEventDefinition)
 	SetEventDefinitionRefs(value []QName)
-
-	TextPayload() *string
 }
 
-func (t *CatchEvent) TextPayload() *string {
-	return &t.TextPayloadField
-}
 func (t *CatchEvent) FindBy(f ElementPredicate) (result Element, found bool) {
 	if t == nil {
 		return
@@ -2903,7 +2873,6 @@ type ChoreographyActivity struct {
 	LoopTypeField                 *ChoreographyLoopType `xml:"loopType,attr"`
 	ParticipantRefField           []QName               `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL participantRef"`
 	CorrelationKeyField           []CorrelationKey      `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL correlationKey"`
-	TextPayloadField              string                `xml:",chardata"`
 }
 
 var defaultChoreographyActivityLoopTypeField ChoreographyLoopType = "None"
@@ -2926,13 +2895,8 @@ type ChoreographyActivityInterface interface {
 	SetLoopType(value *ChoreographyLoopType)
 	SetParticipantRefs(value []QName)
 	SetCorrelationKeys(value []CorrelationKey)
-
-	TextPayload() *string
 }
 
-func (t *ChoreographyActivity) TextPayload() *string {
-	return &t.TextPayloadField
-}
 func (t *ChoreographyActivity) FindBy(f ElementPredicate) (result Element, found bool) {
 	if t == nil {
 		return
@@ -3778,7 +3742,6 @@ type ConversationNode struct {
 	ParticipantRefField []QName          `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL participantRef"`
 	MessageFlowRefField []QName          `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL messageFlowRef"`
 	CorrelationKeyField []CorrelationKey `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL correlationKey"`
-	TextPayloadField    string           `xml:",chardata"`
 }
 
 func DefaultConversationNode() ConversationNode {
@@ -3798,13 +3761,8 @@ type ConversationNodeInterface interface {
 	SetParticipantRefs(value []QName)
 	SetMessageFlowRefs(value []QName)
 	SetCorrelationKeys(value []CorrelationKey)
-
-	TextPayload() *string
 }
 
-func (t *ConversationNode) TextPayload() *string {
-	return &t.TextPayloadField
-}
 func (t *ConversationNode) FindBy(f ElementPredicate) (result Element, found bool) {
 	if t == nil {
 		return
@@ -4275,34 +4233,28 @@ func (t *DataAssociation) SetAssignments(value []Assignment) {
 }
 
 type DataInput struct {
-	BaseElement
-	NameField           *string    `xml:"name,attr"`
-	ItemSubjectRefField *QName     `xml:"itemSubjectRef,attr"`
-	IsCollectionField   *bool      `xml:"isCollection,attr"`
-	DataStateField      *DataState `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL dataState"`
-	TextPayloadField    string     `xml:",chardata"`
+	ItemAwareElement
+	NameField         *string `xml:"name,attr"`
+	IsCollectionField *bool   `xml:"isCollection,attr"`
+	TextPayloadField  string  `xml:",chardata"`
 }
 
 var defaultDataInputIsCollectionField bool = false
 
 func DefaultDataInput() DataInput {
 	return DataInput{
-		BaseElement:       DefaultBaseElement(),
+		ItemAwareElement:  DefaultItemAwareElement(),
 		IsCollectionField: &defaultDataInputIsCollectionField,
 	}
 }
 
 type DataInputInterface interface {
 	Element
-	BaseElementInterface
+	ItemAwareElementInterface
 	Name() (result *string, present bool)
-	ItemSubjectRef() (result *QName, present bool)
 	IsCollection() (result bool)
-	DataState() (result *DataState, present bool)
 	SetName(value *string)
-	SetItemSubjectRef(value *QName)
 	SetIsCollection(value *bool)
-	SetDataState(value *DataState)
 
 	TextPayload() *string
 }
@@ -4319,14 +4271,8 @@ func (t *DataInput) FindBy(f ElementPredicate) (result Element, found bool) {
 		found = true
 		return
 	}
-	if result, found = t.BaseElement.FindBy(f); found {
+	if result, found = t.ItemAwareElement.FindBy(f); found {
 		return
-	}
-
-	if value := t.DataStateField; value != nil {
-		if result, found = value.FindBy(f); found {
-			return
-		}
 	}
 
 	return
@@ -4341,16 +4287,6 @@ func (t *DataInput) Name() (result *string, present bool) {
 func (t *DataInput) SetName(value *string) {
 	t.NameField = value
 }
-func (t *DataInput) ItemSubjectRef() (result *QName, present bool) {
-	if t.ItemSubjectRefField != nil {
-		present = true
-	}
-	result = t.ItemSubjectRefField
-	return
-}
-func (t *DataInput) SetItemSubjectRef(value *QName) {
-	t.ItemSubjectRefField = value
-}
 func (t *DataInput) IsCollection() (result bool) {
 	if t.IsCollectionField == nil {
 		result = defaultDataInputIsCollectionField
@@ -4361,16 +4297,6 @@ func (t *DataInput) IsCollection() (result bool) {
 }
 func (t *DataInput) SetIsCollection(value *bool) {
 	t.IsCollectionField = value
-}
-func (t *DataInput) DataState() (result *DataState, present bool) {
-	if t.DataStateField != nil {
-		present = true
-	}
-	result = t.DataStateField
-	return
-}
-func (t *DataInput) SetDataState(value *DataState) {
-	t.DataStateField = value
 }
 
 type DataInputAssociation struct {
@@ -4412,10 +4338,9 @@ func (t *DataInputAssociation) FindBy(f ElementPredicate) (result Element, found
 
 type DataObject struct {
 	FlowElement
-	ItemSubjectRefField *QName     `xml:"itemSubjectRef,attr"`
-	IsCollectionField   *bool      `xml:"isCollection,attr"`
-	DataStateField      *DataState `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL dataState"`
-	TextPayloadField    string     `xml:",chardata"`
+	ItemAware
+	IsCollectionField *bool  `xml:"isCollection,attr"`
+	TextPayloadField  string `xml:",chardata"`
 }
 
 var defaultDataObjectIsCollectionField bool = false
@@ -4423,6 +4348,7 @@ var defaultDataObjectIsCollectionField bool = false
 func DefaultDataObject() DataObject {
 	return DataObject{
 		FlowElement:       DefaultFlowElement(),
+		ItemAware:         DefaultItemAware(),
 		IsCollectionField: &defaultDataObjectIsCollectionField,
 	}
 }
@@ -4430,12 +4356,9 @@ func DefaultDataObject() DataObject {
 type DataObjectInterface interface {
 	Element
 	FlowElementInterface
-	ItemSubjectRef() (result *QName, present bool)
+	ItemAwareInterface
 	IsCollection() (result bool)
-	DataState() (result *DataState, present bool)
-	SetItemSubjectRef(value *QName)
 	SetIsCollection(value *bool)
-	SetDataState(value *DataState)
 
 	TextPayload() *string
 }
@@ -4455,24 +4378,11 @@ func (t *DataObject) FindBy(f ElementPredicate) (result Element, found bool) {
 	if result, found = t.FlowElement.FindBy(f); found {
 		return
 	}
-
-	if value := t.DataStateField; value != nil {
-		if result, found = value.FindBy(f); found {
-			return
-		}
+	if result, found = t.ItemAware.FindBy(f); found {
+		return
 	}
 
 	return
-}
-func (t *DataObject) ItemSubjectRef() (result *QName, present bool) {
-	if t.ItemSubjectRefField != nil {
-		present = true
-	}
-	result = t.ItemSubjectRefField
-	return
-}
-func (t *DataObject) SetItemSubjectRef(value *QName) {
-	t.ItemSubjectRefField = value
 }
 func (t *DataObject) IsCollection() (result bool) {
 	if t.IsCollectionField == nil {
@@ -4485,40 +4395,27 @@ func (t *DataObject) IsCollection() (result bool) {
 func (t *DataObject) SetIsCollection(value *bool) {
 	t.IsCollectionField = value
 }
-func (t *DataObject) DataState() (result *DataState, present bool) {
-	if t.DataStateField != nil {
-		present = true
-	}
-	result = t.DataStateField
-	return
-}
-func (t *DataObject) SetDataState(value *DataState) {
-	t.DataStateField = value
-}
 
 type DataObjectReference struct {
 	FlowElement
-	ItemSubjectRefField *QName     `xml:"itemSubjectRef,attr"`
-	DataObjectRefField  *IdRef     `xml:"dataObjectRef,attr"`
-	DataStateField      *DataState `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL dataState"`
-	TextPayloadField    string     `xml:",chardata"`
+	ItemAware
+	DataObjectRefField *IdRef `xml:"dataObjectRef,attr"`
+	TextPayloadField   string `xml:",chardata"`
 }
 
 func DefaultDataObjectReference() DataObjectReference {
 	return DataObjectReference{
 		FlowElement: DefaultFlowElement(),
+		ItemAware:   DefaultItemAware(),
 	}
 }
 
 type DataObjectReferenceInterface interface {
 	Element
 	FlowElementInterface
-	ItemSubjectRef() (result *QName, present bool)
+	ItemAwareInterface
 	DataObjectRef() (result *IdRef, present bool)
-	DataState() (result *DataState, present bool)
-	SetItemSubjectRef(value *QName)
 	SetDataObjectRef(value *IdRef)
-	SetDataState(value *DataState)
 
 	TextPayload() *string
 }
@@ -4538,24 +4435,11 @@ func (t *DataObjectReference) FindBy(f ElementPredicate) (result Element, found 
 	if result, found = t.FlowElement.FindBy(f); found {
 		return
 	}
-
-	if value := t.DataStateField; value != nil {
-		if result, found = value.FindBy(f); found {
-			return
-		}
+	if result, found = t.ItemAware.FindBy(f); found {
+		return
 	}
 
 	return
-}
-func (t *DataObjectReference) ItemSubjectRef() (result *QName, present bool) {
-	if t.ItemSubjectRefField != nil {
-		present = true
-	}
-	result = t.ItemSubjectRefField
-	return
-}
-func (t *DataObjectReference) SetItemSubjectRef(value *QName) {
-	t.ItemSubjectRefField = value
 }
 func (t *DataObjectReference) DataObjectRef() (result *IdRef, present bool) {
 	if t.DataObjectRefField != nil {
@@ -4567,46 +4451,30 @@ func (t *DataObjectReference) DataObjectRef() (result *IdRef, present bool) {
 func (t *DataObjectReference) SetDataObjectRef(value *IdRef) {
 	t.DataObjectRefField = value
 }
-func (t *DataObjectReference) DataState() (result *DataState, present bool) {
-	if t.DataStateField != nil {
-		present = true
-	}
-	result = t.DataStateField
-	return
-}
-func (t *DataObjectReference) SetDataState(value *DataState) {
-	t.DataStateField = value
-}
 
 type DataOutput struct {
-	BaseElement
-	NameField           *string    `xml:"name,attr"`
-	ItemSubjectRefField *QName     `xml:"itemSubjectRef,attr"`
-	IsCollectionField   *bool      `xml:"isCollection,attr"`
-	DataStateField      *DataState `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL dataState"`
-	TextPayloadField    string     `xml:",chardata"`
+	ItemAwareElement
+	NameField         *string `xml:"name,attr"`
+	IsCollectionField *bool   `xml:"isCollection,attr"`
+	TextPayloadField  string  `xml:",chardata"`
 }
 
 var defaultDataOutputIsCollectionField bool = false
 
 func DefaultDataOutput() DataOutput {
 	return DataOutput{
-		BaseElement:       DefaultBaseElement(),
+		ItemAwareElement:  DefaultItemAwareElement(),
 		IsCollectionField: &defaultDataOutputIsCollectionField,
 	}
 }
 
 type DataOutputInterface interface {
 	Element
-	BaseElementInterface
+	ItemAwareElementInterface
 	Name() (result *string, present bool)
-	ItemSubjectRef() (result *QName, present bool)
 	IsCollection() (result bool)
-	DataState() (result *DataState, present bool)
 	SetName(value *string)
-	SetItemSubjectRef(value *QName)
 	SetIsCollection(value *bool)
-	SetDataState(value *DataState)
 
 	TextPayload() *string
 }
@@ -4623,14 +4491,8 @@ func (t *DataOutput) FindBy(f ElementPredicate) (result Element, found bool) {
 		found = true
 		return
 	}
-	if result, found = t.BaseElement.FindBy(f); found {
+	if result, found = t.ItemAwareElement.FindBy(f); found {
 		return
-	}
-
-	if value := t.DataStateField; value != nil {
-		if result, found = value.FindBy(f); found {
-			return
-		}
 	}
 
 	return
@@ -4645,16 +4507,6 @@ func (t *DataOutput) Name() (result *string, present bool) {
 func (t *DataOutput) SetName(value *string) {
 	t.NameField = value
 }
-func (t *DataOutput) ItemSubjectRef() (result *QName, present bool) {
-	if t.ItemSubjectRefField != nil {
-		present = true
-	}
-	result = t.ItemSubjectRefField
-	return
-}
-func (t *DataOutput) SetItemSubjectRef(value *QName) {
-	t.ItemSubjectRefField = value
-}
 func (t *DataOutput) IsCollection() (result bool) {
 	if t.IsCollectionField == nil {
 		result = defaultDataOutputIsCollectionField
@@ -4665,16 +4517,6 @@ func (t *DataOutput) IsCollection() (result bool) {
 }
 func (t *DataOutput) SetIsCollection(value *bool) {
 	t.IsCollectionField = value
-}
-func (t *DataOutput) DataState() (result *DataState, present bool) {
-	if t.DataStateField != nil {
-		present = true
-	}
-	result = t.DataStateField
-	return
-}
-func (t *DataOutput) SetDataState(value *DataState) {
-	t.DataStateField = value
 }
 
 type DataOutputAssociation struct {
@@ -4766,12 +4608,11 @@ func (t *DataState) SetName(value *string) {
 
 type DataStore struct {
 	RootElement
-	NameField           *string    `xml:"name,attr"`
-	CapacityField       *big.Int   `xml:"capacity,attr"`
-	IsUnlimitedField    *bool      `xml:"isUnlimited,attr"`
-	ItemSubjectRefField *QName     `xml:"itemSubjectRef,attr"`
-	DataStateField      *DataState `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL dataState"`
-	TextPayloadField    string     `xml:",chardata"`
+	ItemAware
+	NameField        *string  `xml:"name,attr"`
+	CapacityField    *big.Int `xml:"capacity,attr"`
+	IsUnlimitedField *bool    `xml:"isUnlimited,attr"`
+	TextPayloadField string   `xml:",chardata"`
 }
 
 var defaultDataStoreIsUnlimitedField bool = true
@@ -4779,6 +4620,7 @@ var defaultDataStoreIsUnlimitedField bool = true
 func DefaultDataStore() DataStore {
 	return DataStore{
 		RootElement:      DefaultRootElement(),
+		ItemAware:        DefaultItemAware(),
 		IsUnlimitedField: &defaultDataStoreIsUnlimitedField,
 	}
 }
@@ -4786,16 +4628,13 @@ func DefaultDataStore() DataStore {
 type DataStoreInterface interface {
 	Element
 	RootElementInterface
+	ItemAwareInterface
 	Name() (result *string, present bool)
 	Capacity() (result *big.Int, present bool)
 	IsUnlimited() (result bool)
-	ItemSubjectRef() (result *QName, present bool)
-	DataState() (result *DataState, present bool)
 	SetName(value *string)
 	SetCapacity(value *big.Int)
 	SetIsUnlimited(value *bool)
-	SetItemSubjectRef(value *QName)
-	SetDataState(value *DataState)
 
 	TextPayload() *string
 }
@@ -4815,11 +4654,8 @@ func (t *DataStore) FindBy(f ElementPredicate) (result Element, found bool) {
 	if result, found = t.RootElement.FindBy(f); found {
 		return
 	}
-
-	if value := t.DataStateField; value != nil {
-		if result, found = value.FindBy(f); found {
-			return
-		}
+	if result, found = t.ItemAware.FindBy(f); found {
+		return
 	}
 
 	return
@@ -4855,50 +4691,27 @@ func (t *DataStore) IsUnlimited() (result bool) {
 func (t *DataStore) SetIsUnlimited(value *bool) {
 	t.IsUnlimitedField = value
 }
-func (t *DataStore) ItemSubjectRef() (result *QName, present bool) {
-	if t.ItemSubjectRefField != nil {
-		present = true
-	}
-	result = t.ItemSubjectRefField
-	return
-}
-func (t *DataStore) SetItemSubjectRef(value *QName) {
-	t.ItemSubjectRefField = value
-}
-func (t *DataStore) DataState() (result *DataState, present bool) {
-	if t.DataStateField != nil {
-		present = true
-	}
-	result = t.DataStateField
-	return
-}
-func (t *DataStore) SetDataState(value *DataState) {
-	t.DataStateField = value
-}
 
 type DataStoreReference struct {
 	FlowElement
-	ItemSubjectRefField *QName     `xml:"itemSubjectRef,attr"`
-	DataStoreRefField   *QName     `xml:"dataStoreRef,attr"`
-	DataStateField      *DataState `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL dataState"`
-	TextPayloadField    string     `xml:",chardata"`
+	ItemAware
+	DataStoreRefField *QName `xml:"dataStoreRef,attr"`
+	TextPayloadField  string `xml:",chardata"`
 }
 
 func DefaultDataStoreReference() DataStoreReference {
 	return DataStoreReference{
 		FlowElement: DefaultFlowElement(),
+		ItemAware:   DefaultItemAware(),
 	}
 }
 
 type DataStoreReferenceInterface interface {
 	Element
 	FlowElementInterface
-	ItemSubjectRef() (result *QName, present bool)
+	ItemAwareInterface
 	DataStoreRef() (result *QName, present bool)
-	DataState() (result *DataState, present bool)
-	SetItemSubjectRef(value *QName)
 	SetDataStoreRef(value *QName)
-	SetDataState(value *DataState)
 
 	TextPayload() *string
 }
@@ -4918,24 +4731,11 @@ func (t *DataStoreReference) FindBy(f ElementPredicate) (result Element, found b
 	if result, found = t.FlowElement.FindBy(f); found {
 		return
 	}
-
-	if value := t.DataStateField; value != nil {
-		if result, found = value.FindBy(f); found {
-			return
-		}
+	if result, found = t.ItemAware.FindBy(f); found {
+		return
 	}
 
 	return
-}
-func (t *DataStoreReference) ItemSubjectRef() (result *QName, present bool) {
-	if t.ItemSubjectRefField != nil {
-		present = true
-	}
-	result = t.ItemSubjectRefField
-	return
-}
-func (t *DataStoreReference) SetItemSubjectRef(value *QName) {
-	t.ItemSubjectRefField = value
 }
 func (t *DataStoreReference) DataStoreRef() (result *QName, present bool) {
 	if t.DataStoreRefField != nil {
@@ -4946,16 +4746,6 @@ func (t *DataStoreReference) DataStoreRef() (result *QName, present bool) {
 }
 func (t *DataStoreReference) SetDataStoreRef(value *QName) {
 	t.DataStoreRefField = value
-}
-func (t *DataStoreReference) DataState() (result *DataState, present bool) {
-	if t.DataStateField != nil {
-		present = true
-	}
-	result = t.DataStateField
-	return
-}
-func (t *DataStoreReference) SetDataState(value *DataState) {
-	t.DataStateField = value
 }
 
 type Documentation struct {
@@ -5347,8 +5137,7 @@ func (t *EscalationEventDefinition) SetEscalationRef(value *QName) {
 
 type Event struct {
 	FlowNode
-	PropertyField    []Property `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL property"`
-	TextPayloadField string     `xml:",chardata"`
+	PropertyField []Property `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL property"`
 }
 
 func DefaultEvent() Event {
@@ -5362,13 +5151,8 @@ type EventInterface interface {
 	FlowNodeInterface
 	Properties() (result *[]Property)
 	SetProperties(value []Property)
-
-	TextPayload() *string
 }
 
-func (t *Event) TextPayload() *string {
-	return &t.TextPayloadField
-}
 func (t *Event) FindBy(f ElementPredicate) (result Element, found bool) {
 	if t == nil {
 		return
@@ -5470,7 +5254,6 @@ func (t *EventBasedGateway) SetEventGatewayType(value *EventBasedGatewayType) {
 
 type EventDefinition struct {
 	RootElement
-	TextPayloadField string `xml:",chardata"`
 }
 
 func DefaultEventDefinition() EventDefinition {
@@ -5482,13 +5265,8 @@ func DefaultEventDefinition() EventDefinition {
 type EventDefinitionInterface interface {
 	Element
 	RootElementInterface
-
-	TextPayload() *string
 }
 
-func (t *EventDefinition) TextPayload() *string {
-	return &t.TextPayloadField
-}
 func (t *EventDefinition) FindBy(f ElementPredicate) (result Element, found bool) {
 	if t == nil {
 		return
@@ -5705,7 +5483,6 @@ type FlowElement struct {
 	AuditingField         *Auditing   `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL auditing"`
 	MonitoringField       *Monitoring `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL monitoring"`
 	CategoryValueRefField []QName     `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL categoryValueRef"`
-	TextPayloadField      string      `xml:",chardata"`
 }
 
 func DefaultFlowElement() FlowElement {
@@ -5725,13 +5502,8 @@ type FlowElementInterface interface {
 	SetAuditing(value *Auditing)
 	SetMonitoring(value *Monitoring)
 	SetCategoryValueRefs(value []QName)
-
-	TextPayload() *string
 }
 
-func (t *FlowElement) TextPayload() *string {
-	return &t.TextPayloadField
-}
 func (t *FlowElement) FindBy(f ElementPredicate) (result Element, found bool) {
 	if t == nil {
 		return
@@ -5799,9 +5571,8 @@ func (t *FlowElement) SetCategoryValueRefs(value []QName) {
 
 type FlowNode struct {
 	FlowElement
-	IncomingField    []QName `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL incoming"`
-	OutgoingField    []QName `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL outgoing"`
-	TextPayloadField string  `xml:",chardata"`
+	IncomingField []QName `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL incoming"`
+	OutgoingField []QName `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL outgoing"`
 }
 
 func DefaultFlowNode() FlowNode {
@@ -5817,13 +5588,8 @@ type FlowNodeInterface interface {
 	Outgoings() (result *[]QName)
 	SetIncomings(value []QName)
 	SetOutgoings(value []QName)
-
-	TextPayload() *string
 }
 
-func (t *FlowNode) TextPayload() *string {
-	return &t.TextPayloadField
-}
 func (t *FlowNode) FindBy(f ElementPredicate) (result Element, found bool) {
 	if t == nil {
 		return
@@ -6921,6 +6687,99 @@ func (t *InputOutputSpecification) SetOutputSets(value []OutputSet) {
 	t.OutputSetField = value
 }
 
+type ItemAware struct {
+	ItemSubjectRefField *QName     `xml:"itemSubjectRef,attr"`
+	DataStateField      *DataState `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL dataState"`
+}
+
+func DefaultItemAware() ItemAware {
+	return ItemAware{}
+}
+
+type ItemAwareInterface interface {
+	Element
+	ItemSubjectRef() (result *QName, present bool)
+	DataState() (result *DataState, present bool)
+	SetItemSubjectRef(value *QName)
+	SetDataState(value *DataState)
+}
+
+func (t *ItemAware) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
+	if f(t) {
+		result = t
+		found = true
+		return
+	}
+
+	if value := t.DataStateField; value != nil {
+		if result, found = value.FindBy(f); found {
+			return
+		}
+	}
+
+	return
+}
+func (t *ItemAware) ItemSubjectRef() (result *QName, present bool) {
+	if t.ItemSubjectRefField != nil {
+		present = true
+	}
+	result = t.ItemSubjectRefField
+	return
+}
+func (t *ItemAware) SetItemSubjectRef(value *QName) {
+	t.ItemSubjectRefField = value
+}
+func (t *ItemAware) DataState() (result *DataState, present bool) {
+	if t.DataStateField != nil {
+		present = true
+	}
+	result = t.DataStateField
+	return
+}
+func (t *ItemAware) SetDataState(value *DataState) {
+	t.DataStateField = value
+}
+
+type ItemAwareElement struct {
+	BaseElement
+	ItemAware
+}
+
+func DefaultItemAwareElement() ItemAwareElement {
+	return ItemAwareElement{
+		BaseElement: DefaultBaseElement(),
+		ItemAware:   DefaultItemAware(),
+	}
+}
+
+type ItemAwareElementInterface interface {
+	Element
+	BaseElementInterface
+	ItemAwareInterface
+}
+
+func (t *ItemAwareElement) FindBy(f ElementPredicate) (result Element, found bool) {
+	if t == nil {
+		return
+	}
+	if f(t) {
+		result = t
+		found = true
+		return
+	}
+	if result, found = t.BaseElement.FindBy(f); found {
+		return
+	}
+	if result, found = t.ItemAware.FindBy(f); found {
+		return
+	}
+
+	return
+}
+
 type ItemDefinition struct {
 	RootElement
 	StructureRefField *QName    `xml:"structureRef,attr"`
@@ -7253,7 +7112,6 @@ func (t *LinkEventDefinition) SetTarget(value *QName) {
 
 type LoopCharacteristics struct {
 	BaseElement
-	TextPayloadField string `xml:",chardata"`
 }
 
 func DefaultLoopCharacteristics() LoopCharacteristics {
@@ -7265,13 +7123,8 @@ func DefaultLoopCharacteristics() LoopCharacteristics {
 type LoopCharacteristicsInterface interface {
 	Element
 	BaseElementInterface
-
-	TextPayload() *string
 }
 
-func (t *LoopCharacteristics) TextPayload() *string {
-	return &t.TextPayloadField
-}
 func (t *LoopCharacteristics) FindBy(f ElementPredicate) (result Element, found bool) {
 	if t == nil {
 		return
@@ -9386,28 +9239,22 @@ func (t *Process) SetSupportses(value []QName) {
 }
 
 type Property struct {
-	BaseElement
-	NameField           *string    `xml:"name,attr"`
-	ItemSubjectRefField *QName     `xml:"itemSubjectRef,attr"`
-	DataStateField      *DataState `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL dataState"`
-	TextPayloadField    string     `xml:",chardata"`
+	ItemAwareElement
+	NameField        *string `xml:"name,attr"`
+	TextPayloadField string  `xml:",chardata"`
 }
 
 func DefaultProperty() Property {
 	return Property{
-		BaseElement: DefaultBaseElement(),
+		ItemAwareElement: DefaultItemAwareElement(),
 	}
 }
 
 type PropertyInterface interface {
 	Element
-	BaseElementInterface
+	ItemAwareElementInterface
 	Name() (result *string, present bool)
-	ItemSubjectRef() (result *QName, present bool)
-	DataState() (result *DataState, present bool)
 	SetName(value *string)
-	SetItemSubjectRef(value *QName)
-	SetDataState(value *DataState)
 
 	TextPayload() *string
 }
@@ -9424,14 +9271,8 @@ func (t *Property) FindBy(f ElementPredicate) (result Element, found bool) {
 		found = true
 		return
 	}
-	if result, found = t.BaseElement.FindBy(f); found {
+	if result, found = t.ItemAwareElement.FindBy(f); found {
 		return
-	}
-
-	if value := t.DataStateField; value != nil {
-		if result, found = value.FindBy(f); found {
-			return
-		}
 	}
 
 	return
@@ -9445,26 +9286,6 @@ func (t *Property) Name() (result *string, present bool) {
 }
 func (t *Property) SetName(value *string) {
 	t.NameField = value
-}
-func (t *Property) ItemSubjectRef() (result *QName, present bool) {
-	if t.ItemSubjectRefField != nil {
-		present = true
-	}
-	result = t.ItemSubjectRefField
-	return
-}
-func (t *Property) SetItemSubjectRef(value *QName) {
-	t.ItemSubjectRefField = value
-}
-func (t *Property) DataState() (result *DataState, present bool) {
-	if t.DataStateField != nil {
-		present = true
-	}
-	result = t.DataStateField
-	return
-}
-func (t *Property) SetDataState(value *DataState) {
-	t.DataStateField = value
 }
 
 type ReceiveTask struct {
@@ -10027,7 +9848,6 @@ func (t *ResourceRole) SetResourceAssignmentExpression(value *ResourceAssignment
 
 type RootElement struct {
 	BaseElement
-	TextPayloadField string `xml:",chardata"`
 }
 
 func DefaultRootElement() RootElement {
@@ -10039,13 +9859,8 @@ func DefaultRootElement() RootElement {
 type RootElementInterface interface {
 	Element
 	BaseElementInterface
-
-	TextPayload() *string
 }
 
-func (t *RootElement) TextPayload() *string {
-	return &t.TextPayloadField
-}
 func (t *RootElement) FindBy(f ElementPredicate) (result Element, found bool) {
 	if t == nil {
 		return
@@ -12430,7 +12245,6 @@ type ThrowEvent struct {
 	TerminateEventDefinitionField   []TerminateEventDefinition   `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL terminateEventDefinition"`
 	TimerEventDefinitionField       []TimerEventDefinition       `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL timerEventDefinition"`
 	EventDefinitionRefField         []QName                      `xml:"http://www.omg.org/spec/BPMN/20100524/MODEL eventDefinitionRef"`
-	TextPayloadField                string                       `xml:",chardata"`
 }
 
 func DefaultThrowEvent() ThrowEvent {
@@ -12471,13 +12285,8 @@ type ThrowEventInterface interface {
 	SetTerminateEventDefinitions(value []TerminateEventDefinition)
 	SetTimerEventDefinitions(value []TimerEventDefinition)
 	SetEventDefinitionRefs(value []QName)
-
-	TextPayload() *string
 }
 
-func (t *ThrowEvent) TextPayload() *string {
-	return &t.TextPayloadField
-}
 func (t *ThrowEvent) FindBy(f ElementPredicate) (result Element, found bool) {
 	if t == nil {
 		return
