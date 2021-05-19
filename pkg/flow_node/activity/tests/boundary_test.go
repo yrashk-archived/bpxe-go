@@ -68,7 +68,7 @@ func testBoundaryEvent(t *testing.T, boundary string, test func(visited map[stri
 				aTask.SetBody(func(task *task.Task, ctx context.Context) flow_node.Action {
 					select {
 					case <-ready:
-						return flow_node.FlowAction{SequenceFlows: flow_node.AllSequenceFlows(&task.T.Outgoing)}
+						return flow_node.FlowAction{SequenceFlows: flow_node.AllSequenceFlows(&task.Wiring.Outgoing)}
 					case <-ctx.Done():
 						return flow_node.CompleteAction{}
 					}

@@ -212,12 +212,24 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 
 	// Flow nodes
 
+	wiringMaker := func(element *bpmn.FlowNode) (*flow_node.Wiring, error) {
+		return flow_node.New(process.Element,
+			process.Definitions,
+			element, instance, instance,
+			instance.Tracer, instance.flowNodeMapping,
+			&instance.flowWaitGroup)
+	}
+
+	var wiring *flow_node.Wiring
+
 	for i := range *process.Element.StartEvents() {
 		element := &(*process.Element.StartEvents())[i]
+		wiring, err = wiringMaker(&element.FlowNode)
+		if err != nil {
+			return
+		}
 		var startEvent *start.Node
-		startEvent, err = start.New(process.Element, process.Definitions,
-			element, instance, instance, instance.Tracer, instance.flowNodeMapping, &instance.flowWaitGroup,
-			idGenerator, instance)
+		startEvent, err = start.New(wiring, element, idGenerator, instance)
 		if err != nil {
 			return
 		}
@@ -229,9 +241,12 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 
 	for i := range *process.Element.EndEvents() {
 		element := &(*process.Element.EndEvents())[i]
+		wiring, err = wiringMaker(&element.FlowNode)
+		if err != nil {
+			return
+		}
 		var endEvent *end.Node
-		endEvent, err = end.New(process.Element, process.Definitions,
-			element, instance, instance, instance.Tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
+		endEvent, err = end.New(wiring, element)
 		if err != nil {
 			return
 		}
@@ -243,10 +258,12 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 
 	for i := range *process.Element.IntermediateCatchEvents() {
 		element := &(*process.Element.IntermediateCatchEvents())[i]
+		wiring, err = wiringMaker(&element.FlowNode)
+		if err != nil {
+			return
+		}
 		var intermediateCatchEvent *catch.Node
-		intermediateCatchEvent, err = catch.New(process.Element,
-			process.Definitions, &element.CatchEvent, instance, instance, instance.Tracer, instance.flowNodeMapping, &instance.flowWaitGroup,
-			process)
+		intermediateCatchEvent, err = catch.New(wiring, &element.CatchEvent, process)
 		if err != nil {
 			return
 		}
@@ -258,9 +275,12 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 
 	for i := range *process.Element.Tasks() {
 		element := &(*process.Element.Tasks())[i]
+		wiring, err = wiringMaker(&element.FlowNode)
+		if err != nil {
+			return
+		}
 		var aTask *activity.Harness
-		aTask, err = activity.NewHarness(process.Element, process.Definitions,
-			&element.FlowNode, instance, instance, instance.Tracer, instance.flowNodeMapping, &instance.flowWaitGroup,
+		aTask, err = activity.NewHarness(wiring, &element.FlowNode,
 			idGenerator, task.NewTask(element), process, instance,
 		)
 		if err != nil {
@@ -274,9 +294,12 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 
 	for i := range *process.Element.ExclusiveGateways() {
 		element := &(*process.Element.ExclusiveGateways())[i]
+		wiring, err = wiringMaker(&element.FlowNode)
+		if err != nil {
+			return
+		}
 		var exclusiveGateway *exclusive.Node
-		exclusiveGateway, err = exclusive.New(process.Element, process.Definitions,
-			element, instance, instance, instance.Tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
+		exclusiveGateway, err = exclusive.New(wiring, element)
 		if err != nil {
 			return
 		}
@@ -288,9 +311,12 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 
 	for i := range *process.Element.InclusiveGateways() {
 		element := &(*process.Element.InclusiveGateways())[i]
+		wiring, err = wiringMaker(&element.FlowNode)
+		if err != nil {
+			return
+		}
 		var inclusiveGateway *inclusive.Node
-		inclusiveGateway, err = inclusive.New(process.Element, process.Definitions,
-			element, instance, instance, instance.Tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
+		inclusiveGateway, err = inclusive.New(wiring, element)
 		if err != nil {
 			return
 		}
@@ -303,8 +329,11 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 	for i := range *process.Element.ParallelGateways() {
 		element := &(*process.Element.ParallelGateways())[i]
 		var parallelGateway *parallel.Node
-		parallelGateway, err = parallel.New(process.Element, process.Definitions,
-			element, instance, instance, instance.Tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
+		wiring, err = wiringMaker(&element.FlowNode)
+		if err != nil {
+			return
+		}
+		parallelGateway, err = parallel.New(wiring, element)
 		if err != nil {
 			return
 		}
@@ -316,9 +345,12 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 
 	for i := range *process.Element.EventBasedGateways() {
 		element := &(*process.Element.EventBasedGateways())[i]
+		wiring, err = wiringMaker(&element.FlowNode)
+		if err != nil {
+			return
+		}
 		var eventBasedGateway *event_based.Node
-		eventBasedGateway, err = event_based.New(process.Element, process.Definitions,
-			element, instance, instance, instance.Tracer, instance.flowNodeMapping, &instance.flowWaitGroup)
+		eventBasedGateway, err = event_based.New(wiring, element)
 		if err != nil {
 			return
 		}

@@ -9,8 +9,6 @@
 package end
 
 import (
-	"sync"
-
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow/flow_interface"
@@ -29,42 +27,21 @@ type nextActionMessage struct {
 func (m nextActionMessage) message() {}
 
 type Node struct {
-	flow_node.T
+	*flow_node.Wiring
 	element              *bpmn.EndEvent
 	activated            bool
 	completed            bool
-	eventConsumer        event.ProcessEventConsumer
 	runnerChannel        chan message
 	startEventsActivated []*bpmn.StartEvent
 }
 
-func New(process *bpmn.Process,
-	definitions *bpmn.Definitions,
-	endEvent *bpmn.EndEvent,
-	eventIngress event.ProcessEventConsumer,
-	eventEgress event.ProcessEventSource,
-	tracer *tracing.Tracer,
-	flowNodeMapping *flow_node.FlowNodeMapping,
-	flowWaitGroup *sync.WaitGroup,
-) (node *Node, err error) {
-	flowNodePtr, err := flow_node.New(
-		process,
-		definitions,
-		&endEvent.FlowNode,
-		eventIngress, eventEgress,
-		tracer, flowNodeMapping,
-		flowWaitGroup)
-	if err != nil {
-		return
-	}
-	flowNode := *flowNodePtr
+func New(wiring *flow_node.Wiring, endEvent *bpmn.EndEvent) (node *Node, err error) {
 	node = &Node{
-		T:                    flowNode,
+		Wiring:               wiring,
 		element:              endEvent,
 		activated:            false,
 		completed:            false,
-		eventConsumer:        eventIngress,
-		runnerChannel:        make(chan message, len(flowNode.Incoming)*2+1),
+		runnerChannel:        make(chan message, len(wiring.Incoming)*2+1),
 		startEventsActivated: make([]*bpmn.StartEvent, 0),
 	}
 	go node.runner()
@@ -85,13 +62,13 @@ func (node *Node) runner() {
 				continue
 			}
 
-			if _, err := node.T.EventIngress.ConsumeProcessEvent(
+			if _, err := node.EventIngress.ConsumeProcessEvent(
 				event.MakeEndEvent(node.element),
 			); err == nil {
 				node.completed = true
 				m.response <- flow_node.CompleteAction{}
 			} else {
-				node.T.Tracer.Trace(tracing.ErrorTrace{Error: err})
+				node.Wiring.Tracer.Trace(tracing.ErrorTrace{Error: err})
 			}
 		default:
 		}
