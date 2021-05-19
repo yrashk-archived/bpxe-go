@@ -6,7 +6,7 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/LICENSE-Apache-2.0
 
-package expression
+package xpath
 
 import (
 	"bytes"
@@ -14,6 +14,7 @@ import (
 
 	"bpxe.org/pkg/data"
 	"bpxe.org/pkg/errors"
+	"bpxe.org/pkg/expression"
 	"github.com/ChrisTrenkamp/xsel/exec"
 	"github.com/ChrisTrenkamp/xsel/grammar"
 	"github.com/ChrisTrenkamp/xsel/parser"
@@ -32,16 +33,16 @@ func (engine *XPath) SetItemAwareLocator(itemAwareLocator data.ItemAwareLocator)
 	engine.itemAwareLocator = itemAwareLocator
 }
 
-func MakeXPath() XPath {
+func Make() XPath {
 	return XPath{}
 }
 
-func NewXPath() *XPath {
-	engine := MakeXPath()
+func New() *XPath {
+	engine := Make()
 	return &engine
 }
 
-func (engine *XPath) CompileExpression(source string) (result CompiledExpression, err error) {
+func (engine *XPath) CompileExpression(source string) (result expression.CompiledExpression, err error) {
 	compiled, err := grammar.Build(source)
 	if err == nil {
 		result = &compiled
@@ -49,10 +50,10 @@ func (engine *XPath) CompileExpression(source string) (result CompiledExpression
 	return
 }
 
-func (engine *XPath) EvaluateExpression(e CompiledExpression,
+func (engine *XPath) EvaluateExpression(e expression.CompiledExpression,
 	datum interface{},
-) (result Result, err error) {
-	if expression, ok := e.(*grammar.Grammar); ok {
+) (result expression.Result, err error) {
+	if expr, ok := e.(*grammar.Grammar); ok {
 		// Here, in order to save some prototyping type,
 		// instead of implementing `parser.Parser` for `interface{}`,
 		// we use it over `interface{}` serialized as XML.
@@ -80,7 +81,7 @@ func (engine *XPath) EvaluateExpression(e CompiledExpression,
 			return
 		}
 		var res exec.Result
-		res, err = exec.Exec(cursor, expression, contextSettings)
+		res, err = exec.Exec(cursor, expr, contextSettings)
 		if err != nil {
 			return
 		}
@@ -150,4 +151,10 @@ func (engine *XPath) getDataObject() func(context exec.Context, args ...exec.Res
 			}
 		}
 	}
+}
+
+func init() {
+	expression.RegisterEngine("http://www.w3.org/1999/XPath", func() expression.Engine {
+		return New()
+	})
 }

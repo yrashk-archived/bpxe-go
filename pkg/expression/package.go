@@ -6,5 +6,4 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/LICENSE-Apache-2.0
 
-// Expression languages and their compilation/execution engines
 package expression

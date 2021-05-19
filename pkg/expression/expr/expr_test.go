@@ -6,17 +6,19 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/LICENSE-Apache-2.0
 
-package expression
+package expr
 
 import (
 	"testing"
 
+	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/data"
+	"bpxe.org/pkg/expression"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestExpr(t *testing.T) {
-	var engine Engine = NewExpr()
+	var engine expression.Engine = New()
 	compiled, err := engine.CompileExpression("a > 1")
 	assert.Nil(t, err)
 	result, err := engine.EvaluateExpression(compiled, map[string]interface{}{
@@ -26,8 +28,20 @@ func TestExpr(t *testing.T) {
 	assert.True(t, result.(bool))
 }
 
+type dataObjects map[string]data.ItemAware
+
+func (d dataObjects) FindItemAwareById(id bpmn.IdRef) (itemAware data.ItemAware, found bool) {
+	itemAware, found = d[id]
+	return
+}
+
+func (d dataObjects) FindItemAwareByName(name string) (itemAware data.ItemAware, found bool) {
+	itemAware, found = d[name]
+	return
+}
+
 func TestExpr_getDataObject(t *testing.T) {
-	var engine = NewExpr()
+	var engine = New()
 	container := data.NewContainer(nil)
 	container.Put(1)
 	var objs dataObjects = map[string]data.ItemAware{

@@ -19,6 +19,8 @@ import (
 	"bpxe.org/pkg/id"
 	"bpxe.org/pkg/sequence_flow"
 	"bpxe.org/pkg/tracing"
+
+	_ "bpxe.org/pkg/expression/expr"
 )
 
 type NoEffectiveSequenceFlows struct {
