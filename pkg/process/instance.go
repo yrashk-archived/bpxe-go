@@ -380,6 +380,10 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 
 	instance.flowNodeMapping.Finalize()
 
+	// StartAll cease flow monitor
+	sender := instance.Tracer.RegisterSender()
+	go instance.ceaseFlowMonitor()(ctx, sender)
+
 	return
 }
 
@@ -393,16 +397,40 @@ func (instance *Instance) RegisterProcessEventConsumer(ev event.ProcessEventCons
 	return
 }
 
-// Start explicitly starts the instance by sending in a Start Event
-func (instance *Instance) Start(ctx context.Context) (err error) {
-	// Start cease flow monitor
-	sender := instance.Tracer.RegisterSender()
-	go instance.ceaseFlowMonitor()(ctx, sender)
-	// Explicit start
-	evt := event.MakeStartEvent()
-	_, err = instance.ConsumeProcessEvent(&evt)
-	if err != nil {
+// StartWith explicitly starts the instance by triggering a given start event
+func (instance *Instance) StartWith(ctx context.Context, startEvent bpmn.StartEventInterface) (err error) {
+	flowNode, found := instance.flowNodeMapping.ResolveElementToFlowNode(startEvent)
+	elementId := "<unnamed>"
+	if idPtr, present := startEvent.Id(); present {
+		elementId = *idPtr
+	}
+	processId := "<unnamed>"
+	if idPtr, present := instance.process.Element.Id(); present {
+		processId = *idPtr
+	}
+	if !found {
+		err = errors.NotFoundError{Expected: fmt.Sprintf("start event %s in process %s", elementId, processId)}
 		return
+	}
+	startEventNode, ok := flowNode.(*start.Node)
+	if !ok {
+		err = errors.RequirementExpectationError{
+			Expected: fmt.Sprintf("start event %s flow node in process %s to be of type start.Node", elementId, processId),
+			Actual:   fmt.Sprintf("%T", flowNode),
+		}
+		return
+	}
+	startEventNode.Trigger()
+	return
+}
+
+// StartAll explicitly starts the instance by triggering all start events, if any
+func (instance *Instance) StartAll(ctx context.Context) (err error) {
+	for i := range *instance.process.Element.StartEvents() {
+		err = instance.StartWith(ctx, &(*instance.process.Element.StartEvents())[i])
+		if err != nil {
+			return
+		}
 	}
 	return
 }
@@ -424,7 +452,7 @@ func (instance *Instance) ceaseFlowMonitor() func(ctx context.Context, sender tr
 		hold:
 
 		(1) All start nodes of the Process have been
-		visited. More precisely, all Start Events
+		visited. More precisely, all StartAll Events
 		have been triggered (1.1), and for all
 		starting Event-Based Gateways, one of the
 		associated Events has been triggered (1.2).
@@ -444,7 +472,6 @@ func (instance *Instance) ceaseFlowMonitor() func(ctx context.Context, sender tr
 
 			select {
 			case trace := <-traces:
-
 				switch t := trace.(type) {
 				case flow.FlowTerminationTrace:
 					switch flowNode := t.Source.(type) {
@@ -461,6 +488,7 @@ func (instance *Instance) ceaseFlowMonitor() func(ctx context.Context, sender tr
 				default:
 				}
 			case <-ctx.Done():
+				instance.Tracer.Unsubscribe(traces)
 				return
 			}
 		}
@@ -468,9 +496,18 @@ func (instance *Instance) ceaseFlowMonitor() func(ctx context.Context, sender tr
 		instance.Tracer.Unsubscribe(traces)
 
 		// Then, we're waiting for (2) to occur
-		instance.flowWaitGroup.Wait()
-		// Send out a cease flow trace
-		instance.Tracer.Trace(flow.CeaseFlowTrace{})
+		waitIsOver := make(chan struct{})
+		go func() {
+			instance.flowWaitGroup.Wait()
+			close(waitIsOver)
+		}()
+		select {
+		case <-waitIsOver:
+			// Send out a cease flow trace
+			instance.Tracer.Trace(flow.CeaseFlowTrace{})
+		case <-ctx.Done():
+		}
+
 	}
 }
 

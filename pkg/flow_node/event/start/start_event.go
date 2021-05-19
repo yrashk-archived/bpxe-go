@@ -96,13 +96,12 @@ func (node *Node) runner(ctx context.Context, sender tracing.SenderHandle) {
 func (node *Node) ConsumeProcessEvent(
 	ev event.ProcessEvent,
 ) (result event.ConsumptionResult, err error) {
-	switch ev.(type) {
-	case *event.StartEvent:
-		node.runnerChannel <- startMessage{}
-	default:
-	}
 	result = event.Consumed
 	return
+}
+
+func (node *Node) Trigger() {
+	node.runnerChannel <- startMessage{}
 }
 
 func (node *Node) NextAction(flow_interface.T) chan flow_node.Action {
