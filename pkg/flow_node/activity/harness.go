@@ -9,6 +9,7 @@
 package activity
 
 import (
+	"context"
 	"sync"
 	"sync/atomic"
 
@@ -20,6 +21,7 @@ import (
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/flow_node/event/catch"
 	"bpxe.org/pkg/id"
+	"bpxe.org/pkg/tracing"
 )
 
 type message interface {
@@ -69,7 +71,8 @@ func (node *Harness) Activity() Activity {
 
 type Constructor = func(*flow_node.Wiring) (node Activity, err error)
 
-func NewHarness(wiring *flow_node.Wiring,
+func NewHarness(ctx context.Context,
+	wiring *flow_node.Wiring,
 	element *bpmn.FlowNode,
 	idGenerator id.Generator,
 	constructor Constructor,
@@ -115,7 +118,7 @@ func NewHarness(wiring *flow_node.Wiring,
 		catchEventFlowNode.EventEgress = node
 
 		var catchEvent *catch.Node
-		catchEvent, err = catch.New(catchEventFlowNode, &boundaryEvent.CatchEvent, instanceBuilder)
+		catchEvent, err = catch.New(ctx, catchEventFlowNode, &boundaryEvent.CatchEvent, instanceBuilder)
 		if err != nil {
 			return
 		} else {
@@ -130,14 +133,17 @@ func NewHarness(wiring *flow_node.Wiring,
 			}
 			newFlow := flow.New(node.Definitions, catchEvent, node.Tracer,
 				node.FlowNodeMapping, node.FlowWaitGroup, idGenerator, actionTransformer, itemAwareLocator)
-			newFlow.Start()
+			newFlow.Start(ctx)
 		}
 	}
-	go node.runner()
+	sender := node.Tracer.RegisterSender()
+	go node.runner(ctx, sender)
 	return
 }
 
-func (node *Harness) runner() {
+func (node *Harness) runner(ctx context.Context, sender tracing.SenderHandle) {
+	defer sender.Done()
+
 	for {
 		select {
 		case activeBoundary := <-node.activeBoundary:
@@ -156,6 +162,9 @@ func (node *Harness) runner() {
 				m.response <- node.activity.NextAction(m.flow)
 			default:
 			}
+		case <-ctx.Done():
+			node.Tracer.Trace(flow_node.CancellationTrace{Node: node.element})
+			return
 		}
 	}
 }

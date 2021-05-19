@@ -9,6 +9,7 @@
 package tests
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -31,10 +32,10 @@ func init() {
 func TestInclusiveGateway(t *testing.T) {
 	processElement := (*testInclusiveGateway.Processes())[0]
 	proc := process.New(&processElement, &testInclusiveGateway)
-	tracer := tracing.NewTracer()
+	tracer := tracing.NewTracer(context.Background())
 	traces := tracer.SubscribeChannel(make(chan tracing.Trace, 32))
 	if instance, err := proc.Instantiate(process.WithTracer(tracer)); err == nil {
-		err := instance.Run()
+		err := instance.Start(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
@@ -87,10 +88,10 @@ func init() {
 func TestInclusiveGatewayDefault(t *testing.T) {
 	processElement := (*testInclusiveGatewayDefault.Processes())[0]
 	proc := process.New(&processElement, &testInclusiveGatewayDefault)
-	tracer := tracing.NewTracer()
+	tracer := tracing.NewTracer(context.Background())
 	traces := tracer.SubscribeChannel(make(chan tracing.Trace, 32))
 	if instance, err := proc.Instantiate(process.WithTracer(tracer)); err == nil {
-		err := instance.Run()
+		err := instance.Start(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
@@ -146,7 +147,7 @@ func TestInclusiveGatewayNoDefault(t *testing.T) {
 	proc := process.New(&processElement, &testInclusiveGatewayNoDefault)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
-		err := instance.Run()
+		err := instance.Start(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}

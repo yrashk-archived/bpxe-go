@@ -9,6 +9,7 @@
 package flow_node
 
 import (
+	"context"
 	"sync"
 	"testing"
 
@@ -37,7 +38,7 @@ func TestNewFlowNode(t *testing.T) {
 				&flowNode.(*bpmn.ParallelGateway).FlowNode,
 				event.VoidProcessEventConsumer{},
 				event.VoidProcessEventSource{},
-				tracing.NewTracer(), NewLockedFlowNodeMapping(),
+				tracing.NewTracer(context.Background()), NewLockedFlowNodeMapping(),
 				&waitGroup,
 			)
 			assert.Nil(t, err)

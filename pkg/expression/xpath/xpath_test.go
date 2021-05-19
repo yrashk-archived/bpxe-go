@@ -9,6 +9,7 @@
 package xpath
 
 import (
+	"context"
 	"testing"
 
 	"bpxe.org/pkg/bpmn"
@@ -44,7 +45,7 @@ func TestXPath_getDataObject(t *testing.T) {
 	// This funtionality doesn't quite work yet
 	t.SkipNow()
 	var engine = New()
-	container := data.NewContainer(nil)
+	container := data.NewContainer(context.Background(), nil)
 	container.Put(data.XMLSource(`<tag attr="val"/>`))
 	var objs dataObjects = map[string]data.ItemAware{
 		"dataObject": container,

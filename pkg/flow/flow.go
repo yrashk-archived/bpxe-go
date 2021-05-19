@@ -9,6 +9,7 @@
 package flow
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"sync"
@@ -187,8 +188,9 @@ func (flow *Flow) handleSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, u
 // Having this FlowTrace consistency is extremely important because otherwise there will be cases when
 // the FlowTrace will come through *after* traces created by newly started flows, completely messing up
 // the order of traces which is expected to be linear.
-func (flow *Flow) handleAdditionalSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, unconditional bool,
-	actionTransformer flow_node.ActionTransformer, terminate flow_node.Terminate) (flowId id.Id, f func(), flowed bool) {
+func (flow *Flow) handleAdditionalSequenceFlow(ctx context.Context, sequenceFlow *sequence_flow.SequenceFlow,
+	unconditional bool, actionTransformer flow_node.ActionTransformer,
+	terminate flow_node.Terminate) (flowId id.Id, f func(), flowed bool) {
 	ok, err := flow.testSequenceFlow(sequenceFlow, unconditional)
 	if err != nil {
 		flow.tracer.Trace(tracing.ErrorTrace{Error: err})
@@ -216,7 +218,7 @@ func (flow *Flow) handleAdditionalSequenceFlow(sequenceFlow *sequence_flow.Seque
 				})
 			}
 			newFlow.terminate = terminate
-			newFlow.Start()
+			newFlow.Start(ctx)
 		}
 		flowed = true
 	} else {
@@ -236,15 +238,22 @@ func (flow *Flow) termination() chan bool {
 }
 
 // Starts the flow
-func (flow *Flow) Start() {
+func (flow *Flow) Start(ctx context.Context) {
 	flow.flowWaitGroup.Add(1)
+	sender := flow.tracer.RegisterSender()
 	go func() {
+		defer sender.Done()
 		flow.tracer.Trace(NewFlowTrace{FlowId: flow.id})
 		defer flow.flowWaitGroup.Done()
 		flow.tracer.Trace(VisitTrace{Node: flow.current.Element()})
 		for {
 		await:
 			select {
+			case <-ctx.Done():
+				flow.tracer.Trace(CancellationTrace{
+					FlowId: flow.Id(),
+				})
+				return
 			case terminate := <-flow.termination():
 				if terminate {
 					flow.tracer.Trace(FlowTerminationTrace{
@@ -293,7 +302,7 @@ func (flow *Flow) Start() {
 						rest := sequenceFlows[1:]
 						flowFuncs := make([]func(), 0)
 						for i, sequenceFlow := range rest {
-							flowId, flowFunc, flowed := flow.handleAdditionalSequenceFlow(sequenceFlow, unconditional[i+1],
+							flowId, flowFunc, flowed := flow.handleAdditionalSequenceFlow(ctx, sequenceFlow, unconditional[i+1],
 								a.ActionTransformer, a.Terminate)
 							if flowed {
 								effectiveFlows = append(effectiveFlows, Snapshot{sequenceFlow: sequenceFlow, flowId: flowId})

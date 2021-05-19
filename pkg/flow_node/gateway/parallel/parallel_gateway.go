@@ -9,10 +9,13 @@
 package parallel
 
 import (
+	"context"
+
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/flow/flow_interface"
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/flow_node/gateway"
+	"bpxe.org/pkg/tracing"
 )
 
 type message interface {
@@ -35,7 +38,7 @@ type Node struct {
 	noOfIncomingFlows     int
 }
 
-func New(wiring *flow_node.Wiring, parallelGateway *bpmn.ParallelGateway) (node *Node, err error) {
+func New(ctx context.Context, wiring *flow_node.Wiring, parallelGateway *bpmn.ParallelGateway) (node *Node, err error) {
 	node = &Node{
 		Wiring:                wiring,
 		element:               parallelGateway,
@@ -44,7 +47,8 @@ func New(wiring *flow_node.Wiring, parallelGateway *bpmn.ParallelGateway) (node 
 		awaitingActions:       make([]chan flow_node.Action, 0),
 		noOfIncomingFlows:     len(wiring.Incoming),
 	}
-	go node.runner()
+	sender := node.Tracer.RegisterSender()
+	go node.runner(ctx, sender)
 	return
 }
 
@@ -59,16 +63,23 @@ func (node *Node) flowWhenReady() {
 
 }
 
-func (node *Node) runner() {
+func (node *Node) runner(ctx context.Context, sender tracing.SenderHandle) {
+	defer sender.Done()
+
 	for {
-		msg := <-node.runnerChannel
-		switch m := msg.(type) {
-		case nextActionMessage:
-			node.reportedIncomingFlows++
-			node.awaitingActions = append(node.awaitingActions, m.response)
-			node.flowWhenReady()
-			node.Tracer.Trace(IncomingFlowProcessedTrace{Node: node.element, Flow: m.flow})
-		default:
+		select {
+		case msg := <-node.runnerChannel:
+			switch m := msg.(type) {
+			case nextActionMessage:
+				node.reportedIncomingFlows++
+				node.awaitingActions = append(node.awaitingActions, m.response)
+				node.flowWhenReady()
+				node.Tracer.Trace(IncomingFlowProcessedTrace{Node: node.element, Flow: m.flow})
+			default:
+			}
+		case <-ctx.Done():
+			node.Tracer.Trace(flow_node.CancellationTrace{Node: node.element})
+			return
 		}
 	}
 }

@@ -9,6 +9,7 @@
 package event_based
 
 import (
+	"context"
 	"fmt"
 	"sync/atomic"
 
@@ -37,57 +38,65 @@ type Node struct {
 	activated     bool
 }
 
-func New(wiring *flow_node.Wiring, eventBasedGateway *bpmn.EventBasedGateway) (node *Node, err error) {
+func New(ctx context.Context, wiring *flow_node.Wiring, eventBasedGateway *bpmn.EventBasedGateway) (node *Node, err error) {
 	node = &Node{
 		Wiring:        wiring,
 		element:       eventBasedGateway,
 		runnerChannel: make(chan message, len(wiring.Incoming)*2+1),
 		activated:     false,
 	}
-	go node.runner()
+	sender := node.Tracer.RegisterSender()
+	go node.runner(ctx, sender)
 	return
 }
 
-func (node *Node) runner() {
+func (node *Node) runner(ctx context.Context, sender tracing.SenderHandle) {
+	defer sender.Done()
+
 	for {
-		msg := <-node.runnerChannel
-		switch m := msg.(type) {
-		case nextActionMessage:
-			var first int32 = 0
-			sequenceFlows := flow_node.AllSequenceFlows(&node.Outgoing)
-			terminationChannels := make(map[bpmn.IdRef]chan bool)
-			for _, sequenceFlow := range sequenceFlows {
-				if idPtr, present := sequenceFlow.Id(); present {
-					terminationChannels[*idPtr] = make(chan bool)
-				} else {
-					node.Tracer.Trace(tracing.ErrorTrace{Error: errors.NotFoundError{
-						Expected: fmt.Sprintf("id for %#v", sequenceFlow),
-					}})
-				}
-			}
-			m.response <- flow_node.FlowAction{
-				Terminate: func(sequenceFlowId *bpmn.IdRef) chan bool {
-					return terminationChannels[*sequenceFlowId]
-				},
-				SequenceFlows: sequenceFlows,
-				ActionTransformer: func(sequenceFlowId *bpmn.IdRef, action flow_node.Action) flow_node.Action {
-					// only first one is to flow
-					if atomic.CompareAndSwapInt32(&first, 0, 1) {
-						node.Tracer.Trace(DeterminationMadeTrace{Element: node.element})
-						for terminationCandidateId, ch := range terminationChannels {
-							if sequenceFlowId != nil && terminationCandidateId != *sequenceFlowId {
-								ch <- true
-							}
-							close(ch)
-						}
-						terminationChannels = make(map[bpmn.IdRef]chan bool)
-						return action
+		select {
+		case msg := <-node.runnerChannel:
+			switch m := msg.(type) {
+			case nextActionMessage:
+				var first int32 = 0
+				sequenceFlows := flow_node.AllSequenceFlows(&node.Outgoing)
+				terminationChannels := make(map[bpmn.IdRef]chan bool)
+				for _, sequenceFlow := range sequenceFlows {
+					if idPtr, present := sequenceFlow.Id(); present {
+						terminationChannels[*idPtr] = make(chan bool)
 					} else {
-						return flow_node.CompleteAction{}
+						node.Tracer.Trace(tracing.ErrorTrace{Error: errors.NotFoundError{
+							Expected: fmt.Sprintf("id for %#v", sequenceFlow),
+						}})
 					}
-				},
+				}
+				m.response <- flow_node.FlowAction{
+					Terminate: func(sequenceFlowId *bpmn.IdRef) chan bool {
+						return terminationChannels[*sequenceFlowId]
+					},
+					SequenceFlows: sequenceFlows,
+					ActionTransformer: func(sequenceFlowId *bpmn.IdRef, action flow_node.Action) flow_node.Action {
+						// only first one is to flow
+						if atomic.CompareAndSwapInt32(&first, 0, 1) {
+							node.Tracer.Trace(DeterminationMadeTrace{Element: node.element})
+							for terminationCandidateId, ch := range terminationChannels {
+								if sequenceFlowId != nil && terminationCandidateId != *sequenceFlowId {
+									ch <- true
+								}
+								close(ch)
+							}
+							terminationChannels = make(map[bpmn.IdRef]chan bool)
+							return action
+						} else {
+							return flow_node.CompleteAction{}
+						}
+					},
+				}
+			default:
 			}
-		default:
+		case <-ctx.Done():
+			node.Tracer.Trace(flow_node.CancellationTrace{Node: node.element})
+			return
 		}
 	}
 }

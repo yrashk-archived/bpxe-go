@@ -9,6 +9,8 @@
 package data
 
 import (
+	"context"
+
 	"bpxe.org/pkg/bpmn"
 )
 
@@ -34,12 +36,12 @@ type Container struct {
 	item          Item
 }
 
-func NewContainer(itemAware bpmn.ItemAwareInterface) *Container {
+func NewContainer(ctx context.Context, itemAware bpmn.ItemAwareInterface) *Container {
 	container := &Container{
 		ItemAwareInterface: itemAware,
 		runnerChannel:      make(chan runnerMessage, 1),
 	}
-	go container.run()
+	go container.run(ctx)
 	return container
 }
 
@@ -47,14 +49,18 @@ func (c *Container) Unavailable() bool {
 	return false
 }
 
-func (c *Container) run() {
+func (c *Container) run(ctx context.Context) {
 	for {
-		msg := <-c.runnerChannel
-		switch msg := msg.(type) {
-		case getMessage:
-			msg.channel <- c.item
-		case putMessage:
-			c.item = msg.item
+		select {
+		case msg := <-c.runnerChannel:
+			switch msg := msg.(type) {
+			case getMessage:
+				msg.channel <- c.item
+			case putMessage:
+				c.item = msg.item
+			}
+		case <-ctx.Done():
+			return
 		}
 	}
 }

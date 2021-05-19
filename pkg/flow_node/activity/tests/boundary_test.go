@@ -55,7 +55,7 @@ func testBoundaryEvent(t *testing.T, boundary string, test func(visited map[stri
 	ready := make(chan bool)
 
 	// explicit tracer
-	tracer := tracing.NewTracer()
+	tracer := tracing.NewTracer(context.Background())
 	// this gives us some room when instance starts up
 	traces := tracer.SubscribeChannel(make(chan tracing.Trace, 32))
 
@@ -80,7 +80,7 @@ func testBoundaryEvent(t *testing.T, boundary string, test func(visited map[stri
 			t.Fatalf("failed to get the flow node element for `task`")
 		}
 
-		err := instance.Run()
+		err := instance.Start(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
