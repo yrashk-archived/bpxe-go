@@ -6,18 +6,19 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/LICENSE-Apache-2.0
 
-package expression
+package xpath
 
 import (
 	"testing"
 
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/data"
+	"bpxe.org/pkg/expression"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestXPath(t *testing.T) {
-	var engine Engine = NewXPath()
+	var engine expression.Engine = New()
 	compiled, err := engine.CompileExpression("a > 1")
 	assert.Nil(t, err)
 	result, err := engine.EvaluateExpression(compiled, map[string]interface{}{
@@ -42,7 +43,7 @@ func (d dataObjects) FindItemAwareByName(name string) (itemAware data.ItemAware,
 func TestXPath_getDataObject(t *testing.T) {
 	// This funtionality doesn't quite work yet
 	t.SkipNow()
-	var engine = NewXPath()
+	var engine = New()
 	container := data.NewContainer(nil)
 	container.Put(data.XMLSource(`<tag attr="val"/>`))
 	var objs dataObjects = map[string]data.ItemAware{

@@ -6,15 +6,4 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/LICENSE-Apache-2.0
 
-package main
-
-import "bpxe.org/cmd/bpxe/cmd"
-
-import (
-	_ "bpxe.org/pkg/expression/expr"
-	_ "bpxe.org/pkg/expression/xpath"
-)
-
-func main() {
-	cmd.Execute()
-}
+package expr

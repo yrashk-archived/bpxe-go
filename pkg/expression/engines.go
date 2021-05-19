@@ -8,19 +8,26 @@
 
 package expression
 
-var enginesMap = map[string]func() Engine{
-	"http://www.w3.org/1999/XPath": func() Engine {
-		return NewXPath()
-	},
-	"https://github.com/antonmedv/expr": func() Engine {
-		return NewExpr()
-	},
+import (
+	"sync"
+)
+
+var enginesLock sync.RWMutex
+var enginesMap = make(map[string]func() Engine)
+
+func RegisterEngine(url string, engine func() Engine) {
+	enginesLock.Lock()
+	enginesMap[url] = engine
+	enginesLock.Unlock()
 }
 
-func GetEngine(url string) Engine {
+func GetEngine(url string) (engine Engine) {
+	enginesLock.RLock()
 	if engineConstructor, ok := enginesMap[url]; ok {
-		return engineConstructor()
+		engine = engineConstructor()
 	} else {
-		return GetEngine("http://www.w3.org/1999/XPath")
+		engine = enginesMap["http://www.w3.org/1999/XPath"]()
 	}
+	enginesLock.RUnlock()
+	return
 }

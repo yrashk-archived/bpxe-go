@@ -6,13 +6,14 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/LICENSE-Apache-2.0
 
-package expression
+package expr
 
 import (
 	"reflect"
 
 	"bpxe.org/pkg/data"
 	"bpxe.org/pkg/errors"
+	"bpxe.org/pkg/expression"
 	"github.com/antonmedv/expr"
 	"github.com/antonmedv/expr/vm"
 )
@@ -29,7 +30,7 @@ func (engine *Expr) SetItemAwareLocator(itemAwareLocator data.ItemAwareLocator) 
 	engine.itemAwareLocator = itemAwareLocator
 }
 
-func NewExpr() *Expr {
+func New() *Expr {
 	engine := &Expr{}
 	engine.env = map[string]interface{}{
 		"getDataObject": func(args ...string) data.Item {
@@ -48,14 +49,14 @@ func NewExpr() *Expr {
 	return engine
 }
 
-func (engine *Expr) CompileExpression(source string) (result CompiledExpression, err error) {
+func (engine *Expr) CompileExpression(source string) (result expression.CompiledExpression, err error) {
 	result, err = expr.Compile(source, expr.Env(engine.env), expr.AllowUndefinedVariables())
 	return
 }
 
-func (engine *Expr) EvaluateExpression(e CompiledExpression,
+func (engine *Expr) EvaluateExpression(e expression.CompiledExpression,
 	data interface{},
-) (result Result, err error) {
+) (result expression.Result, err error) {
 	actualData := data
 	if data == nil {
 		actualData = engine.env
@@ -67,8 +68,8 @@ func (engine *Expr) EvaluateExpression(e CompiledExpression,
 		actualData = env
 	}
 
-	if expression, ok := e.(*vm.Program); ok {
-		result, err = expr.Run(expression, actualData)
+	if exp, ok := e.(*vm.Program); ok {
+		result, err = expr.Run(exp, actualData)
 	} else {
 		err = errors.InvalidArgumentError{
 			Expected: "CompiledExpression to be *github.com/antonmedv/expr/vm#Program",
@@ -76,4 +77,10 @@ func (engine *Expr) EvaluateExpression(e CompiledExpression,
 		}
 	}
 	return
+}
+
+func init() {
+	expression.RegisterEngine("https://github.com/antonmedv/expr", func() expression.Engine {
+		return New()
+	})
 }

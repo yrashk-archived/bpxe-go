@@ -19,6 +19,8 @@ import (
 	"bpxe.org/pkg/tracing"
 
 	"github.com/stretchr/testify/assert"
+
+	_ "bpxe.org/pkg/expression/expr"
 )
 
 var testParallelGateway bpmn.Definitions

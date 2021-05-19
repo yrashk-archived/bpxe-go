@@ -17,6 +17,8 @@ import (
 	"bpxe.org/pkg/process"
 	"bpxe.org/pkg/tracing"
 	"github.com/stretchr/testify/require"
+
+	_ "bpxe.org/pkg/expression/expr"
 )
 
 var testCondExpr bpmn.Definitions
