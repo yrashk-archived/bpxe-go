@@ -20,7 +20,6 @@ import (
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/flow_node/event/catch"
 	"bpxe.org/pkg/id"
-	"bpxe.org/pkg/tracing"
 )
 
 type message interface {
@@ -35,17 +34,15 @@ type nextActionMessage struct {
 func (m nextActionMessage) message() {}
 
 type Harness struct {
-	flow_node.T
-	element         bpmn.FlowNodeInterface
-	runnerChannel   chan message
-	activity        Activity
-	activeBoundary  <-chan bool
-	active          int32
-	idGenerator     id.Generator
-	instanceBuilder event.InstanceBuilder
-	cancellation    sync.Once
-	lock            sync.RWMutex
-	eventConsumers  []event.ProcessEventConsumer
+	*flow_node.Wiring
+	element        bpmn.FlowNodeInterface
+	runnerChannel  chan message
+	activity       Activity
+	activeBoundary <-chan bool
+	active         int32
+	cancellation   sync.Once
+	lock           sync.RWMutex
+	eventConsumers []event.ProcessEventConsumer
 }
 
 func (node *Harness) ConsumeProcessEvent(ev event.ProcessEvent) (result event.ConsumptionResult, err error) {
@@ -70,68 +67,36 @@ func (node *Harness) Activity() Activity {
 	return node.activity
 }
 
-type Constructor = func(process *bpmn.Process,
-	definitions *bpmn.Definitions,
-	eventIngress event.ProcessEventConsumer,
-	eventEgress event.ProcessEventSource,
-	tracer *tracing.Tracer,
-	flowNodeMapping *flow_node.FlowNodeMapping,
-	flowWaitGroup *sync.WaitGroup,
-) (node Activity, err error)
+type Constructor = func(*flow_node.Wiring) (node Activity, err error)
 
-func NewHarness(process *bpmn.Process,
-	definitions *bpmn.Definitions,
+func NewHarness(wiring *flow_node.Wiring,
 	element *bpmn.FlowNode,
-	eventIngress event.ProcessEventConsumer,
-	eventEgress event.ProcessEventSource,
-	tracer *tracing.Tracer,
-	flowNodeMapping *flow_node.FlowNodeMapping,
-	flowWaitGroup *sync.WaitGroup,
 	idGenerator id.Generator,
 	constructor Constructor,
 	instanceBuilder event.InstanceBuilder,
 	itemAwareLocator data.ItemAwareLocator,
 ) (node *Harness, err error) {
-	flowNode, err := flow_node.New(process,
-		definitions,
-		element,
-		eventIngress, eventEgress,
-		tracer, flowNodeMapping,
-		flowWaitGroup)
-	if err != nil {
-		return
-	}
 	var activity Activity
-	activity, err = constructor(
-		process,
-		definitions,
-		eventIngress,
-		eventEgress,
-		tracer,
-		flowNodeMapping,
-		flowWaitGroup,
-	)
+	activity, err = constructor(wiring)
 	if err != nil {
 		return
 	}
 
 	boundaryEvents := make([]*bpmn.BoundaryEvent, 0)
 
-	for i := range *process.BoundaryEvents() {
-		boundaryEvent := &(*process.BoundaryEvents())[i]
-		if *boundaryEvent.AttachedToRef() == flowNode.Id {
+	for i := range *wiring.Process.BoundaryEvents() {
+		boundaryEvent := &(*wiring.Process.BoundaryEvents())[i]
+		if *boundaryEvent.AttachedToRef() == wiring.Id {
 			boundaryEvents = append(boundaryEvents, boundaryEvent)
 		}
 	}
 
 	node = &Harness{
-		T:               *flowNode,
-		element:         element,
-		runnerChannel:   make(chan message, len(flowNode.Incoming)*2+1),
-		activity:        activity,
-		activeBoundary:  activity.ActiveBoundary(),
-		idGenerator:     idGenerator,
-		instanceBuilder: instanceBuilder,
+		Wiring:         wiring,
+		element:        element,
+		runnerChannel:  make(chan message, len(wiring.Incoming)*2+1),
+		activity:       activity,
+		activeBoundary: activity.ActiveBoundary(),
 	}
 
 	err = node.EventEgress.RegisterProcessEventConsumer(node)
@@ -141,10 +106,18 @@ func NewHarness(process *bpmn.Process,
 
 	for i := range boundaryEvents {
 		boundaryEvent := boundaryEvents[i]
-		catchEvent, err := catch.New(node.Process, node.Definitions, &boundaryEvent.CatchEvent,
-			node.EventIngress, node, node.Tracer, node.FlowNodeMapping, node.FlowWaitGroup, node.instanceBuilder)
+		var catchEventFlowNode *flow_node.Wiring
+		catchEventFlowNode, err = wiring.CloneFor(&boundaryEvent.FlowNode)
 		if err != nil {
-			node.Tracer.Trace(tracing.ErrorTrace{Error: err})
+			return
+		}
+		// this node becomes event egress
+		catchEventFlowNode.EventEgress = node
+
+		var catchEvent *catch.Node
+		catchEvent, err = catch.New(catchEventFlowNode, &boundaryEvent.CatchEvent, instanceBuilder)
+		if err != nil {
+			return
 		} else {
 			var actionTransformer flow_node.ActionTransformer
 			if boundaryEvent.CancelActivity() {
@@ -155,8 +128,8 @@ func NewHarness(process *bpmn.Process,
 					return action
 				}
 			}
-			newFlow := flow.New(node.T.Definitions, catchEvent, node.T.Tracer,
-				node.T.FlowNodeMapping, node.T.FlowWaitGroup, node.idGenerator, actionTransformer, itemAwareLocator)
+			newFlow := flow.New(node.Definitions, catchEvent, node.Tracer,
+				node.FlowNodeMapping, node.FlowWaitGroup, idGenerator, actionTransformer, itemAwareLocator)
 			newFlow.Start()
 		}
 	}

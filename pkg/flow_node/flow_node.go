@@ -19,7 +19,10 @@ import (
 	"bpxe.org/pkg/tracing"
 )
 
-type T struct {
+// Wiring holds all necessary "wiring" for functioning of
+// flow nodes: definitions, process, sequence flow, event management,
+// tracer, flow node mapping and a flow wait group
+type Wiring struct {
 	Id           bpmn.Id
 	Definitions  *bpmn.Definitions
 	Incoming     []sequence_flow.SequenceFlow
@@ -60,7 +63,7 @@ func New(process *bpmn.Process,
 	tracer *tracing.Tracer,
 	flowNodeMapping *FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup,
-) (node *T, err error) {
+) (node *Wiring, err error) {
 	incoming, err := sequenceFlows(process, definitions, flowNode.Incomings())
 	if err != nil {
 		return
@@ -78,7 +81,7 @@ func New(process *bpmn.Process,
 	} else {
 		ownId = *ownIdPtr
 	}
-	node = &T{
+	node = &Wiring{
 		Id:              ownId,
 		Definitions:     definitions,
 		Incoming:        incoming,
@@ -89,6 +92,40 @@ func New(process *bpmn.Process,
 		Process:         process,
 		FlowNodeMapping: flowNodeMapping,
 		FlowWaitGroup:   flowWaitGroup,
+	}
+	return
+}
+
+// CloneFor copies receiver, overriding Id, Incoming, Outgoing for a given flowNode
+func (wiring *Wiring) CloneFor(flowNode *bpmn.FlowNode) (result *Wiring, err error) {
+	incoming, err := sequenceFlows(wiring.Process, wiring.Definitions, flowNode.Incomings())
+	if err != nil {
+		return
+	}
+	outgoing, err := sequenceFlows(wiring.Process, wiring.Definitions, flowNode.Outgoings())
+	if err != nil {
+		return
+	}
+	var ownId string
+	if ownIdPtr, present := flowNode.Id(); !present {
+		err = errors.NotFoundError{
+			Expected: fmt.Sprintf("flow node %#v to have an ID", flowNode),
+		}
+		return
+	} else {
+		ownId = *ownIdPtr
+	}
+	result = &Wiring{
+		Id:              ownId,
+		Definitions:     wiring.Definitions,
+		Incoming:        incoming,
+		Outgoing:        outgoing,
+		EventIngress:    wiring.EventIngress,
+		EventEgress:     wiring.EventEgress,
+		Tracer:          wiring.Tracer,
+		Process:         wiring.Process,
+		FlowNodeMapping: wiring.FlowNodeMapping,
+		FlowWaitGroup:   wiring.FlowWaitGroup,
 	}
 	return
 }

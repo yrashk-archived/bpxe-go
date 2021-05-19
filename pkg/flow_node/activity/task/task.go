@@ -13,11 +13,9 @@ import (
 	"sync"
 
 	"bpxe.org/pkg/bpmn"
-	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow/flow_interface"
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/flow_node/activity"
-	"bpxe.org/pkg/tracing"
 )
 
 type message interface {
@@ -37,7 +35,7 @@ type cancelMessage struct {
 func (m cancelMessage) message() {}
 
 type Task struct {
-	flow_node.T
+	*flow_node.Wiring
 	element        *bpmn.Task
 	runnerChannel  chan message
 	activeBoundary chan bool
@@ -58,28 +56,12 @@ func (node *Task) SetBody(body func(*Task, context.Context) flow_node.Action) {
 }
 
 func NewTask(startEvent *bpmn.Task) activity.Constructor {
-	return func(process *bpmn.Process,
-		definitions *bpmn.Definitions,
-		eventIngress event.ProcessEventConsumer,
-		eventEgress event.ProcessEventSource,
-		tracer *tracing.Tracer,
-		flowNodeMapping *flow_node.FlowNodeMapping,
-		flowWaitGroup *sync.WaitGroup,
-	) (node activity.Activity, err error) {
-		flowNode, err := flow_node.New(process,
-			definitions,
-			&startEvent.FlowNode,
-			eventIngress, eventEgress,
-			tracer, flowNodeMapping,
-			flowWaitGroup)
-		if err != nil {
-			return
-		}
+	return func(wiring *flow_node.Wiring) (node activity.Activity, err error) {
 		ctx, cancel := context.WithCancel(context.Background())
 		taskNode := &Task{
-			T:              *flowNode,
+			Wiring:         wiring,
 			element:        startEvent,
-			runnerChannel:  make(chan message, len(flowNode.Incoming)*2+1),
+			runnerChannel:  make(chan message, len(wiring.Incoming)*2+1),
 			activeBoundary: make(chan bool),
 			ctx:            ctx,
 			cancel:         cancel,

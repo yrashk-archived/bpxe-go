@@ -10,12 +10,10 @@ package event_based
 
 import (
 	"fmt"
-	"sync"
 	"sync/atomic"
 
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/errors"
-	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow/flow_interface"
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/tracing"
@@ -33,29 +31,17 @@ type nextActionMessage struct {
 func (m nextActionMessage) message() {}
 
 type Node struct {
-	flow_node.T
+	*flow_node.Wiring
 	element       *bpmn.EventBasedGateway
 	runnerChannel chan message
 	activated     bool
 }
 
-func New(process *bpmn.Process, definitions *bpmn.Definitions, eventBasedGateway *bpmn.EventBasedGateway,
-	eventIngress event.ProcessEventConsumer, eventEgress event.ProcessEventSource, tracer *tracing.Tracer,
-	flowNodeMapping *flow_node.FlowNodeMapping, flowWaitGroup *sync.WaitGroup) (node *Node, err error) {
-	flowNode, err := flow_node.New(process,
-		definitions,
-		&eventBasedGateway.FlowNode,
-		eventIngress, eventEgress,
-		tracer, flowNodeMapping,
-		flowWaitGroup)
-	if err != nil {
-		return
-	}
-
+func New(wiring *flow_node.Wiring, eventBasedGateway *bpmn.EventBasedGateway) (node *Node, err error) {
 	node = &Node{
-		T:             *flowNode,
+		Wiring:        wiring,
 		element:       eventBasedGateway,
-		runnerChannel: make(chan message, len(flowNode.Incoming)*2+1),
+		runnerChannel: make(chan message, len(wiring.Incoming)*2+1),
 		activated:     false,
 	}
 	go node.runner()

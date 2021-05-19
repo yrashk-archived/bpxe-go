@@ -10,11 +10,9 @@ package inclusive
 
 import (
 	"fmt"
-	"sync"
 
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/errors"
-	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow/flow_interface"
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/flow_node/gateway"
@@ -59,7 +57,7 @@ type flowSync struct {
 }
 
 type Node struct {
-	flow_node.T
+	*flow_node.Wiring
 	element                 *bpmn.InclusiveGateway
 	runnerChannel           chan message
 	defaultSequenceFlow     *sequence_flow.SequenceFlow
@@ -73,34 +71,16 @@ type Node struct {
 	synchronized bool
 }
 
-func New(process *bpmn.Process,
-	definitions *bpmn.Definitions,
-	inclusiveGateway *bpmn.InclusiveGateway,
-	eventIngress event.ProcessEventConsumer,
-	eventEgress event.ProcessEventSource,
-	tracer *tracing.Tracer,
-	flowNodeMapping *flow_node.FlowNodeMapping,
-	flowWaitGroup *sync.WaitGroup,
-) (node *Node, err error) {
-	flowNode, err := flow_node.New(process,
-		definitions,
-		&inclusiveGateway.FlowNode,
-		eventIngress, eventEgress,
-		tracer, flowNodeMapping,
-		flowWaitGroup)
-	if err != nil {
-		return
-	}
-
+func New(wiring *flow_node.Wiring, inclusiveGateway *bpmn.InclusiveGateway) (node *Node, err error) {
 	var defaultSequenceFlow *sequence_flow.SequenceFlow
 
 	if seqFlow, present := inclusiveGateway.Default(); present {
-		if node, found := flowNode.Process.FindBy(bpmn.ExactId(*seqFlow).
+		if node, found := wiring.Process.FindBy(bpmn.ExactId(*seqFlow).
 			And(bpmn.ElementType((*bpmn.SequenceFlow)(nil)))); found {
 			defaultSequenceFlow = new(sequence_flow.SequenceFlow)
 			*defaultSequenceFlow = sequence_flow.Make(
 				node.(*bpmn.SequenceFlow),
-				definitions,
+				wiring.Definitions,
 			)
 		} else {
 			err = errors.NotFoundError{
@@ -110,7 +90,7 @@ func New(process *bpmn.Process,
 		}
 	}
 
-	nonDefaultSequenceFlows := flow_node.AllSequenceFlows(&flowNode.Outgoing,
+	nonDefaultSequenceFlows := flow_node.AllSequenceFlows(&wiring.Outgoing,
 		func(sequenceFlow *sequence_flow.SequenceFlow) bool {
 			if defaultSequenceFlow == nil {
 				return false
@@ -120,12 +100,12 @@ func New(process *bpmn.Process,
 	)
 
 	node = &Node{
-		T:                       *flowNode,
+		Wiring:                  wiring,
 		element:                 inclusiveGateway,
-		runnerChannel:           make(chan message, len(flowNode.Incoming)*2+1),
+		runnerChannel:           make(chan message, len(wiring.Incoming)*2+1),
 		nonDefaultSequenceFlows: nonDefaultSequenceFlows,
 		defaultSequenceFlow:     defaultSequenceFlow,
-		flowTracker:             newFlowTracker(tracer, inclusiveGateway),
+		flowTracker:             newFlowTracker(wiring.Tracer, inclusiveGateway),
 	}
 	go node.runner()
 	return
@@ -158,7 +138,7 @@ func (node *Node) runner() {
 					// no successful non-default sequence flows
 					if node.defaultSequenceFlow == nil {
 						// exception (Table 13.2)
-						node.T.Tracer.Trace(tracing.ErrorTrace{
+						node.Wiring.Tracer.Trace(tracing.ErrorTrace{
 							Error: NoEffectiveSequenceFlows{
 								InclusiveGateway: node.element,
 							},

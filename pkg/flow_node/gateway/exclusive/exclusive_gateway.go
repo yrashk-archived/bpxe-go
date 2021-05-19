@@ -10,11 +10,9 @@ package exclusive
 
 import (
 	"fmt"
-	"sync"
 
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/errors"
-	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow/flow_interface"
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/id"
@@ -53,7 +51,7 @@ type probingReport struct {
 func (m probingReport) message() {}
 
 type Node struct {
-	flow_node.T
+	*flow_node.Wiring
 	element                 *bpmn.ExclusiveGateway
 	runnerChannel           chan message
 	defaultSequenceFlow     *sequence_flow.SequenceFlow
@@ -61,34 +59,16 @@ type Node struct {
 	probing                 map[id.Id]*chan flow_node.Action
 }
 
-func New(process *bpmn.Process,
-	definitions *bpmn.Definitions,
-	exclusiveGateway *bpmn.ExclusiveGateway,
-	eventIngress event.ProcessEventConsumer,
-	eventEgress event.ProcessEventSource,
-	tracer *tracing.Tracer,
-	flowNodeMapping *flow_node.FlowNodeMapping,
-	flowWaitGroup *sync.WaitGroup,
-) (node *Node, err error) {
-	flowNode, err := flow_node.New(process,
-		definitions,
-		&exclusiveGateway.FlowNode,
-		eventIngress, eventEgress,
-		tracer, flowNodeMapping,
-		flowWaitGroup)
-	if err != nil {
-		return
-	}
-
+func New(wiring *flow_node.Wiring, exclusiveGateway *bpmn.ExclusiveGateway) (node *Node, err error) {
 	var defaultSequenceFlow *sequence_flow.SequenceFlow
 
 	if seqFlow, present := exclusiveGateway.Default(); present {
-		if node, found := flowNode.Process.FindBy(bpmn.ExactId(*seqFlow).
+		if node, found := wiring.Process.FindBy(bpmn.ExactId(*seqFlow).
 			And(bpmn.ElementType((*bpmn.SequenceFlow)(nil)))); found {
 			defaultSequenceFlow = new(sequence_flow.SequenceFlow)
 			*defaultSequenceFlow = sequence_flow.Make(
 				node.(*bpmn.SequenceFlow),
-				definitions,
+				wiring.Definitions,
 			)
 		} else {
 			err = errors.NotFoundError{
@@ -98,7 +78,7 @@ func New(process *bpmn.Process,
 		}
 	}
 
-	nonDefaultSequenceFlows := flow_node.AllSequenceFlows(&flowNode.Outgoing,
+	nonDefaultSequenceFlows := flow_node.AllSequenceFlows(&wiring.Outgoing,
 		func(sequenceFlow *sequence_flow.SequenceFlow) bool {
 			if defaultSequenceFlow == nil {
 				return false
@@ -108,9 +88,9 @@ func New(process *bpmn.Process,
 	)
 
 	node = &Node{
-		T:                       *flowNode,
+		Wiring:                  wiring,
 		element:                 exclusiveGateway,
-		runnerChannel:           make(chan message, len(flowNode.Incoming)*2+1),
+		runnerChannel:           make(chan message, len(wiring.Incoming)*2+1),
 		nonDefaultSequenceFlows: nonDefaultSequenceFlows,
 		defaultSequenceFlow:     defaultSequenceFlow,
 		probing:                 make(map[id.Id]*chan flow_node.Action),
@@ -143,7 +123,7 @@ func (node *Node) runner() {
 					// no successful non-default sequence flows
 					if node.defaultSequenceFlow == nil {
 						// exception (Table 13.2)
-						node.T.Tracer.Trace(tracing.ErrorTrace{
+						node.Wiring.Tracer.Trace(tracing.ErrorTrace{
 							Error: NoEffectiveSequenceFlows{
 								ExclusiveGateway: node.element,
 							},
@@ -161,19 +141,19 @@ func (node *Node) runner() {
 						UnconditionalFlows: []int{0},
 					}
 				default:
-					node.T.Tracer.Trace(tracing.ErrorTrace{
+					node.Wiring.Tracer.Trace(tracing.ErrorTrace{
 						Error: errors.InvalidArgumentError{
 							Expected: fmt.Sprintf("maximum 1 outgoing exclusive gateway (%s) flow",
-								node.T.Id),
+								node.Wiring.Id),
 							Actual: len(flow),
 						},
 					})
 				}
 			} else {
-				node.T.Tracer.Trace(tracing.ErrorTrace{
+				node.Wiring.Tracer.Trace(tracing.ErrorTrace{
 					Error: errors.InvalidStateError{
 						Expected: fmt.Sprintf("probing[%s] is to be present (exclusive gateway %s)",
-							m.flowId.String(), node.T.Id),
+							m.flowId.String(), node.Wiring.Id),
 					},
 				})
 			}

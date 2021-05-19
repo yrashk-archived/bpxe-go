@@ -9,14 +9,10 @@
 package parallel
 
 import (
-	"sync"
-
 	"bpxe.org/pkg/bpmn"
-	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow/flow_interface"
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/flow_node/gateway"
-	"bpxe.org/pkg/tracing"
 )
 
 type message interface {
@@ -31,7 +27,7 @@ type nextActionMessage struct {
 func (m nextActionMessage) message() {}
 
 type Node struct {
-	flow_node.T
+	*flow_node.Wiring
 	element               *bpmn.ParallelGateway
 	runnerChannel         chan message
 	reportedIncomingFlows int
@@ -39,32 +35,14 @@ type Node struct {
 	noOfIncomingFlows     int
 }
 
-func New(process *bpmn.Process,
-	definitions *bpmn.Definitions,
-	parallelGateway *bpmn.ParallelGateway,
-	eventIngress event.ProcessEventConsumer,
-	eventEgress event.ProcessEventSource,
-	tracer *tracing.Tracer,
-	flowNodeMapping *flow_node.FlowNodeMapping,
-	flowWaitGroup *sync.WaitGroup,
-) (node *Node, err error) {
-	flowNode, err := flow_node.New(process,
-		definitions,
-		&parallelGateway.FlowNode,
-		eventIngress, eventEgress,
-		tracer, flowNodeMapping,
-		flowWaitGroup)
-	if err != nil {
-		return
-	}
-
+func New(wiring *flow_node.Wiring, parallelGateway *bpmn.ParallelGateway) (node *Node, err error) {
 	node = &Node{
-		T:                     *flowNode,
+		Wiring:                wiring,
 		element:               parallelGateway,
-		runnerChannel:         make(chan message, len(flowNode.Incoming)*2+1),
+		runnerChannel:         make(chan message, len(wiring.Incoming)*2+1),
 		reportedIncomingFlows: 0,
 		awaitingActions:       make([]chan flow_node.Action, 0),
-		noOfIncomingFlows:     len(flowNode.Incoming),
+		noOfIncomingFlows:     len(wiring.Incoming),
 	}
 	go node.runner()
 	return

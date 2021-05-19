@@ -9,8 +9,6 @@
 package start
 
 import (
-	"sync"
-
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/data"
 	"bpxe.org/pkg/event"
@@ -18,7 +16,6 @@ import (
 	"bpxe.org/pkg/flow/flow_interface"
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/id"
-	"bpxe.org/pkg/tracing"
 )
 
 type message interface {
@@ -32,7 +29,7 @@ type nextActionMessage struct {
 func (m nextActionMessage) message() {}
 
 type Node struct {
-	flow_node.T
+	*flow_node.Wiring
 	element          *bpmn.StartEvent
 	runnerChannel    chan message
 	activated        bool
@@ -40,30 +37,13 @@ type Node struct {
 	itemAwareLocator data.ItemAwareLocator
 }
 
-func New(process *bpmn.Process,
-	definitions *bpmn.Definitions,
-	startEvent *bpmn.StartEvent,
-	eventIngress event.ProcessEventConsumer,
-	eventEgress event.ProcessEventSource,
-	tracer *tracing.Tracer,
-	flowNodeMapping *flow_node.FlowNodeMapping,
-	flowWaitGroup *sync.WaitGroup,
-	idGenerator id.Generator,
-	itemAwareLocator data.ItemAwareLocator,
+func New(wiring *flow_node.Wiring, startEvent *bpmn.StartEvent,
+	idGenerator id.Generator, itemAwareLocator data.ItemAwareLocator,
 ) (node *Node, err error) {
-	flowNode, err := flow_node.New(process,
-		definitions,
-		&startEvent.FlowNode,
-		eventIngress, eventEgress,
-		tracer, flowNodeMapping,
-		flowWaitGroup)
-	if err != nil {
-		return
-	}
 	node = &Node{
-		T:                *flowNode,
+		Wiring:           wiring,
 		element:          startEvent,
-		runnerChannel:    make(chan message, len(flowNode.Incoming)*2+1),
+		runnerChannel:    make(chan message, len(wiring.Incoming)*2+1),
 		activated:        false,
 		idGenerator:      idGenerator,
 		itemAwareLocator: itemAwareLocator,
@@ -97,8 +77,8 @@ func (node *Node) ConsumeProcessEvent(
 ) (result event.ConsumptionResult, err error) {
 	switch ev.(type) {
 	case *event.StartEvent:
-		newFlow := flow.New(node.T.Definitions, node, node.T.Tracer,
-			node.T.FlowNodeMapping, node.T.FlowWaitGroup, node.idGenerator, nil,
+		newFlow := flow.New(node.Wiring.Definitions, node, node.Wiring.Tracer,
+			node.Wiring.FlowNodeMapping, node.Wiring.FlowWaitGroup, node.idGenerator, nil,
 			node.itemAwareLocator,
 		)
 		newFlow.Start()

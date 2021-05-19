@@ -9,13 +9,10 @@
 package catch
 
 import (
-	"sync"
-
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow/flow_interface"
 	"bpxe.org/pkg/flow_node"
-	"bpxe.org/pkg/tracing"
 )
 
 type message interface {
@@ -35,7 +32,7 @@ type processEventMessage struct {
 func (m processEventMessage) message() {}
 
 type Node struct {
-	flow_node.T
+	*flow_node.Wiring
 	element         *bpmn.CatchEvent
 	runnerChannel   chan message
 	activated       bool
@@ -44,19 +41,7 @@ type Node struct {
 	matchedEvents   []bool
 }
 
-func New(process *bpmn.Process, definitions *bpmn.Definitions,
-	catchEvent *bpmn.CatchEvent, eventIngress event.ProcessEventConsumer,
-	eventEgress event.ProcessEventSource, tracer *tracing.Tracer, flowNodeMapping *flow_node.FlowNodeMapping,
-	flowWaitGroup *sync.WaitGroup, instanceBuilder event.InstanceBuilder) (node *Node, err error) {
-	flowNode, err := flow_node.New(process,
-		definitions,
-		&catchEvent.FlowNode,
-		eventIngress, eventEgress,
-		tracer, flowNodeMapping,
-		flowWaitGroup)
-	if err != nil {
-		return
-	}
+func New(wiring *flow_node.Wiring, catchEvent *bpmn.CatchEvent, instanceBuilder event.InstanceBuilder) (node *Node, err error) {
 	eventDefinitions := catchEvent.EventDefinitions()
 	eventInstances := make([]event.Instance, len(eventDefinitions))
 
@@ -65,9 +50,9 @@ func New(process *bpmn.Process, definitions *bpmn.Definitions,
 	}
 
 	node = &Node{
-		T:               *flowNode,
+		Wiring:          wiring,
 		element:         catchEvent,
-		runnerChannel:   make(chan message, len(flowNode.Incoming)*2+1),
+		runnerChannel:   make(chan message, len(wiring.Incoming)*2+1),
 		activated:       false,
 		awaitingActions: make([]chan flow_node.Action, 0),
 		eventInstances:  eventInstances,
