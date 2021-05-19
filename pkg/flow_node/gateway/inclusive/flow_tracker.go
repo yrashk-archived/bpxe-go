@@ -9,6 +9,7 @@
 package inclusive
 
 import (
+	"context"
 	"sync"
 
 	"bpxe.org/pkg/bpmn"
@@ -30,7 +31,7 @@ func (tracker *flowTracker) activity() <-chan struct{} {
 	return tracker.activityCh
 }
 
-func newFlowTracker(tracer *tracing.Tracer, element *bpmn.InclusiveGateway) *flowTracker {
+func newFlowTracker(ctx context.Context, tracer *tracing.Tracer, element *bpmn.InclusiveGateway) *flowTracker {
 	tracker := flowTracker{
 		traces:     tracer.Subscribe(),
 		shutdownCh: make(chan bool),
@@ -41,11 +42,11 @@ func newFlowTracker(tracer *tracing.Tracer, element *bpmn.InclusiveGateway) *flo
 	// Lock the tracker until it has caught up enough
 	// to see the incoming flow for the node
 	tracker.lock.Lock()
-	go tracker.run()
+	go tracker.run(ctx)
 	return &tracker
 }
 
-func (tracker *flowTracker) run() {
+func (tracker *flowTracker) run(ctx context.Context) {
 	// As per note in the constructor, we're starting in a locked mode
 	locked := true
 	// Flag for notifying the node about activity
@@ -65,6 +66,11 @@ func (tracker *flowTracker) run() {
 			// continue draining
 			continue
 		case <-tracker.shutdownCh:
+			if locked {
+				tracker.lock.Unlock()
+			}
+			return
+		case <-ctx.Done():
 			if locked {
 				tracker.lock.Unlock()
 			}
@@ -90,7 +96,13 @@ func (tracker *flowTracker) run() {
 				tracker.lock.Unlock()
 			}
 			return
+		case <-ctx.Done():
+			if locked {
+				tracker.lock.Unlock()
+			}
+			return
 		}
+
 	}
 }
 

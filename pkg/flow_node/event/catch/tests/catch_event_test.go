@@ -9,6 +9,7 @@
 package tests
 
 import (
+	"context"
 	"encoding/xml"
 	"testing"
 
@@ -98,11 +99,11 @@ func testEvent(t *testing.T, filename string, nodeId string, eventInstanceBuilde
 		proc.SetEventInstanceBuilder(eventInstanceBuilder)
 	}
 
-	tracer := tracing.NewTracer()
+	tracer := tracing.NewTracer(context.Background())
 	traces := tracer.SubscribeChannel(make(chan tracing.Trace, 64))
 
 	if instance, err := proc.Instantiate(process.WithTracer(tracer)); err == nil {
-		err := instance.Run()
+		err := instance.Start(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}

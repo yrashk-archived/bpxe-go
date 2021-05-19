@@ -8,6 +8,11 @@
 
 package tracing
 
+import (
+	"context"
+	"sync"
+)
+
 type subscription struct {
 	channel chan Trace
 	ok      chan bool
@@ -22,21 +27,25 @@ type Tracer struct {
 	traces         chan Trace
 	subscription   chan subscription
 	unsubscription chan unsubscription
+	terminate      chan struct{}
 	subscribers    []chan Trace
+	senders        sync.WaitGroup
 }
 
-func NewTracer() *Tracer {
+func NewTracer(ctx context.Context) *Tracer {
 	tracer := Tracer{
 		subscribers:    make([]chan Trace, 0),
 		traces:         make(chan Trace),
 		subscription:   make(chan subscription),
 		unsubscription: make(chan unsubscription),
+		terminate:      make(chan struct{}),
 	}
-	go tracer.runner()
+	go tracer.runner(ctx)
 	return &tracer
 }
 
-func (t *Tracer) runner() {
+func (t *Tracer) runner(ctx context.Context) {
+	var termination sync.Once
 	for {
 		select {
 		case subscription := <-t.subscription:
@@ -64,6 +73,22 @@ func (t *Tracer) runner() {
 			for _, subscriber := range t.subscribers {
 				subscriber <- trace
 			}
+		case <-ctx.Done():
+			// Start a termination waiting routine (only once)
+			termination.Do(func() {
+				go func() {
+					// Wait until all senders have terminated
+					t.senders.Wait()
+					// Send an internal termination message
+					t.terminate <- struct{}{}
+				}()
+			})
+			// Let tracer continue to work for now
+		case <-t.terminate:
+			for _, subscriber := range t.subscribers {
+				close(subscriber)
+			}
+			return
 		}
 	}
 }
@@ -107,4 +132,19 @@ loop:
 
 func (t *Tracer) Trace(trace Trace) {
 	t.traces <- trace
+}
+
+// SenderHandle is an interface for registered senders
+type SenderHandle interface {
+	// Done indicates that the sender has terminated
+	Done()
+}
+
+// RegisterSender registers a sender for termination purposes
+//
+// Once Sender is being terminated, before closing subscription channels,
+// it'll wait until all senders call SenderHandle.Done
+func (t *Tracer) RegisterSender() SenderHandle {
+	t.senders.Add(1)
+	return &t.senders
 }

@@ -9,12 +9,14 @@
 package id
 
 import (
+	"context"
+
 	"bpxe.org/pkg/tracing"
 )
 
 type GeneratorBuilder interface {
-	NewIdGenerator(tracer *tracing.Tracer) (Generator, error)
-	RestoreIdGenerator(serialized []byte, tracer *tracing.Tracer) (Generator, error)
+	NewIdGenerator(ctx context.Context, tracer *tracing.Tracer) (Generator, error)
+	RestoreIdGenerator(ctx context.Context, serialized []byte, tracer *tracing.Tracer) (Generator, error)
 }
 
 type Generator interface {

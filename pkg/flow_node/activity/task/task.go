@@ -41,7 +41,6 @@ type Task struct {
 	activeBoundary chan bool
 	bodyLock       sync.RWMutex
 	body           func(*Task, context.Context) flow_node.Action
-	ctx            context.Context
 	cancel         context.CancelFunc
 }
 
@@ -55,44 +54,47 @@ func (node *Task) SetBody(body func(*Task, context.Context) flow_node.Action) {
 	node.body = body
 }
 
-func NewTask(startEvent *bpmn.Task) activity.Constructor {
+func NewTask(ctx context.Context, startEvent *bpmn.Task) activity.Constructor {
 	return func(wiring *flow_node.Wiring) (node activity.Activity, err error) {
-		ctx, cancel := context.WithCancel(context.Background())
+		ctx, cancel := context.WithCancel(ctx)
 		taskNode := &Task{
 			Wiring:         wiring,
 			element:        startEvent,
 			runnerChannel:  make(chan message, len(wiring.Incoming)*2+1),
 			activeBoundary: make(chan bool),
-			ctx:            ctx,
 			cancel:         cancel,
 		}
-		go taskNode.runner()
+		go taskNode.runner(ctx)
 		node = taskNode
 		return
 	}
 }
 
-func (node *Task) runner() {
+func (node *Task) runner(ctx context.Context) {
 	for {
-		msg := <-node.runnerChannel
-		switch m := msg.(type) {
-		case cancelMessage:
-			node.cancel()
-			m.response <- true
-		case nextActionMessage:
-			node.activeBoundary <- true
-			go func() {
-				var action flow_node.Action
-				action = flow_node.FlowAction{SequenceFlows: flow_node.AllSequenceFlows(&node.Outgoing)}
-				if node.body != nil {
-					node.bodyLock.RLock()
-					action = node.body(node, node.ctx)
-					node.bodyLock.RUnlock()
-				}
-				node.activeBoundary <- false
-				m.response <- action
-			}()
-		default:
+		select {
+		case msg := <-node.runnerChannel:
+			switch m := msg.(type) {
+			case cancelMessage:
+				node.cancel()
+				m.response <- true
+			case nextActionMessage:
+				node.activeBoundary <- true
+				go func() {
+					var action flow_node.Action
+					action = flow_node.FlowAction{SequenceFlows: flow_node.AllSequenceFlows(&node.Outgoing)}
+					if node.body != nil {
+						node.bodyLock.RLock()
+						action = node.body(node, ctx)
+						node.bodyLock.RUnlock()
+					}
+					node.activeBoundary <- false
+					m.response <- action
+				}()
+			default:
+			}
+		case <-ctx.Done():
+			return
 		}
 	}
 }

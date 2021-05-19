@@ -9,6 +9,8 @@
 package start
 
 import (
+	"context"
+
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/data"
 	"bpxe.org/pkg/event"
@@ -16,6 +18,7 @@ import (
 	"bpxe.org/pkg/flow/flow_interface"
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/id"
+	"bpxe.org/pkg/tracing"
 )
 
 type message interface {
@@ -28,6 +31,10 @@ type nextActionMessage struct {
 
 func (m nextActionMessage) message() {}
 
+type startMessage struct{}
+
+func (m startMessage) message() {}
+
 type Node struct {
 	*flow_node.Wiring
 	element          *bpmn.StartEvent
@@ -37,7 +44,7 @@ type Node struct {
 	itemAwareLocator data.ItemAwareLocator
 }
 
-func New(wiring *flow_node.Wiring, startEvent *bpmn.StartEvent,
+func New(ctx context.Context, wiring *flow_node.Wiring, startEvent *bpmn.StartEvent,
 	idGenerator id.Generator, itemAwareLocator data.ItemAwareLocator,
 ) (node *Node, err error) {
 	node = &Node{
@@ -48,7 +55,8 @@ func New(wiring *flow_node.Wiring, startEvent *bpmn.StartEvent,
 		idGenerator:      idGenerator,
 		itemAwareLocator: itemAwareLocator,
 	}
-	go node.runner()
+	sender := node.Tracer.RegisterSender()
+	go node.runner(ctx, sender)
 	err = node.EventEgress.RegisterProcessEventConsumer(node)
 	if err != nil {
 		return
@@ -56,18 +64,31 @@ func New(wiring *flow_node.Wiring, startEvent *bpmn.StartEvent,
 	return
 }
 
-func (node *Node) runner() {
+func (node *Node) runner(ctx context.Context, sender tracing.SenderHandle) {
+	defer sender.Done()
+
 	for {
-		msg := <-node.runnerChannel
-		switch m := msg.(type) {
-		case nextActionMessage:
-			if !node.activated {
-				node.activated = true
-				m.response <- flow_node.FlowAction{SequenceFlows: flow_node.AllSequenceFlows(&node.Outgoing)}
-			} else {
-				m.response <- flow_node.CompleteAction{}
+		select {
+		case msg := <-node.runnerChannel:
+			switch m := msg.(type) {
+			case nextActionMessage:
+				if !node.activated {
+					node.activated = true
+					m.response <- flow_node.FlowAction{SequenceFlows: flow_node.AllSequenceFlows(&node.Outgoing)}
+				} else {
+					m.response <- flow_node.CompleteAction{}
+				}
+			case startMessage:
+				newFlow := flow.New(node.Wiring.Definitions, node, node.Wiring.Tracer,
+					node.Wiring.FlowNodeMapping, node.Wiring.FlowWaitGroup, node.idGenerator, nil,
+					node.itemAwareLocator,
+				)
+				newFlow.Start(ctx)
+			default:
 			}
-		default:
+		case <-ctx.Done():
+			node.Tracer.Trace(flow_node.CancellationTrace{Node: node.element})
+			return
 		}
 	}
 }
@@ -77,11 +98,7 @@ func (node *Node) ConsumeProcessEvent(
 ) (result event.ConsumptionResult, err error) {
 	switch ev.(type) {
 	case *event.StartEvent:
-		newFlow := flow.New(node.Wiring.Definitions, node, node.Wiring.Tracer,
-			node.Wiring.FlowNodeMapping, node.Wiring.FlowWaitGroup, node.idGenerator, nil,
-			node.itemAwareLocator,
-		)
-		newFlow.Start()
+		node.runnerChannel <- startMessage{}
 	default:
 	}
 	result = event.Consumed

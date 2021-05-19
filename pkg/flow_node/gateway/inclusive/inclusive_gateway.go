@@ -9,6 +9,7 @@
 package inclusive
 
 import (
+	"context"
 	"fmt"
 
 	"bpxe.org/pkg/bpmn"
@@ -73,7 +74,7 @@ type Node struct {
 	synchronized bool
 }
 
-func New(wiring *flow_node.Wiring, inclusiveGateway *bpmn.InclusiveGateway) (node *Node, err error) {
+func New(ctx context.Context, wiring *flow_node.Wiring, inclusiveGateway *bpmn.InclusiveGateway) (node *Node, err error) {
 	var defaultSequenceFlow *sequence_flow.SequenceFlow
 
 	if seqFlow, present := inclusiveGateway.Default(); present {
@@ -107,15 +108,19 @@ func New(wiring *flow_node.Wiring, inclusiveGateway *bpmn.InclusiveGateway) (nod
 		runnerChannel:           make(chan message, len(wiring.Incoming)*2+1),
 		nonDefaultSequenceFlows: nonDefaultSequenceFlows,
 		defaultSequenceFlow:     defaultSequenceFlow,
-		flowTracker:             newFlowTracker(wiring.Tracer, inclusiveGateway),
+		flowTracker:             newFlowTracker(ctx, wiring.Tracer, inclusiveGateway),
 	}
-	go node.runner()
+	sender := node.Tracer.RegisterSender()
+	go node.runner(ctx, sender)
 	return
 }
 
-func (node *Node) runner() {
+func (node *Node) runner(ctx context.Context, sender tracing.SenderHandle) {
 	defer node.flowTracker.shutdown()
 	activity := node.flowTracker.activity()
+
+	defer sender.Done()
+
 	for {
 		select {
 		case msg := <-node.runnerChannel:
@@ -183,6 +188,9 @@ func (node *Node) runner() {
 				node.awaiting = node.flowTracker.activeFlowsInCohort(node.activated.flow.Id())
 				node.trySync()
 			}
+		case <-ctx.Done():
+			node.Tracer.Trace(flow_node.CancellationTrace{Node: node.element})
+			return
 		}
 	}
 }

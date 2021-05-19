@@ -51,7 +51,7 @@ var executeCmd = &cobra.Command{
 			proc := process.New(processElement, &document)
 			if instance, err := proc.Instantiate(); err == nil {
 				traces := instance.Tracer.Subscribe()
-				err := instance.Run()
+				err := instance.Start(context.Background())
 				if err != nil {
 					fmt.Printf("failed to run the instance: %s\n", err)
 				}

@@ -33,6 +33,12 @@ type FlowTerminationTrace struct {
 
 func (t FlowTerminationTrace) TraceInterface() {}
 
+type CancellationTrace struct {
+	FlowId id.Id
+}
+
+func (t CancellationTrace) TraceInterface() {}
+
 type CompletionTrace struct {
 	Node bpmn.FlowNodeInterface
 }

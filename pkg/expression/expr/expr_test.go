@@ -9,6 +9,7 @@
 package expr
 
 import (
+	"context"
 	"testing"
 
 	"bpxe.org/pkg/bpmn"
@@ -42,7 +43,7 @@ func (d dataObjects) FindItemAwareByName(name string) (itemAware data.ItemAware,
 
 func TestExpr_getDataObject(t *testing.T) {
 	var engine = New()
-	container := data.NewContainer(nil)
+	container := data.NewContainer(context.Background(), nil)
 	container.Put(1)
 	var objs dataObjects = map[string]data.ItemAware{
 		"dataObject": container,

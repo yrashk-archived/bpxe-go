@@ -9,6 +9,7 @@
 package tests
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -35,7 +36,7 @@ func TestExclusiveGateway(t *testing.T) {
 	proc := process.New(&processElement, &testExclusiveGateway)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
-		err := instance.Run()
+		err := instance.Start(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
@@ -84,7 +85,7 @@ func TestExclusiveGatewayWithDefault(t *testing.T) {
 	proc := process.New(&processElement, &testExclusiveGatewayWithDefault)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
-		err := instance.Run()
+		err := instance.Start(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
@@ -134,7 +135,7 @@ func TestExclusiveGatewayWithNoDefault(t *testing.T) {
 	proc := process.New(&processElement, &testExclusiveGatewayWithNoDefault)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
-		err := instance.Run()
+		err := instance.Start(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
@@ -186,7 +187,7 @@ func TestExclusiveGatewayIncompleteJoin(t *testing.T) {
 	proc := process.New(&processElement, &testExclusiveGatewayIncompleteJoin)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
-		err := instance.Run()
+		err := instance.Start(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}

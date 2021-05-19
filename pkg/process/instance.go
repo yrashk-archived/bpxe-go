@@ -103,12 +103,23 @@ ready:
 // InstanceOption allows to modify configuration of
 // an instance in a flexible fashion (as its just a modification
 // function)
-type InstanceOption func(instance *Instance)
+//
+// It also allows to augment or replace the context.
+type InstanceOption func(ctx context.Context, instance *Instance) context.Context
 
 // WithTracer overrides instance's tracer
 func WithTracer(tracer *tracing.Tracer) InstanceOption {
-	return func(instance *Instance) {
+	return func(ctx context.Context, instance *Instance) context.Context {
 		instance.Tracer = tracer
+		return ctx
+	}
+}
+
+// WithContext will pass a given context to a new instance
+// instead of implicitly generated one
+func WithContext(newCtx context.Context) InstanceOption {
+	return func(ctx context.Context, instance *Instance) context.Context {
+		return newCtx
 	}
 }
 
@@ -118,18 +129,11 @@ func (instance *Instance) FlowNodeMapping() *flow_node.FlowNodeMapping {
 
 func NewInstance(process *Process, options ...InstanceOption) (instance *Instance, err error) {
 	eventConsumers := make([]event.ProcessEventConsumer, 0)
-	tracer := tracing.NewTracer()
-	var idGenerator id.Generator
-	idGenerator, err = process.GeneratorBuilder.NewIdGenerator(tracer)
-	if err != nil {
-		return
-	}
+
 	instance = &Instance{
 		process:                    process,
 		eventConsumers:             eventConsumers,
-		Tracer:                     tracer,
 		flowNodeMapping:            flow_node.NewLockedFlowNodeMapping(),
-		idGenerator:                idGenerator,
 		dataObjectsByName:          make(map[string]data.ItemAware),
 		dataObjectReferencesByName: make(map[string]data.ItemAware),
 		propertiesByName:           make(map[string]data.ItemAware),
@@ -138,10 +142,24 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 		properties:                 make(map[string]data.ItemAware),
 	}
 
+	ctx := context.Background()
+
 	// Apply options
 	for _, option := range options {
-		option(instance)
+		ctx = option(ctx, instance)
 	}
+
+	if instance.Tracer == nil {
+		instance.Tracer = tracing.NewTracer(ctx)
+	}
+
+	var idGenerator id.Generator
+	idGenerator, err = process.GeneratorBuilder.NewIdGenerator(ctx, instance.Tracer)
+	if err != nil {
+		return
+	}
+
+	instance.idGenerator = idGenerator
 
 	// Item aware elements
 
@@ -153,7 +171,7 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 		} else {
 			name = idGenerator.New().String()
 		}
-		container := data.NewContainer(dataObject)
+		container := data.NewContainer(ctx, dataObject)
 		instance.dataObjectsByName[name] = container
 		if idPtr, present := dataObject.Id(); present {
 			instance.dataObjects[*idPtr] = container
@@ -203,7 +221,7 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 		} else {
 			name = idGenerator.New().String()
 		}
-		container := data.NewContainer(property)
+		container := data.NewContainer(ctx, property)
 		instance.propertiesByName[name] = container
 		if idPtr, present := property.Id(); present {
 			instance.properties[*idPtr] = container
@@ -229,7 +247,7 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 			return
 		}
 		var startEvent *start.Node
-		startEvent, err = start.New(wiring, element, idGenerator, instance)
+		startEvent, err = start.New(ctx, wiring, element, idGenerator, instance)
 		if err != nil {
 			return
 		}
@@ -246,7 +264,7 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 			return
 		}
 		var endEvent *end.Node
-		endEvent, err = end.New(wiring, element)
+		endEvent, err = end.New(ctx, wiring, element)
 		if err != nil {
 			return
 		}
@@ -263,7 +281,7 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 			return
 		}
 		var intermediateCatchEvent *catch.Node
-		intermediateCatchEvent, err = catch.New(wiring, &element.CatchEvent, process)
+		intermediateCatchEvent, err = catch.New(ctx, wiring, &element.CatchEvent, process)
 		if err != nil {
 			return
 		}
@@ -280,8 +298,8 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 			return
 		}
 		var aTask *activity.Harness
-		aTask, err = activity.NewHarness(wiring, &element.FlowNode,
-			idGenerator, task.NewTask(element), process, instance,
+		aTask, err = activity.NewHarness(ctx, wiring, &element.FlowNode,
+			idGenerator, task.NewTask(ctx, element), process, instance,
 		)
 		if err != nil {
 			return
@@ -299,7 +317,7 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 			return
 		}
 		var exclusiveGateway *exclusive.Node
-		exclusiveGateway, err = exclusive.New(wiring, element)
+		exclusiveGateway, err = exclusive.New(ctx, wiring, element)
 		if err != nil {
 			return
 		}
@@ -316,7 +334,7 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 			return
 		}
 		var inclusiveGateway *inclusive.Node
-		inclusiveGateway, err = inclusive.New(wiring, element)
+		inclusiveGateway, err = inclusive.New(ctx, wiring, element)
 		if err != nil {
 			return
 		}
@@ -333,7 +351,7 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 		if err != nil {
 			return
 		}
-		parallelGateway, err = parallel.New(wiring, element)
+		parallelGateway, err = parallel.New(ctx, wiring, element)
 		if err != nil {
 			return
 		}
@@ -350,7 +368,7 @@ func NewInstance(process *Process, options ...InstanceOption) (instance *Instanc
 			return
 		}
 		var eventBasedGateway *event_based.Node
-		eventBasedGateway, err = event_based.New(wiring, element)
+		eventBasedGateway, err = event_based.New(ctx, wiring, element)
 		if err != nil {
 			return
 		}
@@ -375,9 +393,11 @@ func (instance *Instance) RegisterProcessEventConsumer(ev event.ProcessEventCons
 	return
 }
 
-func (instance *Instance) Run() (err error) {
+// Start explicitly starts the instance by sending in a Start Event
+func (instance *Instance) Start(ctx context.Context) (err error) {
 	// Start cease flow monitor
-	go instance.ceaseFlowMonitor()()
+	sender := instance.Tracer.RegisterSender()
+	go instance.ceaseFlowMonitor()(ctx, sender)
 	// Explicit start
 	evt := event.MakeStartEvent()
 	_, err = instance.ConsumeProcessEvent(&evt)
@@ -387,13 +407,16 @@ func (instance *Instance) Run() (err error) {
 	return
 }
 
-func (instance *Instance) ceaseFlowMonitor() func() {
+func (instance *Instance) ceaseFlowMonitor() func(ctx context.Context, sender tracing.SenderHandle) {
 	// Subscribing to traces early as otherwise events produced
 	// after the goroutine below is started are not going to be
 	// sent to it.
 	traces := instance.Tracer.Subscribe()
 	instance.complete.Lock()
-	return func() {
+	return func(ctx context.Context, sender tracing.SenderHandle) {
+		defer sender.Done()
+		defer instance.complete.Unlock()
+
 		/* 13.4.6 End Events:
 
 		The Process instance is [...] completed, if
@@ -419,22 +442,26 @@ func (instance *Instance) ceaseFlowMonitor() func() {
 				break
 			}
 
-			trace := <-traces
+			select {
+			case trace := <-traces:
 
-			switch t := trace.(type) {
-			case flow.FlowTerminationTrace:
-				switch flowNode := t.Source.(type) {
-				case *bpmn.StartEvent:
-					startEventsActivated = append(startEventsActivated, flowNode)
+				switch t := trace.(type) {
+				case flow.FlowTerminationTrace:
+					switch flowNode := t.Source.(type) {
+					case *bpmn.StartEvent:
+						startEventsActivated = append(startEventsActivated, flowNode)
+					default:
+					}
+				case flow.FlowTrace:
+					switch flowNode := t.Source.(type) {
+					case *bpmn.StartEvent:
+						startEventsActivated = append(startEventsActivated, flowNode)
+					default:
+					}
 				default:
 				}
-			case flow.FlowTrace:
-				switch flowNode := t.Source.(type) {
-				case *bpmn.StartEvent:
-					startEventsActivated = append(startEventsActivated, flowNode)
-				default:
-				}
-			default:
+			case <-ctx.Done():
+				return
 			}
 		}
 
@@ -444,7 +471,6 @@ func (instance *Instance) ceaseFlowMonitor() func() {
 		instance.flowWaitGroup.Wait()
 		// Send out a cease flow trace
 		instance.Tracer.Trace(flow.CeaseFlowTrace{})
-		instance.complete.Unlock()
 	}
 }
 

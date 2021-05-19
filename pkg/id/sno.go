@@ -9,6 +9,7 @@
 package id
 
 import (
+	"context"
 	"encoding/json"
 
 	"bpxe.org/pkg/tracing"
@@ -29,11 +30,11 @@ type SnoGenerator struct {
 	tracer *tracing.Tracer
 }
 
-func (g *Sno) NewIdGenerator(tracer *tracing.Tracer) (result Generator, err error) {
-	return g.RestoreIdGenerator([]byte{}, tracer)
+func (g *Sno) NewIdGenerator(ctx context.Context, tracer *tracing.Tracer) (result Generator, err error) {
+	return g.RestoreIdGenerator(ctx, []byte{}, tracer)
 }
 
-func (g *Sno) RestoreIdGenerator(bytes []byte, tracer *tracing.Tracer) (result Generator, err error) {
+func (g *Sno) RestoreIdGenerator(ctx context.Context, bytes []byte, tracer *tracing.Tracer) (result Generator, err error) {
 	var snapshot *sno.GeneratorSnapshot
 	if len(bytes) > 0 {
 		snapshot = new(sno.GeneratorSnapshot)
@@ -43,12 +44,16 @@ func (g *Sno) RestoreIdGenerator(bytes []byte, tracer *tracing.Tracer) (result G
 		}
 	}
 	sequenceOverflowNotificationChannel := make(chan *sno.SequenceOverflowNotification)
-	go func() {
+	go func(ctx context.Context) {
 		for {
-			notification := <-sequenceOverflowNotificationChannel
-			tracer.Trace(tracing.WarningTrace{Warning: notification})
+			select {
+			case notification := <-sequenceOverflowNotificationChannel:
+				tracer.Trace(tracing.WarningTrace{Warning: notification})
+			case <-ctx.Done():
+				return
+			}
 		}
-	}()
+	}(ctx)
 
 	var generator *sno.Generator
 	generator, err = sno.NewGenerator(snapshot, sequenceOverflowNotificationChannel)

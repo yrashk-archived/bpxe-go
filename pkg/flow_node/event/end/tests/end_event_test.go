@@ -9,6 +9,7 @@
 package tests
 
 import (
+	"context"
 	"testing"
 
 	"bpxe.org/internal"
@@ -31,7 +32,7 @@ func TestEndEvent(t *testing.T) {
 	proc := process.New(&processElement, &testDoc)
 	if instance, err := proc.Instantiate(); err == nil {
 		traces := instance.Tracer.Subscribe()
-		err := instance.Run()
+		err := instance.Start(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
