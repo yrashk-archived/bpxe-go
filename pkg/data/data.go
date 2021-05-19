@@ -98,13 +98,20 @@ type ItemAware interface {
 	// Get returns a channel that will eventually return the data item
 	//
 	// If item is in an unavailable state (see Unavailable),
-	// this channel will not send anything until the item becomes available
-	Get() <-chan Item
+	// this channel will not send anything until the item becomes available.
+	//
+	// If context is cancelled while sending in a request for data,
+	// a nil channel will be returned.
+	Get(ctx context.Context) <-chan Item
 	// Put sends a request to update the item
 	//
 	// If item is in an unavailable state (see Unavailable),
-	// the data will not update until the item becomes available
-	Put(Item)
+	// the data will not update until the item becomes available,
+	// at which time, the returned channel will be closed.
+	//
+	// If context is cancelled while sending in a request for data,
+	// a nil channel will be returned.
+	Put(ctx context.Context, item Item) <-chan struct{}
 }
 
 // ItemAwareLocator interface describes a way to find ItemAware

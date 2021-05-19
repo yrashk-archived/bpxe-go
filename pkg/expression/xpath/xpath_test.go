@@ -19,7 +19,7 @@ import (
 )
 
 func TestXPath(t *testing.T) {
-	var engine expression.Engine = New()
+	var engine expression.Engine = New(context.Background())
 	compiled, err := engine.CompileExpression("a > 1")
 	assert.Nil(t, err)
 	result, err := engine.EvaluateExpression(compiled, map[string]interface{}{
@@ -44,9 +44,9 @@ func (d dataObjects) FindItemAwareByName(name string) (itemAware data.ItemAware,
 func TestXPath_getDataObject(t *testing.T) {
 	// This funtionality doesn't quite work yet
 	t.SkipNow()
-	var engine = New()
+	var engine = New(context.Background())
 	container := data.NewContainer(context.Background(), nil)
-	container.Put(data.XMLSource(`<tag attr="val"/>`))
+	container.Put(context.Background(), data.XMLSource(`<tag attr="val"/>`))
 	var objs dataObjects = map[string]data.ItemAware{
 		"dataObject": container,
 	}

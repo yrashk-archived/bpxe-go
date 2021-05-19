@@ -19,7 +19,7 @@ import (
 )
 
 func TestExpr(t *testing.T) {
-	var engine expression.Engine = New()
+	var engine expression.Engine = New(context.Background())
 	compiled, err := engine.CompileExpression("a > 1")
 	assert.Nil(t, err)
 	result, err := engine.EvaluateExpression(compiled, map[string]interface{}{
@@ -42,9 +42,9 @@ func (d dataObjects) FindItemAwareByName(name string) (itemAware data.ItemAware,
 }
 
 func TestExpr_getDataObject(t *testing.T) {
-	var engine = New()
+	var engine = New(context.Background())
 	container := data.NewContainer(context.Background(), nil)
-	container.Put(1)
+	container.Put(context.Background(), 1)
 	var objs dataObjects = map[string]data.ItemAware{
 		"dataObject": container,
 	}

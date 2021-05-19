@@ -118,7 +118,7 @@ func TestCondDataObject(t *testing.T) {
 				for _, k := range []string{"cond1o", "cond2o"} {
 					itemAware, found := instance.FindItemAwareByName(k)
 					require.True(t, found)
-					itemAware.Put(k == cond)
+					itemAware.Put(context.Background(), k == cond)
 				}
 				err := instance.Start(context.Background())
 				if err != nil {

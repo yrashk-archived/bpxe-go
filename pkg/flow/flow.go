@@ -83,7 +83,7 @@ func New(definitions *bpmn.Definitions,
 	}
 }
 
-func (flow *Flow) testSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, unconditional bool) (result bool, err error) {
+func (flow *Flow) testSequenceFlow(ctx context.Context, sequenceFlow *sequence_flow.SequenceFlow, unconditional bool) (result bool, err error) {
 	if unconditional {
 		result = true
 		return
@@ -99,7 +99,7 @@ func (flow *Flow) testSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, unc
 				lang = *flow.definitions.ExpressionLanguage()
 			}
 
-			engine := expression.GetEngine(lang)
+			engine := expression.GetEngine(ctx, lang)
 			engine.SetItemAwareLocator(flow.itemAwareLocator)
 			source := strings.Trim(*e.TextPayload(), " \n")
 			var compiled expression.CompiledExpression
@@ -140,9 +140,9 @@ func (flow *Flow) testSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, unc
 	return
 }
 
-func (flow *Flow) handleSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, unconditional bool,
+func (flow *Flow) handleSequenceFlow(ctx context.Context, sequenceFlow *sequence_flow.SequenceFlow, unconditional bool,
 	actionTransformer flow_node.ActionTransformer, terminate flow_node.Terminate) (flowed bool) {
-	ok, err := flow.testSequenceFlow(sequenceFlow, unconditional)
+	ok, err := flow.testSequenceFlow(ctx, sequenceFlow, unconditional)
 	if err != nil {
 		flow.tracer.Trace(tracing.ErrorTrace{Error: err})
 		return
@@ -191,7 +191,7 @@ func (flow *Flow) handleSequenceFlow(sequenceFlow *sequence_flow.SequenceFlow, u
 func (flow *Flow) handleAdditionalSequenceFlow(ctx context.Context, sequenceFlow *sequence_flow.SequenceFlow,
 	unconditional bool, actionTransformer flow_node.ActionTransformer,
 	terminate flow_node.Terminate) (flowId id.Id, f func(), flowed bool) {
-	ok, err := flow.testSequenceFlow(sequenceFlow, unconditional)
+	ok, err := flow.testSequenceFlow(ctx, sequenceFlow, unconditional)
 	if err != nil {
 		flow.tracer.Trace(tracing.ErrorTrace{Error: err})
 		return
@@ -272,7 +272,7 @@ func (flow *Flow) Start(ctx context.Context) {
 				case flow_node.ProbeAction:
 					results := make([]int, 0)
 					for i, seqFlow := range a.SequenceFlows {
-						if result, err := flow.testSequenceFlow(seqFlow, false); err == nil {
+						if result, err := flow.testSequenceFlow(ctx, seqFlow, false); err == nil {
 							if result {
 								results = append(results, i)
 							}
@@ -293,7 +293,7 @@ func (flow *Flow) Start(ctx context.Context) {
 						current := sequenceFlows[0]
 						effectiveFlows := make([]Snapshot, 0)
 
-						flowed := flow.handleSequenceFlow(current, unconditional[0], a.ActionTransformer, a.Terminate)
+						flowed := flow.handleSequenceFlow(ctx, current, unconditional[0], a.ActionTransformer, a.Terminate)
 
 						if flowed {
 							effectiveFlows = append(effectiveFlows, Snapshot{sequenceFlow: current, flowId: flow.Id()})

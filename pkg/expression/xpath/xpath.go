@@ -10,6 +10,7 @@ package xpath
 
 import (
 	"bytes"
+	"context"
 	"reflect"
 
 	"bpxe.org/pkg/data"
@@ -27,18 +28,19 @@ import (
 // Implementation details and limitations as per https://github.com/antchfx/xpath
 type XPath struct {
 	itemAwareLocator data.ItemAwareLocator
+	ctx              context.Context
 }
 
 func (engine *XPath) SetItemAwareLocator(itemAwareLocator data.ItemAwareLocator) {
 	engine.itemAwareLocator = itemAwareLocator
 }
 
-func Make() XPath {
-	return XPath{}
+func Make(ctx context.Context) XPath {
+	return XPath{ctx: ctx}
 }
 
-func New() *XPath {
-	engine := Make()
+func New(ctx context.Context) *XPath {
+	engine := Make(ctx)
 	return &engine
 }
 
@@ -124,29 +126,37 @@ func (engine *XPath) getDataObject() func(context exec.Context, args ...exec.Res
 		if !found {
 			return exec.NodeSet{}, nil
 		}
-		item := <-itemAware.Get()
-		switch item := item.(type) {
-		case string:
-			return exec.String(item), nil
-		case float64:
-			return exec.Number(item), nil
-		case bool:
-			return exec.Bool(item), nil
-		default:
-			// Until we have own data type to represent XML nodes, we'll piggy-back
-			// on xsel's parser and datum.AsXML interface. This is not very efficient,
-			// but should do for now
-			if reflect.TypeOf(item).Implements(asXMLType) {
-				p := parser.ReadXml(bytes.NewReader(item.(data.AsXML).AsXML()))
-				cursor, err := store.CreateInMemory(p)
-				if err != nil {
-					return nil, err
-				}
-				return exec.NodeSet{cursor}, nil
-			} else {
-				return nil, errors.InvalidArgumentError{
-					Expected: "XML-serializable value (string, float64 or Node)",
-					Actual:   item,
+		ch := itemAware.Get(engine.ctx)
+		if ch == nil {
+			return nil, nil
+		}
+		select {
+		case <-engine.ctx.Done():
+			return nil, nil
+		case item := <-ch:
+			switch item := item.(type) {
+			case string:
+				return exec.String(item), nil
+			case float64:
+				return exec.Number(item), nil
+			case bool:
+				return exec.Bool(item), nil
+			default:
+				// Until we have own data type to represent XML nodes, we'll piggy-back
+				// on xsel's parser and datum.AsXML interface. This is not very efficient,
+				// but should do for now
+				if reflect.TypeOf(item).Implements(asXMLType) {
+					p := parser.ReadXml(bytes.NewReader(item.(data.AsXML).AsXML()))
+					cursor, err := store.CreateInMemory(p)
+					if err != nil {
+						return nil, err
+					}
+					return exec.NodeSet{cursor}, nil
+				} else {
+					return nil, errors.InvalidArgumentError{
+						Expected: "XML-serializable value (string, float64 or Node)",
+						Actual:   item,
+					}
 				}
 			}
 		}
@@ -154,7 +164,7 @@ func (engine *XPath) getDataObject() func(context exec.Context, args ...exec.Res
 }
 
 func init() {
-	expression.RegisterEngine("http://www.w3.org/1999/XPath", func() expression.Engine {
-		return New()
+	expression.RegisterEngine("http://www.w3.org/1999/XPath", func(ctx context.Context) expression.Engine {
+		return New(ctx)
 	})
 }

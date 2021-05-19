@@ -9,24 +9,25 @@
 package expression
 
 import (
+	"context"
 	"sync"
 )
 
 var enginesLock sync.RWMutex
-var enginesMap = make(map[string]func() Engine)
+var enginesMap = make(map[string]func(ctx context.Context) Engine)
 
-func RegisterEngine(url string, engine func() Engine) {
+func RegisterEngine(url string, engine func(ctx context.Context) Engine) {
 	enginesLock.Lock()
 	enginesMap[url] = engine
 	enginesLock.Unlock()
 }
 
-func GetEngine(url string) (engine Engine) {
+func GetEngine(ctx context.Context, url string) (engine Engine) {
 	enginesLock.RLock()
 	if engineConstructor, ok := enginesMap[url]; ok {
-		engine = engineConstructor()
+		engine = engineConstructor(ctx)
 	} else {
-		engine = enginesMap["http://www.w3.org/1999/XPath"]()
+		engine = enginesMap["http://www.w3.org/1999/XPath"](ctx)
 	}
 	enginesLock.RUnlock()
 	return
