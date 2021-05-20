@@ -35,6 +35,12 @@ type startMessage struct{}
 
 func (m startMessage) message() {}
 
+type eventMessage struct {
+	event event.Event
+}
+
+func (m eventMessage) message() {}
+
 type Node struct {
 	*flow_node.Wiring
 	element          *bpmn.StartEvent
@@ -42,11 +48,19 @@ type Node struct {
 	activated        bool
 	idGenerator      id.Generator
 	itemAwareLocator data.ItemAwareLocator
+	eventInstances   []event.Instance
 }
 
 func New(ctx context.Context, wiring *flow_node.Wiring, startEvent *bpmn.StartEvent,
 	idGenerator id.Generator, itemAwareLocator data.ItemAwareLocator,
 ) (node *Node, err error) {
+	eventDefinitions := startEvent.EventDefinitions()
+	eventInstances := make([]event.Instance, len(eventDefinitions))
+
+	for i, eventDefinition := range eventDefinitions {
+		eventInstances[i] = wiring.EventInstanceBuilder.NewEventInstance(eventDefinition)
+	}
+
 	node = &Node{
 		Wiring:           wiring,
 		element:          startEvent,
@@ -54,10 +68,11 @@ func New(ctx context.Context, wiring *flow_node.Wiring, startEvent *bpmn.StartEv
 		activated:        false,
 		idGenerator:      idGenerator,
 		itemAwareLocator: itemAwareLocator,
+		eventInstances:   eventInstances,
 	}
 	sender := node.Tracer.RegisterSender()
 	go node.runner(ctx, sender)
-	err = node.EventEgress.RegisterProcessEventConsumer(node)
+	err = node.EventEgress.RegisterEventConsumer(node)
 	if err != nil {
 		return
 	}
@@ -79,11 +94,24 @@ func (node *Node) runner(ctx context.Context, sender tracing.SenderHandle) {
 					m.response <- flow_node.CompleteAction{}
 				}
 			case startMessage:
-				newFlow := flow.New(node.Wiring.Definitions, node, node.Wiring.Tracer,
-					node.Wiring.FlowNodeMapping, node.Wiring.FlowWaitGroup, node.idGenerator, nil,
-					node.itemAwareLocator,
-				)
-				newFlow.Start(ctx)
+				node.flow(ctx)
+			case eventMessage:
+				if !node.activated {
+					for i := range node.eventInstances {
+						if m.event.MatchesEventInstance(node.eventInstances[i]) {
+							if !node.element.ParallelMultiple() {
+								node.flow(ctx)
+							} else {
+								node.eventInstances[i] = node.eventInstances[len(node.eventInstances)-1]
+								node.eventInstances = node.eventInstances[:len(node.eventInstances)-1]
+								if len(node.eventInstances) == 0 {
+									node.flow(ctx)
+								}
+							}
+							break
+						}
+					}
+				}
 			default:
 			}
 		case <-ctx.Done():
@@ -93,9 +121,18 @@ func (node *Node) runner(ctx context.Context, sender tracing.SenderHandle) {
 	}
 }
 
-func (node *Node) ConsumeProcessEvent(
-	ev event.ProcessEvent,
+func (node *Node) flow(ctx context.Context) {
+	newFlow := flow.New(node.Wiring.Definitions, node, node.Wiring.Tracer,
+		node.Wiring.FlowNodeMapping, node.Wiring.FlowWaitGroup, node.idGenerator, nil,
+		node.itemAwareLocator,
+	)
+	newFlow.Start(ctx)
+}
+
+func (node *Node) ConsumeEvent(
+	ev event.Event,
 ) (result event.ConsumptionResult, err error) {
+	node.runnerChannel <- eventMessage{event: ev}
 	result = event.Consumed
 	return
 }

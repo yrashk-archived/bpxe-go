@@ -18,7 +18,7 @@ import (
 
 type erroringConsumer struct{}
 
-func (c erroringConsumer) ConsumeProcessEvent(ProcessEvent) (ConsumptionResult, error) {
+func (c erroringConsumer) ConsumeEvent(Event) (ConsumptionResult, error) {
 	return ConsumptionError, errors.New("some error")
 }
 
@@ -29,29 +29,29 @@ func (t testEvent) MatchesEventInstance(instance Instance) bool {
 }
 
 func TestForwardProcessEvent(t *testing.T) {
-	someErroringConsumers := []ProcessEventConsumer{erroringConsumer{},
-		VoidProcessEventConsumer{}}
-	noErroringConsumers := []ProcessEventConsumer{VoidProcessEventConsumer{},
-		VoidProcessEventConsumer{}}
-	allErroringConsumers := []ProcessEventConsumer{erroringConsumer{},
+	someErroringConsumers := []Consumer{erroringConsumer{},
+		VoidConsumer{}}
+	noErroringConsumers := []Consumer{VoidConsumer{},
+		VoidConsumer{}}
+	allErroringConsumers := []Consumer{erroringConsumer{},
 		erroringConsumer{}}
 	var result ConsumptionResult
 	var multiErr *multierror.Error
 	var err error
 	var ok bool
 
-	result, err = ForwardProcessEvent(testEvent{}, &someErroringConsumers)
+	result, err = ForwardEvent(testEvent{}, &someErroringConsumers)
 	assert.Equal(t, PartiallyConsumed, result)
 	assert.NotNil(t, err)
 	ok = errors.As(err, &multiErr)
 	assert.True(t, ok)
 	assert.Equal(t, 1, multiErr.Len())
 
-	result, err = ForwardProcessEvent(testEvent{}, &noErroringConsumers)
+	result, err = ForwardEvent(testEvent{}, &noErroringConsumers)
 	assert.Equal(t, Consumed, result)
 	assert.Nil(t, err)
 
-	result, err = ForwardProcessEvent(testEvent{}, &allErroringConsumers)
+	result, err = ForwardEvent(testEvent{}, &allErroringConsumers)
 	assert.Equal(t, ConsumptionError, result)
 	assert.NotNil(t, err)
 	ok = errors.As(err, &multiErr)

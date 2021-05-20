@@ -21,6 +21,7 @@ import (
 	"bpxe.org/pkg/flow_node/activity/task"
 	"bpxe.org/pkg/flow_node/event/catch"
 	"bpxe.org/pkg/process"
+	"bpxe.org/pkg/process/instance"
 	"bpxe.org/pkg/tracing"
 	"github.com/stretchr/testify/assert"
 
@@ -49,7 +50,7 @@ func TestNonInterruptingEvent(t *testing.T) {
 	}, event.NewSignalEvent("sig2"))
 }
 
-func testBoundaryEvent(t *testing.T, boundary string, test func(visited map[string]bool), events ...event.ProcessEvent) {
+func testBoundaryEvent(t *testing.T, boundary string, test func(visited map[string]bool), events ...event.Event) {
 	processElement := (*testDoc.Processes())[0]
 	proc := process.New(&processElement, &testDoc)
 	ready := make(chan bool)
@@ -59,9 +60,9 @@ func testBoundaryEvent(t *testing.T, boundary string, test func(visited map[stri
 	// this gives us some room when instance starts up
 	traces := tracer.SubscribeChannel(make(chan tracing.Trace, 32))
 
-	if instance, err := proc.Instantiate(process.WithTracer(tracer)); err == nil {
+	if inst, err := proc.Instantiate(instance.WithTracer(tracer)); err == nil {
 		if node, found := testDoc.FindBy(bpmn.ExactId("task")); found {
-			if taskNode, found := instance.FlowNodeMapping().
+			if taskNode, found := inst.FlowNodeMapping().
 				ResolveElementToFlowNode(node.(bpmn.FlowNodeInterface)); found {
 				harness := taskNode.(*activity.Harness)
 				aTask := harness.Activity().(*task.Task)
@@ -80,7 +81,7 @@ func testBoundaryEvent(t *testing.T, boundary string, test func(visited map[stri
 			t.Fatalf("failed to get the flow node element for `task`")
 		}
 
-		err := instance.StartAll(context.Background())
+		err := inst.StartAll(context.Background())
 		if err != nil {
 			t.Fatalf("failed to run the instance: %s", err)
 		}
@@ -119,7 +120,7 @@ func testBoundaryEvent(t *testing.T, boundary string, test func(visited map[stri
 		}
 
 		for _, evt := range events {
-			_, err = instance.ConsumeProcessEvent(evt)
+			_, err = inst.ConsumeEvent(evt)
 			assert.Nil(t, err)
 		}
 		visited := make(map[string]bool)
@@ -144,7 +145,7 @@ func testBoundaryEvent(t *testing.T, boundary string, test func(visited map[stri
 				t.Logf("%#v", trace)
 			}
 		}
-		instance.Tracer.Unsubscribe(traces)
+		inst.Tracer.Unsubscribe(traces)
 
 		test(visited)
 

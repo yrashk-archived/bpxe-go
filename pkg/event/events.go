@@ -13,7 +13,7 @@ import (
 	"bpxe.org/pkg/data"
 )
 
-type ProcessEvent interface {
+type Event interface {
 	MatchesEventInstance(Instance) bool
 }
 

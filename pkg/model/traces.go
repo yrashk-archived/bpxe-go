@@ -6,24 +6,16 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/LICENSE-Apache-2.0
 
-package catch
+package model
 
 import (
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/event"
 )
 
-type ActiveListeningTrace struct {
-	Node *bpmn.CatchEvent
+type EventInstantiationAttemptedTrace struct {
+	Event   event.Event
+	Element bpmn.FlowNodeInterface
 }
 
-func (t ActiveListeningTrace) TraceInterface() {}
-
-// EventObservedTrace signals the fact that a particular event
-// has been in fact observed by the node
-type EventObservedTrace struct {
-	Node  *bpmn.CatchEvent
-	Event event.Event
-}
-
-func (t EventObservedTrace) TraceInterface() {}
+func (e EventInstantiationAttemptedTrace) TraceInterface() {}

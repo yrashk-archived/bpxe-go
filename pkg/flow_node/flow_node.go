@@ -27,12 +27,13 @@ type Wiring struct {
 	Definitions  *bpmn.Definitions
 	Incoming     []sequence_flow.SequenceFlow
 	Outgoing     []sequence_flow.SequenceFlow
-	EventIngress event.ProcessEventConsumer
-	EventEgress  event.ProcessEventSource
+	EventIngress event.Consumer
+	EventEgress  event.Source
 	Tracer       *tracing.Tracer
 	Process      *bpmn.Process
 	*FlowNodeMapping
-	FlowWaitGroup *sync.WaitGroup
+	FlowWaitGroup        *sync.WaitGroup
+	EventInstanceBuilder event.InstanceBuilder
 }
 
 func sequenceFlows(process *bpmn.Process,
@@ -58,11 +59,12 @@ func sequenceFlows(process *bpmn.Process,
 func New(process *bpmn.Process,
 	definitions *bpmn.Definitions,
 	flowNode *bpmn.FlowNode,
-	eventIngress event.ProcessEventConsumer,
-	eventEgress event.ProcessEventSource,
+	eventIngress event.Consumer,
+	eventEgress event.Source,
 	tracer *tracing.Tracer,
 	flowNodeMapping *FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup,
+	eventInstanceBuilder event.InstanceBuilder,
 ) (node *Wiring, err error) {
 	incoming, err := sequenceFlows(process, definitions, flowNode.Incomings())
 	if err != nil {
@@ -82,16 +84,17 @@ func New(process *bpmn.Process,
 		ownId = *ownIdPtr
 	}
 	node = &Wiring{
-		Id:              ownId,
-		Definitions:     definitions,
-		Incoming:        incoming,
-		Outgoing:        outgoing,
-		EventIngress:    eventIngress,
-		EventEgress:     eventEgress,
-		Tracer:          tracer,
-		Process:         process,
-		FlowNodeMapping: flowNodeMapping,
-		FlowWaitGroup:   flowWaitGroup,
+		Id:                   ownId,
+		Definitions:          definitions,
+		Incoming:             incoming,
+		Outgoing:             outgoing,
+		EventIngress:         eventIngress,
+		EventEgress:          eventEgress,
+		Tracer:               tracer,
+		Process:              process,
+		FlowNodeMapping:      flowNodeMapping,
+		FlowWaitGroup:        flowWaitGroup,
+		EventInstanceBuilder: eventInstanceBuilder,
 	}
 	return
 }
@@ -116,16 +119,17 @@ func (wiring *Wiring) CloneFor(flowNode *bpmn.FlowNode) (result *Wiring, err err
 		ownId = *ownIdPtr
 	}
 	result = &Wiring{
-		Id:              ownId,
-		Definitions:     wiring.Definitions,
-		Incoming:        incoming,
-		Outgoing:        outgoing,
-		EventIngress:    wiring.EventIngress,
-		EventEgress:     wiring.EventEgress,
-		Tracer:          wiring.Tracer,
-		Process:         wiring.Process,
-		FlowNodeMapping: wiring.FlowNodeMapping,
-		FlowWaitGroup:   wiring.FlowWaitGroup,
+		Id:                   ownId,
+		Definitions:          wiring.Definitions,
+		Incoming:             incoming,
+		Outgoing:             outgoing,
+		EventIngress:         wiring.EventIngress,
+		EventEgress:          wiring.EventEgress,
+		Tracer:               wiring.Tracer,
+		Process:              wiring.Process,
+		FlowNodeMapping:      wiring.FlowNodeMapping,
+		FlowWaitGroup:        wiring.FlowWaitGroup,
+		EventInstanceBuilder: wiring.EventInstanceBuilder,
 	}
 	return
 }

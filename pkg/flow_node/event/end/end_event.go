@@ -68,7 +68,7 @@ func (node *Node) runner(ctx context.Context, sender tracing.SenderHandle) {
 					continue
 				}
 
-				if _, err := node.EventIngress.ConsumeProcessEvent(
+				if _, err := node.EventIngress.ConsumeEvent(
 					event.MakeEndEvent(node.element),
 				); err == nil {
 					node.completed = true
