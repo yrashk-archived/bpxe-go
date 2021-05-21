@@ -19,21 +19,21 @@ import (
 // and obtain a determination whether all conditions were satisfied.
 type CatchEventSatisfier struct {
 	bpmn.CatchEventInterface
-	eventInstances []event.Instance
+	eventInstances []event.DefinitionInstance
 	len            uint
 	chains         []*bitset.BitSet
 }
 
-func NewCatchEventSatisfier(catchEventElement bpmn.CatchEventInterface, eventInstanceBuilder event.InstanceBuilder) *CatchEventSatisfier {
+func NewCatchEventSatisfier(catchEventElement bpmn.CatchEventInterface, eventDefinitionInstanceBuilder event.DefinitionInstanceBuilder) *CatchEventSatisfier {
 	satisfier := &CatchEventSatisfier{
 		CatchEventInterface: catchEventElement,
 		chains:              make([]*bitset.BitSet, 0, 1),
 		len:                 uint(len(catchEventElement.EventDefinitions())),
 	}
 
-	satisfier.eventInstances = make([]event.Instance, len(catchEventElement.EventDefinitions()))
+	satisfier.eventInstances = make([]event.DefinitionInstance, len(catchEventElement.EventDefinitions()))
 	for k := range catchEventElement.EventDefinitions() {
-		satisfier.eventInstances[k] = eventInstanceBuilder.NewEventInstance(catchEventElement.EventDefinitions()[k])
+		satisfier.eventInstances[k] = eventDefinitionInstanceBuilder.NewEventInstance(catchEventElement.EventDefinitions()[k])
 	}
 
 	return satisfier

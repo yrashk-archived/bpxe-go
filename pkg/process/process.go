@@ -19,14 +19,14 @@ import (
 )
 
 type Process struct {
-	Element              *bpmn.Process
-	Definitions          *bpmn.Definitions
-	instances            []*instance.Instance
-	EventIngress         event.Consumer
-	EventEgress          event.Source
-	idGeneratorBuilder   id.GeneratorBuilder
-	eventInstanceBuilder event.InstanceBuilder
-	Tracer               *tracing.Tracer
+	Element                        *bpmn.Process
+	Definitions                    *bpmn.Definitions
+	instances                      []*instance.Instance
+	EventIngress                   event.Consumer
+	EventEgress                    event.Source
+	idGeneratorBuilder             id.GeneratorBuilder
+	eventDefinitionInstanceBuilder event.DefinitionInstanceBuilder
+	Tracer                         *tracing.Tracer
 }
 
 type Option func(context.Context, *Process) context.Context
@@ -52,9 +52,9 @@ func WithEventEgress(source event.Source) Option {
 	}
 }
 
-func WithEventInstanceBuilder(builder event.InstanceBuilder) Option {
+func WitheventDefinitionInstanceBuilder(builder event.DefinitionInstanceBuilder) Option {
 	return func(ctx context.Context, process *Process) context.Context {
-		process.eventInstanceBuilder = builder
+		process.eventDefinitionInstanceBuilder = builder
 		return ctx
 	}
 }
@@ -92,8 +92,8 @@ func Make(element *bpmn.Process, definitions *bpmn.Definitions, options ...Optio
 		process.idGeneratorBuilder = id.DefaultIdGeneratorBuilder
 	}
 
-	if process.eventInstanceBuilder == nil {
-		process.eventInstanceBuilder = event.DefaultInstanceBuilder{}
+	if process.eventDefinitionInstanceBuilder == nil {
+		process.eventDefinitionInstanceBuilder = event.WrappingDefinitionInstanceBuilder
 	}
 
 	if process.EventIngress == nil && process.EventEgress == nil {
@@ -117,7 +117,7 @@ func New(element *bpmn.Process, definitions *bpmn.Definitions, options ...Option
 func (process *Process) Instantiate(options ...instance.Option) (inst *instance.Instance, err error) {
 	options = append([]instance.Option{
 		instance.WithIdGenerator(process.idGeneratorBuilder),
-		instance.WithEventInstanceBuilder(process.eventInstanceBuilder),
+		instance.WitheventDefinitionInstanceBuilder(process.eventDefinitionInstanceBuilder),
 		instance.WithEventEgress(process.EventEgress),
 		instance.WithEventIngress(process.EventIngress),
 	}, options...)

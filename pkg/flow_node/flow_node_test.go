@@ -40,7 +40,7 @@ func TestNewFlowNode(t *testing.T) {
 				event.VoidSource{},
 				tracing.NewTracer(context.Background()), NewLockedFlowNodeMapping(),
 				&waitGroup,
-				event.DefaultInstanceBuilder{},
+				event.WrappingDefinitionInstanceBuilder,
 			)
 			assert.Nil(t, err)
 			assert.Equal(t, 1, len(node.Incoming))

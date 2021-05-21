@@ -33,24 +33,24 @@ import (
 )
 
 type Instance struct {
-	process                    *bpmn.Process
-	Tracer                     *tracing.Tracer
-	flowNodeMapping            *flow_node.FlowNodeMapping
-	flowWaitGroup              sync.WaitGroup
-	complete                   sync.RWMutex
-	idGenerator                id.Generator
-	dataObjectsByName          map[string]data.ItemAware
-	dataObjects                map[bpmn.Id]data.ItemAware
-	dataObjectReferencesByName map[string]data.ItemAware
-	dataObjectReferences       map[bpmn.Id]data.ItemAware
-	propertiesByName           map[string]data.ItemAware
-	properties                 map[bpmn.Id]data.ItemAware
-	EventIngress               event.Consumer
-	EventEgress                event.Source
-	idGeneratorBuilder         id.GeneratorBuilder
-	eventInstanceBuilder       event.InstanceBuilder
-	eventConsumersLock         sync.RWMutex
-	eventConsumers             []event.Consumer
+	process                        *bpmn.Process
+	Tracer                         *tracing.Tracer
+	flowNodeMapping                *flow_node.FlowNodeMapping
+	flowWaitGroup                  sync.WaitGroup
+	complete                       sync.RWMutex
+	idGenerator                    id.Generator
+	dataObjectsByName              map[string]data.ItemAware
+	dataObjects                    map[bpmn.Id]data.ItemAware
+	dataObjectReferencesByName     map[string]data.ItemAware
+	dataObjectReferences           map[bpmn.Id]data.ItemAware
+	propertiesByName               map[string]data.ItemAware
+	properties                     map[bpmn.Id]data.ItemAware
+	EventIngress                   event.Consumer
+	EventEgress                    event.Source
+	idGeneratorBuilder             id.GeneratorBuilder
+	eventDefinitionInstanceBuilder event.DefinitionInstanceBuilder
+	eventConsumersLock             sync.RWMutex
+	eventConsumers                 []event.Consumer
 }
 
 func (instance *Instance) ConsumeEvent(ev event.Event) (result event.ConsumptionResult, err error) {
@@ -166,9 +166,9 @@ func WithEventEgress(source event.Source) Option {
 	}
 }
 
-func WithEventInstanceBuilder(builder event.InstanceBuilder) Option {
+func WitheventDefinitionInstanceBuilder(builder event.DefinitionInstanceBuilder) Option {
 	return func(ctx context.Context, instance *Instance) context.Context {
-		instance.eventInstanceBuilder = builder
+		instance.eventDefinitionInstanceBuilder = builder
 		return ctx
 	}
 }
@@ -302,7 +302,7 @@ func NewInstance(element *bpmn.Process, definitions *bpmn.Definitions, options .
 			// process instantiation)
 			instance.EventIngress, instance,
 			instance.Tracer, instance.flowNodeMapping,
-			&instance.flowWaitGroup, instance.eventInstanceBuilder)
+			&instance.flowWaitGroup, instance.eventDefinitionInstanceBuilder)
 	}
 
 	var wiring *flow_node.Wiring

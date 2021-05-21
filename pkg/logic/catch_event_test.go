@@ -25,7 +25,7 @@ func TestCatchEventSatisfier_MatchSingle(t *testing.T) {
 
 	catchEvent.SetSignalEventDefinitions([]bpmn.SignalEventDefinition{sig1})
 
-	satisfier := NewCatchEventSatisfier(&catchEvent, event.DefaultInstanceBuilder{})
+	satisfier := NewCatchEventSatisfier(&catchEvent, event.WrappingDefinitionInstanceBuilder)
 
 	var satisfied bool
 	var chain int
@@ -52,7 +52,7 @@ func TestCatchEventSatisfier_MatchMultiple(t *testing.T) {
 
 	catchEvent.SetSignalEventDefinitions([]bpmn.SignalEventDefinition{sig1, sig2})
 
-	satisfier := NewCatchEventSatisfier(&catchEvent, event.DefaultInstanceBuilder{})
+	satisfier := NewCatchEventSatisfier(&catchEvent, event.WrappingDefinitionInstanceBuilder)
 
 	var satisfied bool
 	var chain int
@@ -88,7 +88,7 @@ func TestCatchEventSatisfier_MatchParallelMultiple(t *testing.T) {
 	catchEvent.SetParallelMultiple(&parallelMultiple)
 	catchEvent.SetSignalEventDefinitions([]bpmn.SignalEventDefinition{sig1, sig2})
 
-	satisfier := NewCatchEventSatisfier(&catchEvent, event.DefaultInstanceBuilder{})
+	satisfier := NewCatchEventSatisfier(&catchEvent, event.WrappingDefinitionInstanceBuilder)
 
 	var satisfied bool
 	var chain int
@@ -153,7 +153,7 @@ func TestCatchEventSatisfier_MatchParallelMultipleSingleEvent(t *testing.T) {
 	catchEvent.SetParallelMultiple(&parallelMultiple)
 	catchEvent.SetSignalEventDefinitions([]bpmn.SignalEventDefinition{sig1})
 
-	satisfier := NewCatchEventSatisfier(&catchEvent, event.DefaultInstanceBuilder{})
+	satisfier := NewCatchEventSatisfier(&catchEvent, event.WrappingDefinitionInstanceBuilder)
 
 	var satisfied bool
 	var chain int

@@ -56,10 +56,10 @@ func New(ctx context.Context, wiring *flow_node.Wiring, startEvent *bpmn.StartEv
 	idGenerator id.Generator, itemAwareLocator data.ItemAwareLocator,
 ) (node *Node, err error) {
 	eventDefinitions := startEvent.EventDefinitions()
-	eventInstances := make([]event.Instance, len(eventDefinitions))
+	eventInstances := make([]event.DefinitionInstance, len(eventDefinitions))
 
 	for i, eventDefinition := range eventDefinitions {
-		eventInstances[i] = wiring.EventInstanceBuilder.NewEventInstance(eventDefinition)
+		eventInstances[i] = wiring.EventDefinitionInstanceBuilder.NewEventInstance(eventDefinition)
 	}
 
 	node = &Node{
@@ -69,7 +69,7 @@ func New(ctx context.Context, wiring *flow_node.Wiring, startEvent *bpmn.StartEv
 		activated:        false,
 		idGenerator:      idGenerator,
 		itemAwareLocator: itemAwareLocator,
-		satisfier:        logic.NewCatchEventSatisfier(startEvent, wiring.EventInstanceBuilder),
+		satisfier:        logic.NewCatchEventSatisfier(startEvent, wiring.EventDefinitionInstanceBuilder),
 	}
 	sender := node.Tracer.RegisterSender()
 	go node.runner(ctx, sender)

@@ -36,7 +36,7 @@ func newStartEventConsumer(
 	tracer *tracing.Tracer,
 	process *process.Process,
 	startEvent *bpmn.StartEvent,
-	eventInstanceBuilder event.InstanceBuilder) *startEventConsumer {
+	eventDefinitionInstanceBuilder event.DefinitionInstanceBuilder) *startEventConsumer {
 	consumer := &startEventConsumer{
 		ctx:       ctx,
 		process:   process,
@@ -44,7 +44,7 @@ func newStartEventConsumer(
 		tracer:    tracer,
 		events:    make([][]event.Event, 0, len(startEvent.EventDefinitions())),
 		element:   startEvent,
-		satisfier: logic.NewCatchEventSatisfier(startEvent, eventInstanceBuilder),
+		satisfier: logic.NewCatchEventSatisfier(startEvent, eventDefinitionInstanceBuilder),
 	}
 	return consumer
 }
