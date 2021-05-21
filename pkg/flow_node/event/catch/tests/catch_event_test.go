@@ -52,9 +52,14 @@ type eventInstance struct {
 	id string
 }
 
-type eventInstanceBuilder struct{}
+func (e eventInstance) EventDefinition() bpmn.EventDefinitionInterface {
+	definition := bpmn.DefaultEventDefinition()
+	return &definition
+}
 
-func (e eventInstanceBuilder) NewEventInstance(def bpmn.EventDefinitionInterface) event.Instance {
+type eventDefinitionInstanceBuilder struct{}
+
+func (e eventDefinitionInstanceBuilder) NewEventInstance(def bpmn.EventDefinitionInterface) event.DefinitionInstance {
 	switch d := def.(type) {
 	case *bpmn.TimerEventDefinition:
 		id, _ := d.Id()
@@ -63,23 +68,23 @@ func (e eventInstanceBuilder) NewEventInstance(def bpmn.EventDefinitionInterface
 		id, _ := d.Id()
 		return eventInstance{id: *id}
 	default:
-		return event.NewInstance(d)
+		return event.WrapEventDefinition(d)
 	}
 }
 
 func TestTimerEvent(t *testing.T) {
 	i := eventInstance{id: "timer_1"}
-	b := eventInstanceBuilder{}
+	b := eventDefinitionInstanceBuilder{}
 	testEvent(t, "testdata/intermediate_catch_event.bpmn", "timerCatch", &b, false, event.MakeTimerEvent(i))
 }
 
 func TestConditionalEvent(t *testing.T) {
 	i := eventInstance{id: "conditional_1"}
-	b := eventInstanceBuilder{}
+	b := eventDefinitionInstanceBuilder{}
 	testEvent(t, "testdata/intermediate_catch_event.bpmn", "conditionalCatch", &b, false, event.MakeTimerEvent(i))
 }
 
-func testEvent(t *testing.T, filename string, nodeId string, eventInstanceBuilder event.InstanceBuilder, eventObservationOnly bool, events ...event.Event) {
+func testEvent(t *testing.T, filename string, nodeId string, eventDefinitionInstanceBuilder event.DefinitionInstanceBuilder, eventObservationOnly bool, events ...event.Event) {
 	var testDoc bpmn.Definitions
 	var err error
 	src, err := testdata.ReadFile(filename)
@@ -91,7 +96,7 @@ func testEvent(t *testing.T, filename string, nodeId string, eventInstanceBuilde
 		t.Fatalf("XML unmarshalling error: %v", err)
 	}
 	processElement := (*testDoc.Processes())[0]
-	proc := process.New(&processElement, &testDoc, process.WithEventInstanceBuilder(eventInstanceBuilder))
+	proc := process.New(&processElement, &testDoc, process.WitheventDefinitionInstanceBuilder(eventDefinitionInstanceBuilder))
 
 	tracer := tracing.NewTracer(context.Background())
 	traces := tracer.SubscribeChannel(make(chan tracing.Trace, 64))

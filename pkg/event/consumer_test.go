@@ -24,7 +24,7 @@ func (c erroringConsumer) ConsumeEvent(Event) (ConsumptionResult, error) {
 
 type testEvent struct{}
 
-func (t testEvent) MatchesEventInstance(instance Instance) bool {
+func (t testEvent) MatchesEventInstance(instance DefinitionInstance) bool {
 	return false
 }
 

@@ -20,13 +20,13 @@ import (
 )
 
 type Model struct {
-	Element              *bpmn.Definitions
-	processes            []process.Process
-	eventConsumersLock   sync.RWMutex
-	eventConsumers       []event.Consumer
-	idGeneratorBuilder   id.GeneratorBuilder
-	eventInstanceBuilder event.InstanceBuilder
-	tracer               *tracing.Tracer
+	Element                        *bpmn.Definitions
+	processes                      []process.Process
+	eventConsumersLock             sync.RWMutex
+	eventConsumers                 []event.Consumer
+	idGeneratorBuilder             id.GeneratorBuilder
+	eventDefinitionInstanceBuilder event.DefinitionInstanceBuilder
+	tracer                         *tracing.Tracer
 }
 
 type Option func(context.Context, *Model) context.Context
@@ -38,9 +38,9 @@ func WithIdGenerator(builder id.GeneratorBuilder) Option {
 	}
 }
 
-func WithEventInstanceBuilder(builder event.InstanceBuilder) Option {
+func WitheventDefinitionInstanceBuilder(builder event.DefinitionInstanceBuilder) Option {
 	return func(ctx context.Context, model *Model) context.Context {
-		model.eventInstanceBuilder = builder
+		model.eventDefinitionInstanceBuilder = builder
 		return ctx
 	}
 }
@@ -77,8 +77,8 @@ func New(element *bpmn.Definitions, options ...Option) *Model {
 		model.idGeneratorBuilder = id.DefaultIdGeneratorBuilder
 	}
 
-	if model.eventInstanceBuilder == nil {
-		model.eventInstanceBuilder = event.DefaultInstanceBuilder{}
+	if model.eventDefinitionInstanceBuilder == nil {
+		model.eventDefinitionInstanceBuilder = event.WrappingDefinitionInstanceBuilder
 	}
 
 	if model.tracer == nil {
@@ -91,7 +91,7 @@ func New(element *bpmn.Definitions, options ...Option) *Model {
 		model.processes[i] = process.Make(&(*procs)[i], element,
 			process.WithIdGenerator(model.idGeneratorBuilder),
 			process.WithEventIngress(model), process.WithEventEgress(model),
-			process.WithEventInstanceBuilder(model),
+			process.WitheventDefinitionInstanceBuilder(model),
 			process.WithContext(ctx),
 			process.WithTracer(model.tracer),
 		)
@@ -111,7 +111,7 @@ func (model *Model) Run(ctx context.Context) (err error) {
 				err = model.RegisterEventConsumer(newStartEventConsumer(ctx,
 					model.tracer,
 					&model.processes[i],
-					node, model.eventInstanceBuilder))
+					node, model.eventDefinitionInstanceBuilder))
 				if err != nil {
 					return
 				}
@@ -151,10 +151,10 @@ func (model *Model) RegisterEventConsumer(ev event.Consumer) (err error) {
 	return
 }
 
-func (model *Model) NewEventInstance(def bpmn.EventDefinitionInterface) event.Instance {
-	if model.eventInstanceBuilder != nil {
-		return model.eventInstanceBuilder.NewEventInstance(def)
+func (model *Model) NewEventInstance(def bpmn.EventDefinitionInterface) event.DefinitionInstance {
+	if model.eventDefinitionInstanceBuilder != nil {
+		return model.eventDefinitionInstanceBuilder.NewEventInstance(def)
 	} else {
-		return event.NewInstance(def)
+		return event.WrapEventDefinition(def)
 	}
 }

@@ -46,10 +46,10 @@ type Node struct {
 
 func New(ctx context.Context, wiring *flow_node.Wiring, catchEvent *bpmn.CatchEvent) (node *Node, err error) {
 	eventDefinitions := catchEvent.EventDefinitions()
-	eventInstances := make([]event.Instance, len(eventDefinitions))
+	eventInstances := make([]event.DefinitionInstance, len(eventDefinitions))
 
 	for i, eventDefinition := range eventDefinitions {
-		eventInstances[i] = wiring.EventInstanceBuilder.NewEventInstance(eventDefinition)
+		eventInstances[i] = wiring.EventDefinitionInstanceBuilder.NewEventInstance(eventDefinition)
 	}
 
 	node = &Node{
@@ -58,7 +58,7 @@ func New(ctx context.Context, wiring *flow_node.Wiring, catchEvent *bpmn.CatchEv
 		runnerChannel:   make(chan message, len(wiring.Incoming)*2+1),
 		activated:       false,
 		awaitingActions: make([]chan flow_node.Action, 0),
-		satisfier:       logic.NewCatchEventSatisfier(catchEvent, wiring.EventInstanceBuilder),
+		satisfier:       logic.NewCatchEventSatisfier(catchEvent, wiring.EventDefinitionInstanceBuilder),
 	}
 	sender := node.Tracer.RegisterSender()
 	go node.runner(ctx, sender)
