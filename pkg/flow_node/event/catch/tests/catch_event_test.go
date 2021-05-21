@@ -28,10 +28,6 @@ func TestSignalEvent(t *testing.T) {
 	testEvent(t, "testdata/intermediate_catch_event.bpmn", "signalCatch", nil, false, event.NewSignalEvent("global_sig1"))
 }
 
-func TestNoneEvent(t *testing.T) {
-	testEvent(t, "testdata/intermediate_catch_event.bpmn", "noneCatch", nil, false, event.MakeNoneEvent())
-}
-
 func TestMessageEvent(t *testing.T) {
 	testEvent(t, "testdata/intermediate_catch_event.bpmn", "messageCatch", nil, false, event.NewMessageEvent("msg", nil))
 }

@@ -15,6 +15,7 @@ import (
 	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/flow/flow_interface"
 	"bpxe.org/pkg/flow_node"
+	"bpxe.org/pkg/logic"
 	"bpxe.org/pkg/tracing"
 )
 
@@ -40,8 +41,7 @@ type Node struct {
 	runnerChannel   chan message
 	activated       bool
 	awaitingActions []chan flow_node.Action
-	eventInstances  []event.Instance
-	matchedEvents   []bool
+	satisfier       *logic.CatchEventSatisfier
 }
 
 func New(ctx context.Context, wiring *flow_node.Wiring, catchEvent *bpmn.CatchEvent) (node *Node, err error) {
@@ -58,8 +58,7 @@ func New(ctx context.Context, wiring *flow_node.Wiring, catchEvent *bpmn.CatchEv
 		runnerChannel:   make(chan message, len(wiring.Incoming)*2+1),
 		activated:       false,
 		awaitingActions: make([]chan flow_node.Action, 0),
-		eventInstances:  eventInstances,
-		matchedEvents:   make([]bool, len(eventDefinitions)),
+		satisfier:       logic.NewCatchEventSatisfier(catchEvent, wiring.EventInstanceBuilder),
 	}
 	sender := node.Tracer.RegisterSender()
 	go node.runner(ctx, sender)
@@ -73,41 +72,21 @@ func New(ctx context.Context, wiring *flow_node.Wiring, catchEvent *bpmn.CatchEv
 func (node *Node) runner(ctx context.Context, sender tracing.SenderHandle) {
 	defer sender.Done()
 
-loop:
 	for {
 		select {
 		case msg := <-node.runnerChannel:
 			switch m := msg.(type) {
 			case processEventMessage:
 				if node.activated {
-					if len(node.eventInstances) == 0 {
-						//lint:ignore SA4006 not sure why it's complaining, `ok` is used
-						//nolint:staticcheck
-						if _, ok := m.event.(event.NoneEvent); ok {
-							goto matched
-						}
-					} else {
-						for i, instance := range node.eventInstances {
-							if m.event.MatchesEventInstance(instance) {
-								node.matchedEvents[i] = true
-								goto matched
-							}
-						}
-					}
-					continue loop
-				matched:
 					node.Tracer.Trace(EventObservedTrace{Node: node.element, Event: m.event})
-					for _, matched := range node.matchedEvents {
-						if !matched && node.element.ParallelMultiple() {
-							continue loop
+					if satisfied, _ := node.satisfier.Satisfy(m.event); satisfied {
+						awaitingActions := node.awaitingActions
+						for _, actionChan := range awaitingActions {
+							actionChan <- flow_node.FlowAction{SequenceFlows: flow_node.AllSequenceFlows(&node.Outgoing)}
 						}
+						node.awaitingActions = make([]chan flow_node.Action, 0)
+						node.activated = false
 					}
-					awaitingActions := node.awaitingActions
-					for _, actionChan := range awaitingActions {
-						actionChan <- flow_node.FlowAction{SequenceFlows: flow_node.AllSequenceFlows(&node.Outgoing)}
-					}
-					node.awaitingActions = make([]chan flow_node.Action, 0)
-					node.activated = false
 				}
 			case nextActionMessage:
 				if !node.activated {

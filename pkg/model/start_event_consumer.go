@@ -14,46 +14,38 @@ import (
 
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/event"
+	"bpxe.org/pkg/logic"
 	"bpxe.org/pkg/process"
 	"bpxe.org/pkg/process/instance"
 	"bpxe.org/pkg/tracing"
 )
 
 type startEventConsumer struct {
-	process                                *process.Process
-	parallel                               bool
-	eventInstances, originalEventInstances []event.Instance
-	ctx                                    context.Context
-	consumptionLock                        sync.Mutex
-	tracer                                 *tracing.Tracer
-	events                                 []event.Event
-	element                                bpmn.FlowNodeInterface
+	process         *process.Process
+	parallel        bool
+	ctx             context.Context
+	consumptionLock sync.Mutex
+	tracer          *tracing.Tracer
+	events          [][]event.Event
+	element         bpmn.CatchEventInterface
+	satisfier       *logic.CatchEventSatisfier
 }
 
 func newStartEventConsumer(
 	ctx context.Context,
 	tracer *tracing.Tracer,
 	process *process.Process,
-	startEvent *bpmn.StartEvent, builder event.InstanceBuilder) *startEventConsumer {
-	var evCap int
-	if startEvent.ParallelMultiple() {
-		evCap = len(startEvent.EventDefinitions())
-	} else {
-		evCap = 1
-	}
+	startEvent *bpmn.StartEvent,
+	eventInstanceBuilder event.InstanceBuilder) *startEventConsumer {
 	consumer := &startEventConsumer{
-		ctx:      ctx,
-		process:  process,
-		parallel: startEvent.ParallelMultiple(),
-		tracer:   tracer,
-		events:   make([]event.Event, 0, evCap),
-		element:  startEvent,
+		ctx:       ctx,
+		process:   process,
+		parallel:  startEvent.ParallelMultiple(),
+		tracer:    tracer,
+		events:    make([][]event.Event, 0, len(startEvent.EventDefinitions())),
+		element:   startEvent,
+		satisfier: logic.NewCatchEventSatisfier(startEvent, eventInstanceBuilder),
 	}
-	consumer.eventInstances = make([]event.Instance, len(startEvent.EventDefinitions()))
-	for k := range startEvent.EventDefinitions() {
-		consumer.eventInstances[k] = builder.NewEventInstance(startEvent.EventDefinitions()[k])
-	}
-	consumer.originalEventInstances = consumer.eventInstances
 	return consumer
 }
 
@@ -62,41 +54,38 @@ func (s *startEventConsumer) ConsumeEvent(ev event.Event) (result event.Consumpt
 	defer s.consumptionLock.Unlock()
 	defer s.tracer.Trace(EventInstantiationAttemptedTrace{Event: ev, Element: s.element})
 
-	for i := range s.eventInstances {
-		if ev.MatchesEventInstance(s.eventInstances[i]) {
-			s.events = append(s.events, ev)
-			if !s.parallel {
-				goto instantiate
-			} else {
-				s.eventInstances[i] = s.eventInstances[len(s.eventInstances)-1]
-				s.eventInstances = s.eventInstances[0 : len(s.eventInstances)-1]
-				if len(s.eventInstances) == 0 {
-					s.eventInstances = s.originalEventInstances
-					goto instantiate
-				}
-			}
-			break
+	if satisfied, chain := s.satisfier.Satisfy(ev); satisfied {
+		// If it's a new chain, add new event buffer
+		if chain > len(s.events)-1 {
+			s.events = append(s.events, []event.Event{ev})
 		}
-	}
-	result = event.Consumed
-	return
-instantiate:
-	var inst *instance.Instance
-	inst, err = s.process.Instantiate(
-		instance.WithContext(s.ctx),
-		instance.WithTracer(s.tracer),
-	)
-	if err != nil {
-		result = event.ConsumptionError
-		return
-	}
-	for _, ev := range s.events {
-		result, err = inst.ConsumeEvent(ev)
+		var inst *instance.Instance
+		inst, err = s.process.Instantiate(
+			instance.WithContext(s.ctx),
+			instance.WithTracer(s.tracer),
+		)
 		if err != nil {
 			result = event.ConsumptionError
 			return
 		}
+		for _, ev := range s.events[chain] {
+			result, err = inst.ConsumeEvent(ev)
+			if err != nil {
+				result = event.ConsumptionError
+				return
+			}
+		}
+		// Remove events buffer
+		s.events[chain] = s.events[len(s.events)-1]
+		s.events = s.events[:len(s.events)-1]
+	} else if chain != logic.EventDidNotMatch {
+		// If there was a match
+		// If it's a new chain, add new event buffer
+		if chain > len(s.events)-1 {
+			s.events = append(s.events, []event.Event{ev})
+		} else {
+			s.events[chain] = append(s.events[chain], ev)
+		}
 	}
-	s.events = s.events[:0]
 	return
 }
