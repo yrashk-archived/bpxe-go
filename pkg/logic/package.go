@@ -6,5 +6,5 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/LICENSE-Apache-2.0
 
-// Package logic provides commonly shared "logic units" (or algorithms) for BPEX
+// Package logic provides commonly shared "logic units" (or algorithms) for BPXE
 package logic
