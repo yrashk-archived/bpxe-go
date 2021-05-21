@@ -12,23 +12,15 @@
     </bpmn:intermediateCatchEvent>
     <bpmn:endEvent id="end">
       <bpmn:incoming>Flow_0kvizdr</bpmn:incoming>
-      <bpmn:incoming>Flow_1xqpthx</bpmn:incoming>
       <bpmn:incoming>Flow_0rlsw25</bpmn:incoming>
       <bpmn:incoming>Flow_1sb248q</bpmn:incoming>
       <bpmn:incoming>Flow_08o2mhc</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0kvizdr" sourceRef="signalCatch" targetRef="end" />
     <bpmn:sequenceFlow id="Flow_1ns7lju" sourceRef="fork" targetRef="signalCatch" />
-    <bpmn:intermediateCatchEvent id="noneCatch" name="None">
-      <bpmn:incoming>Flow_177kpfc</bpmn:incoming>
-      <bpmn:outgoing>Flow_1xqpthx</bpmn:outgoing>
-    </bpmn:intermediateCatchEvent>
-    <bpmn:sequenceFlow id="Flow_177kpfc" sourceRef="fork" targetRef="noneCatch" />
-    <bpmn:sequenceFlow id="Flow_1xqpthx" sourceRef="noneCatch" targetRef="end" />
     <bpmn:parallelGateway id="fork">
       <bpmn:incoming>Flow_1cd5hcs</bpmn:incoming>
       <bpmn:outgoing>Flow_1ns7lju</bpmn:outgoing>
-      <bpmn:outgoing>Flow_177kpfc</bpmn:outgoing>
       <bpmn:outgoing>Flow_15mbx0e</bpmn:outgoing>
       <bpmn:outgoing>Flow_1m7nqql</bpmn:outgoing>
       <bpmn:outgoing>Flow_0489ggc</bpmn:outgoing>
@@ -95,14 +87,6 @@
         <di:waypoint x="260" y="310" />
         <di:waypoint x="372" y="310" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1xqpthx_di" bpmnElement="Flow_1xqpthx">
-        <di:waypoint x="408" y="200" />
-        <di:waypoint x="602" y="200" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_177kpfc_di" bpmnElement="Flow_177kpfc">
-        <di:waypoint x="285" y="200" />
-        <di:waypoint x="372" y="200" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1ns7lju_di" bpmnElement="Flow_1ns7lju">
         <di:waypoint x="260" y="175" />
         <di:waypoint x="260" y="100" />
@@ -129,12 +113,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1glonnf_di" bpmnElement="end">
         <dc:Bounds x="602" y="182" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_05tr23y_di" bpmnElement="noneCatch">
-        <dc:Bounds x="372" y="182" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="377" y="225" width="27" height="14" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_19dk2jn_di" bpmnElement="fork">
         <dc:Bounds x="235" y="175" width="50" height="50" />

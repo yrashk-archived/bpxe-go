@@ -18,6 +18,7 @@ import (
 	"bpxe.org/pkg/flow/flow_interface"
 	"bpxe.org/pkg/flow_node"
 	"bpxe.org/pkg/id"
+	"bpxe.org/pkg/logic"
 	"bpxe.org/pkg/tracing"
 )
 
@@ -48,7 +49,7 @@ type Node struct {
 	activated        bool
 	idGenerator      id.Generator
 	itemAwareLocator data.ItemAwareLocator
-	eventInstances   []event.Instance
+	satisfier        *logic.CatchEventSatisfier
 }
 
 func New(ctx context.Context, wiring *flow_node.Wiring, startEvent *bpmn.StartEvent,
@@ -68,7 +69,7 @@ func New(ctx context.Context, wiring *flow_node.Wiring, startEvent *bpmn.StartEv
 		activated:        false,
 		idGenerator:      idGenerator,
 		itemAwareLocator: itemAwareLocator,
-		eventInstances:   eventInstances,
+		satisfier:        logic.NewCatchEventSatisfier(startEvent, wiring.EventInstanceBuilder),
 	}
 	sender := node.Tracer.RegisterSender()
 	go node.runner(ctx, sender)
@@ -97,19 +98,8 @@ func (node *Node) runner(ctx context.Context, sender tracing.SenderHandle) {
 				node.flow(ctx)
 			case eventMessage:
 				if !node.activated {
-					for i := range node.eventInstances {
-						if m.event.MatchesEventInstance(node.eventInstances[i]) {
-							if !node.element.ParallelMultiple() {
-								node.flow(ctx)
-							} else {
-								node.eventInstances[i] = node.eventInstances[len(node.eventInstances)-1]
-								node.eventInstances = node.eventInstances[:len(node.eventInstances)-1]
-								if len(node.eventInstances) == 0 {
-									node.flow(ctx)
-								}
-							}
-							break
-						}
+					if satisfied, _ := node.satisfier.Satisfy(m.event); satisfied {
+						node.flow(ctx)
 					}
 				}
 			default:
