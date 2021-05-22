@@ -16,13 +16,13 @@ import (
 	"testing"
 
 	"bpxe.org/pkg/bpmn"
-	"github.com/benbjohnson/clock"
+	"bpxe.org/pkg/clock"
 	"github.com/qri-io/iso8601"
 	"github.com/stretchr/testify/require"
 )
 
 func TestTimeDate(t *testing.T) {
-	c := NewDriftingClock(context.Background(), clock.NewMock())
+	c := clock.NewMock()
 
 	definition := bpmn.DefaultTimerEventDefinition()
 	iso := "2021-05-21T16:43:43+00:00"
@@ -41,13 +41,12 @@ func TestTimeDate(t *testing.T) {
 	}
 	time, err := iso8601.ParseTime(iso)
 	require.Nil(t, err)
-	err = c.Set(time)
-	require.Nil(t, err)
+	c.Set(time)
 	<-timer
 }
 
 func TestTimeDuration(t *testing.T) {
-	c := NewDriftingClock(context.Background(), clock.NewMock())
+	c := clock.NewMock()
 
 	definition := bpmn.DefaultTimerEventDefinition()
 	iso := "PT30M"
@@ -66,13 +65,12 @@ func TestTimeDuration(t *testing.T) {
 	}
 	dur, err := iso8601.ParseDuration(iso)
 	require.Nil(t, err)
-	err = c.Add(dur.Duration)
-	require.Nil(t, err)
+	c.Add(dur.Duration)
 	<-timer
 }
 
 func TestTimeCycle(t *testing.T) {
-	c := NewDriftingClock(context.Background(), clock.NewMock())
+	c := clock.NewMock()
 
 	definition := bpmn.DefaultTimerEventDefinition()
 	iso := "R3/PT30M"
@@ -96,8 +94,7 @@ func TestTimeCycle(t *testing.T) {
 	require.Nil(t, err)
 
 	for i := 0; i < interval.Repititions; i++ {
-		err = c.Add(interval.Interval.Duration.Duration)
-		require.Nil(t, err)
+		c.Add(interval.Interval.Duration.Duration)
 
 		<-timer
 
@@ -117,7 +114,7 @@ func TestTimeCycle(t *testing.T) {
 }
 
 func TestTimeCycleNoRep(t *testing.T) {
-	c := NewDriftingClock(context.Background(), clock.NewMock())
+	c := clock.NewMock()
 
 	definition := bpmn.DefaultTimerEventDefinition()
 	iso := "R0/PT30M"
@@ -140,8 +137,7 @@ func TestTimeCycleNoRep(t *testing.T) {
 	interval, err := iso8601.ParseRepeatingInterval(iso)
 	require.Nil(t, err)
 
-	err = c.Add(interval.Interval.Duration.Duration)
-	require.Nil(t, err)
+	c.Add(interval.Interval.Duration.Duration)
 
 	select {
 	case <-timer:
@@ -152,7 +148,7 @@ func TestTimeCycleNoRep(t *testing.T) {
 }
 
 func TestTimeCycleStartDate(t *testing.T) {
-	c := NewDriftingClock(context.Background(), clock.NewMock())
+	c := clock.NewMock()
 
 	definition := bpmn.DefaultTimerEventDefinition()
 	date := "2021-05-21T16:43:43+00:00"
@@ -176,8 +172,7 @@ func TestTimeCycleStartDate(t *testing.T) {
 	interval, err := iso8601.ParseRepeatingInterval(iso)
 	require.Nil(t, err)
 
-	err = c.Add(interval.Interval.Duration.Duration)
-	require.Nil(t, err)
+	c.Add(interval.Interval.Duration.Duration)
 
 	select {
 	case <-timer:
@@ -185,8 +180,7 @@ func TestTimeCycleStartDate(t *testing.T) {
 	default:
 	}
 
-	err = c.Set(*interval.Interval.Start)
-	require.Nil(t, err)
+	c.Set(*interval.Interval.Start)
 	select {
 	case <-timer:
 		require.FailNow(t, "shouldn't happen")
@@ -194,8 +188,7 @@ func TestTimeCycleStartDate(t *testing.T) {
 	}
 
 	for i := 0; i < interval.Repititions; i++ {
-		err = c.Add(interval.Interval.Duration.Duration)
-		require.Nil(t, err)
+		c.Add(interval.Interval.Duration.Duration)
 
 		<-timer
 
@@ -216,7 +209,7 @@ func TestTimeCycleStartDate(t *testing.T) {
 
 func TestTimeCycleIndefinitely(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
-	c := NewDriftingClock(ctx, clock.NewMock())
+	c := clock.NewMock()
 
 	definition := bpmn.DefaultTimerEventDefinition()
 	iso := "R/PT30M"
@@ -241,8 +234,7 @@ func TestTimeCycleIndefinitely(t *testing.T) {
 
 	// Do some number of iterations to show that it repeats indefinitely
 	for i := 0; i < 3; i++ {
-		err = c.Add(interval.Interval.Duration.Duration)
-		require.Nil(t, err)
+		c.Add(interval.Interval.Duration.Duration)
 
 		<-timer
 
@@ -258,7 +250,7 @@ func TestTimeCycleIndefinitely(t *testing.T) {
 }
 
 func TestTimeCycleEndDate(t *testing.T) {
-	c := NewDriftingClock(context.Background(), clock.NewMock())
+	c := clock.NewMock()
 
 	definition := bpmn.DefaultTimerEventDefinition()
 	date := "2021-05-21T16:43:43+00:00"
@@ -284,8 +276,7 @@ func TestTimeCycleEndDate(t *testing.T) {
 
 	// Do some number of iterations to show that it repeats indefinitely
 	for i := 0; i < 3; i++ {
-		err = c.Add(interval.Interval.Duration.Duration)
-		require.Nil(t, err)
+		c.Add(interval.Interval.Duration.Duration)
 
 		<-timer
 
@@ -297,11 +288,9 @@ func TestTimeCycleEndDate(t *testing.T) {
 	}
 
 	// Shift to the end
-	err = c.Set(*interval.Interval.End)
-	require.Nil(t, err)
+	c.Set(*interval.Interval.End)
 	// Add a duration
-	err = c.Add(interval.Interval.Duration.Duration)
-	require.Nil(t, err)
+	c.Add(interval.Interval.Duration.Duration)
 
 	// No more repetitions
 	select {

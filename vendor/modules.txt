@@ -26,9 +26,6 @@ github.com/antonmedv/expr/optimizer
 github.com/antonmedv/expr/parser
 github.com/antonmedv/expr/parser/lexer
 github.com/antonmedv/expr/vm
-# github.com/benbjohnson/clock v1.1.0
-## explicit
-github.com/benbjohnson/clock
 # github.com/bits-and-blooms/bitset v1.2.0
 ## explicit
 github.com/bits-and-blooms/bitset

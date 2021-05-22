@@ -13,12 +13,13 @@ import (
 	"time"
 
 	"bpxe.org/pkg/bpmn"
+	"bpxe.org/pkg/clock"
 	"bpxe.org/pkg/errors"
 
 	"github.com/qri-io/iso8601"
 )
 
-func New(ctx context.Context, clock *DriftingClock, definition bpmn.TimerEventDefinition) (ch chan bpmn.TimerEventDefinition, err error) {
+func New(ctx context.Context, clock clock.Clock, definition bpmn.TimerEventDefinition) (ch chan bpmn.TimerEventDefinition, err error) {
 	timeDate, timeDatePresent := definition.TimeDate()
 	timeCycle, timeCyclePresent := definition.TimeCycle()
 	timeDuration, timeDurationPresent := definition.TimeDuration()
@@ -39,6 +40,10 @@ func New(ctx context.Context, clock *DriftingClock, definition bpmn.TimerEventDe
 		repeatingInterval, err = iso8601.ParseRepeatingInterval(*timeCycle.Expression.TextPayload())
 		if err != nil {
 			return
+		}
+		if repeatingInterval.Interval.Start == nil {
+			now := clock.Now()
+			repeatingInterval.Interval.Start = &now
 		}
 		go recurringTimer(ctx, clock, repeatingInterval, func() {
 			ch <- definition
@@ -63,80 +68,65 @@ func New(ctx context.Context, clock *DriftingClock, definition bpmn.TimerEventDe
 	return
 }
 
-func recurringTimer(ctx context.Context, clock *DriftingClock, interval iso8601.RepeatingInterval, f func()) {
-	if interval.Interval.Start != nil {
-		ch := make(chan struct{})
-		go dateTimeTimer(ctx, clock, *interval.Interval.Start, func() {
-			ch <- struct{}{}
-		})
-		select {
-		case <-ctx.Done():
-			return
-		case <-ch:
-			break
-		}
+func recurringTimer(ctx context.Context, clock clock.Clock, interval iso8601.RepeatingInterval, f func()) {
+	if interval.Interval.Start == nil {
+		panic("shouldn't happen, has to be always set, explicitly or by timer.New")
+	}
+	ch := make(chan struct{})
+	go dateTimeTimer(ctx, clock, *interval.Interval.Start, func() {
+		ch <- struct{}{}
+	})
+	select {
+	case <-ctx.Done():
+		return
+	case <-ch:
+		break
 	}
 
-	t := clock.Now().Add(interval.Interval.Duration.Duration)
-
 	repetitions := interval.Repititions
+
+	var endTimer <-chan time.Time
+	var timer <-chan time.Time
+
+	t := *interval.Interval.Start
 
 	for {
 		if repetitions == 0 {
 			return
 		}
 
-		timer := clock.After(t.Sub(clock.Now()))
-		var endTimer <-chan time.Time
+		timer = clock.Until(t.Add(interval.Interval.Duration.Duration))
+
 		if interval.Interval.End != nil {
-			endTimer = clock.After(interval.Interval.End.Sub(clock.Now()))
+			endTimer = clock.Until(*interval.Interval.End)
 		}
 
-		// If it's already time
-		if t.Sub(clock.Now()).Nanoseconds() <= 0 {
+		select {
+		case <-endTimer:
+			return
+		case <-ctx.Done():
+			return
+		case t = <-timer:
 			if interval.Interval.End == nil || interval.Interval.End.After(clock.Now()) {
 				f()
 			}
-		} else {
-			select {
-			case <-endTimer:
-				return
-			case <-ctx.Done():
-				return
-			case <-clock.DriftOccurrence():
-				continue
-			case <-timer:
-				if interval.Interval.End == nil || interval.Interval.End.After(clock.Now()) {
-					f()
-				}
-			}
 		}
+
 		if repetitions > 0 {
 			repetitions--
 		}
-		t = clock.Now().Add(interval.Interval.Duration.Duration)
 	}
 }
 
-func dateTimeTimer(ctx context.Context, clock *DriftingClock, t time.Time, f func()) {
+func dateTimeTimer(ctx context.Context, clock clock.Clock, t time.Time, f func()) {
 	for {
-		// If it's now, we're done
-		if t.Sub(clock.Now()).Nanoseconds() <= 0 {
-			f()
-			return
-		}
-		timer := clock.After(t.Sub(clock.Now()))
+		timer := clock.Until(t)
 		select {
 		case <-ctx.Done():
 			return
-		case <-clock.DriftOccurrence():
-			continue
-		case now := <-timer:
-			if now.Equal(t) || now.After(t) {
-				f()
-				return
-			}
-			continue
+		case <-timer:
+			f()
+			return
 		}
 	}
 }

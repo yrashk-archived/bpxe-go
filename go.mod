@@ -6,7 +6,6 @@ require (
 	github.com/ChrisTrenkamp/xsel v0.9.6
 	github.com/Chronokeeper/anyxml v0.0.0-20160530174208-54457d8e98c6
 	github.com/antonmedv/expr v1.8.9
-	github.com/benbjohnson/clock v1.1.0
 	github.com/bits-and-blooms/bitset v1.2.0
 	github.com/go-enry/go-license-detector/v4 v4.2.0
 	github.com/google/gops v0.3.18
