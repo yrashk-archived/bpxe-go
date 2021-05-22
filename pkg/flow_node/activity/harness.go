@@ -37,31 +37,28 @@ func (m nextActionMessage) message() {}
 
 type Harness struct {
 	*flow_node.Wiring
-	element        bpmn.FlowNodeInterface
-	runnerChannel  chan message
-	activity       Activity
-	activeBoundary <-chan bool
-	active         int32
-	cancellation   sync.Once
-	lock           sync.RWMutex
-	eventConsumers []event.Consumer
+	element            bpmn.FlowNodeInterface
+	runnerChannel      chan message
+	activity           Activity
+	active             int32
+	cancellation       sync.Once
+	eventConsumers     []event.Consumer
+	eventConsumersLock sync.RWMutex
 }
 
 func (node *Harness) ConsumeEvent(ev event.Event) (result event.ConsumptionResult, err error) {
-	node.lock.RLock()
-	defer node.lock.RUnlock()
+	node.eventConsumersLock.RLock()
 	if atomic.LoadInt32(&node.active) == 1 {
 		result, err = event.ForwardEvent(ev, &node.eventConsumers)
-	} else {
-		result = event.Consumed
 	}
+	node.eventConsumersLock.RUnlock()
 	return
 }
 
 func (node *Harness) RegisterEventConsumer(consumer event.Consumer) (err error) {
-	node.lock.Lock()
-	defer node.lock.Unlock()
+	node.eventConsumersLock.Lock()
 	node.eventConsumers = append(node.eventConsumers, consumer)
+	node.eventConsumersLock.Unlock()
 	return
 }
 
@@ -94,11 +91,10 @@ func NewHarness(ctx context.Context,
 	}
 
 	node = &Harness{
-		Wiring:         wiring,
-		element:        element,
-		runnerChannel:  make(chan message, len(wiring.Incoming)*2+1),
-		activity:       activity,
-		activeBoundary: activity.ActiveBoundary(),
+		Wiring:        wiring,
+		element:       element,
+		runnerChannel: make(chan message, len(wiring.Incoming)*2+1),
+		activity:      activity,
 	}
 
 	err = node.EventEgress.RegisterEventConsumer(node)
@@ -145,20 +141,23 @@ func (node *Harness) runner(ctx context.Context, sender tracing.SenderHandle) {
 
 	for {
 		select {
-		case activeBoundary := <-node.activeBoundary:
-			if activeBoundary && atomic.LoadInt32(&node.active) == 0 {
-				// Opening active boundary
-				atomic.StoreInt32(&node.active, 1)
-				node.Tracer.Trace(ActiveBoundaryTrace{Start: activeBoundary, Node: node.activity.Element()})
-			} else if !activeBoundary && atomic.LoadInt32(&node.active) == 1 {
-				// Closing active boundary
-				atomic.StoreInt32(&node.active, 0)
-				node.Tracer.Trace(ActiveBoundaryTrace{Start: activeBoundary, Node: node.activity.Element()})
-			}
 		case msg := <-node.runnerChannel:
 			switch m := msg.(type) {
 			case nextActionMessage:
-				m.response <- node.activity.NextAction(m.flow)
+				atomic.StoreInt32(&node.active, 1)
+				node.Tracer.Trace(ActiveBoundaryTrace{Start: true, Node: node.activity.Element()})
+				in := node.activity.NextAction(m.flow)
+				out := make(chan flow_node.Action)
+				go func(ctx2 context.Context) {
+					select {
+					case out <- <-in:
+						atomic.StoreInt32(&node.active, 0)
+						node.Tracer.Trace(ActiveBoundaryTrace{Start: false, Node: node.activity.Element()})
+					case <-ctx.Done():
+						return
+					}
+				}(ctx)
+				m.response <- out
 			default:
 			}
 		case <-ctx.Done():
