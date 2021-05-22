@@ -36,12 +36,11 @@ func (m cancelMessage) message() {}
 
 type Task struct {
 	*flow_node.Wiring
-	element        *bpmn.Task
-	runnerChannel  chan message
-	activeBoundary chan bool
-	bodyLock       sync.RWMutex
-	body           func(*Task, context.Context) flow_node.Action
-	cancel         context.CancelFunc
+	element       *bpmn.Task
+	runnerChannel chan message
+	bodyLock      sync.RWMutex
+	body          func(*Task, context.Context) flow_node.Action
+	cancel        context.CancelFunc
 }
 
 // SetBody override Task's body with an arbitrary function
@@ -58,11 +57,10 @@ func NewTask(ctx context.Context, startEvent *bpmn.Task) activity.Constructor {
 	return func(wiring *flow_node.Wiring) (node activity.Activity, err error) {
 		ctx, cancel := context.WithCancel(ctx)
 		taskNode := &Task{
-			Wiring:         wiring,
-			element:        startEvent,
-			runnerChannel:  make(chan message, len(wiring.Incoming)*2+1),
-			activeBoundary: make(chan bool),
-			cancel:         cancel,
+			Wiring:        wiring,
+			element:       startEvent,
+			runnerChannel: make(chan message, len(wiring.Incoming)*2+1),
+			cancel:        cancel,
 		}
 		go taskNode.runner(ctx)
 		node = taskNode
@@ -79,7 +77,6 @@ func (node *Task) runner(ctx context.Context) {
 				node.cancel()
 				m.response <- true
 			case nextActionMessage:
-				node.activeBoundary <- true
 				go func() {
 					var action flow_node.Action
 					action = flow_node.FlowAction{SequenceFlows: flow_node.AllSequenceFlows(&node.Outgoing)}
@@ -88,7 +85,6 @@ func (node *Task) runner(ctx context.Context) {
 						action = node.body(node, ctx)
 						node.bodyLock.RUnlock()
 					}
-					node.activeBoundary <- false
 					m.response <- action
 				}()
 			default:
@@ -107,10 +103,6 @@ func (node *Task) NextAction(flow_interface.T) chan flow_node.Action {
 
 func (node *Task) Element() bpmn.FlowNodeInterface {
 	return node.element
-}
-
-func (node *Task) ActiveBoundary() <-chan bool {
-	return node.activeBoundary
 }
 
 func (node *Task) Cancel() <-chan bool {
