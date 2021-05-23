@@ -19,9 +19,13 @@ import (
 // and obtain a determination whether all conditions were satisfied.
 type CatchEventSatisfier struct {
 	bpmn.CatchEventInterface
-	eventInstances []event.DefinitionInstance
-	len            uint
-	chains         []*bitset.BitSet
+	eventDefinitionInstances []event.DefinitionInstance
+	len                      uint
+	chains                   []*bitset.BitSet
+}
+
+func (satisfier *CatchEventSatisfier) EventDefinitionInstances() *[]event.DefinitionInstance {
+	return &satisfier.eventDefinitionInstances
 }
 
 func NewCatchEventSatisfier(catchEventElement bpmn.CatchEventInterface, eventDefinitionInstanceBuilder event.DefinitionInstanceBuilder) *CatchEventSatisfier {
@@ -31,9 +35,9 @@ func NewCatchEventSatisfier(catchEventElement bpmn.CatchEventInterface, eventDef
 		len:                 uint(len(catchEventElement.EventDefinitions())),
 	}
 
-	satisfier.eventInstances = make([]event.DefinitionInstance, len(catchEventElement.EventDefinitions()))
+	satisfier.eventDefinitionInstances = make([]event.DefinitionInstance, len(catchEventElement.EventDefinitions()))
 	for k := range catchEventElement.EventDefinitions() {
-		satisfier.eventInstances[k] = eventDefinitionInstanceBuilder.NewEventInstance(catchEventElement.EventDefinitions()[k])
+		satisfier.eventDefinitionInstances[k], _ = eventDefinitionInstanceBuilder.NewEventDefinitionInstance(catchEventElement.EventDefinitions()[k])
 	}
 
 	return satisfier
@@ -64,8 +68,8 @@ const EventDidNotMatch = -1
 // synchronization.
 func (satisfier *CatchEventSatisfier) Satisfy(ev event.Event) (matched bool, chain int) {
 	chain = EventDidNotMatch
-	for i := range satisfier.eventInstances {
-		if ev.MatchesEventInstance(satisfier.eventInstances[i]) {
+	for i := range satisfier.eventDefinitionInstances {
+		if ev.MatchesEventInstance(satisfier.eventDefinitionInstances[i]) {
 			if !satisfier.ParallelMultiple() || satisfier.len == 1 {
 				chain = 0
 				matched = true

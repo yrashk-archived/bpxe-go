@@ -164,6 +164,14 @@ func (e *AnExpression) FindBy(pred ElementPredicate) (result Element, found bool
 	return e.Expression.FindBy(pred)
 }
 
+// Equal will return true if both given elements are exactly the same ones
+func Equal(e1, e2 Element) bool {
+	// I'm not particularly fond of reflect.DeepEqual usage here,
+	// perhaps we can come up with something better, perhaps a better
+	// way to uniquely identify every element and compare that?
+	return reflect.DeepEqual(e1, e2)
+}
+
 // Generate schema files:
 
 //go:generate saxon-he ../../schemas/BPMN20.xsd ../../schema-codegen.xsl

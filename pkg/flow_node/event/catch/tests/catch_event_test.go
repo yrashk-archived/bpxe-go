@@ -59,16 +59,16 @@ func (e eventInstance) EventDefinition() bpmn.EventDefinitionInterface {
 
 type eventDefinitionInstanceBuilder struct{}
 
-func (e eventDefinitionInstanceBuilder) NewEventInstance(def bpmn.EventDefinitionInterface) event.DefinitionInstance {
+func (e eventDefinitionInstanceBuilder) NewEventDefinitionInstance(def bpmn.EventDefinitionInterface) (event.DefinitionInstance, error) {
 	switch d := def.(type) {
 	case *bpmn.TimerEventDefinition:
 		id, _ := d.Id()
-		return eventInstance{id: *id}
+		return eventInstance{id: *id}, nil
 	case *bpmn.ConditionalEventDefinition:
 		id, _ := d.Id()
-		return eventInstance{id: *id}
+		return eventInstance{id: *id}, nil
 	default:
-		return event.WrapEventDefinition(d)
+		return event.WrapEventDefinition(d), nil
 	}
 }
 
@@ -96,7 +96,7 @@ func testEvent(t *testing.T, filename string, nodeId string, eventDefinitionInst
 		t.Fatalf("XML unmarshalling error: %v", err)
 	}
 	processElement := (*testDoc.Processes())[0]
-	proc := process.New(&processElement, &testDoc, process.WitheventDefinitionInstanceBuilder(eventDefinitionInstanceBuilder))
+	proc := process.New(&processElement, &testDoc, process.WithEventDefinitionInstanceBuilder(eventDefinitionInstanceBuilder))
 
 	tracer := tracing.NewTracer(context.Background())
 	traces := tracer.SubscribeChannel(make(chan tracing.Trace, 64))

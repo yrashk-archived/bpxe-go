@@ -59,7 +59,12 @@ func New(ctx context.Context, wiring *flow_node.Wiring, startEvent *bpmn.StartEv
 	eventInstances := make([]event.DefinitionInstance, len(eventDefinitions))
 
 	for i, eventDefinition := range eventDefinitions {
-		eventInstances[i] = wiring.EventDefinitionInstanceBuilder.NewEventInstance(eventDefinition)
+		var instance event.DefinitionInstance
+		instance, err = wiring.EventDefinitionInstanceBuilder.NewEventDefinitionInstance(eventDefinition)
+		if err != nil {
+			return
+		}
+		eventInstances[i] = instance
 	}
 
 	node = &Node{

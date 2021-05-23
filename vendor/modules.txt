@@ -165,6 +165,9 @@ github.com/pelletier/go-toml
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
+# github.com/qri-io/iso8601 v0.1.0
+## explicit
+github.com/qri-io/iso8601
 # github.com/russross/blackfriday/v2 v2.0.1
 github.com/russross/blackfriday/v2
 # github.com/sergi/go-diff v1.1.0
