@@ -33,6 +33,7 @@ func New(ctx context.Context, clock clock.Clock, definition bpmn.TimerEventDefin
 		}
 		go dateTimeTimer(ctx, clock, t, func() {
 			ch <- definition
+			close(ch)
 		})
 	case !timeDatePresent && timeCyclePresent && !timeDurationPresent:
 		ch = make(chan bpmn.TimerEventDefinition)
@@ -47,6 +48,8 @@ func New(ctx context.Context, clock clock.Clock, definition bpmn.TimerEventDefin
 		}
 		go recurringTimer(ctx, clock, repeatingInterval, func() {
 			ch <- definition
+		}, func() {
+			close(ch)
 		})
 	case !timeDatePresent && !timeCyclePresent && timeDurationPresent:
 		ch = make(chan bpmn.TimerEventDefinition)
@@ -57,6 +60,7 @@ func New(ctx context.Context, clock clock.Clock, definition bpmn.TimerEventDefin
 		}
 		go dateTimeTimer(ctx, clock, clock.Now().Add(duration.Duration), func() {
 			ch <- definition
+			close(ch)
 		})
 	default:
 		err = errors.InvalidArgumentError{
@@ -68,7 +72,7 @@ func New(ctx context.Context, clock clock.Clock, definition bpmn.TimerEventDefin
 	return
 }
 
-func recurringTimer(ctx context.Context, clock clock.Clock, interval iso8601.RepeatingInterval, f func()) {
+func recurringTimer(ctx context.Context, clock clock.Clock, interval iso8601.RepeatingInterval, f func(), final func()) {
 	if interval.Interval.Start == nil {
 		panic("shouldn't happen, has to be always set, explicitly or by timer.New")
 	}
@@ -89,6 +93,8 @@ func recurringTimer(ctx context.Context, clock clock.Clock, interval iso8601.Rep
 	var timer <-chan time.Time
 
 	t := *interval.Interval.Start
+
+	defer final()
 
 	for {
 		if repetitions == 0 {

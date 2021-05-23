@@ -52,7 +52,7 @@ func WithEventEgress(source event.Source) Option {
 	}
 }
 
-func WitheventDefinitionInstanceBuilder(builder event.DefinitionInstanceBuilder) Option {
+func WithEventDefinitionInstanceBuilder(builder event.DefinitionInstanceBuilder) Option {
 	return func(ctx context.Context, process *Process) context.Context {
 		process.eventDefinitionInstanceBuilder = builder
 		return ctx
@@ -117,7 +117,7 @@ func New(element *bpmn.Process, definitions *bpmn.Definitions, options ...Option
 func (process *Process) Instantiate(options ...instance.Option) (inst *instance.Instance, err error) {
 	options = append([]instance.Option{
 		instance.WithIdGenerator(process.idGeneratorBuilder),
-		instance.WitheventDefinitionInstanceBuilder(process.eventDefinitionInstanceBuilder),
+		instance.WithEventDefinitionInstanceBuilder(process.eventDefinitionInstanceBuilder),
 		instance.WithEventEgress(process.EventEgress),
 		instance.WithEventIngress(process.EventIngress),
 	}, options...)

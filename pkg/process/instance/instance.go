@@ -166,7 +166,7 @@ func WithEventEgress(source event.Source) Option {
 	}
 }
 
-func WitheventDefinitionInstanceBuilder(builder event.DefinitionInstanceBuilder) Option {
+func WithEventDefinitionInstanceBuilder(builder event.DefinitionInstanceBuilder) Option {
 	return func(ctx context.Context, instance *Instance) context.Context {
 		instance.eventDefinitionInstanceBuilder = builder
 		return ctx

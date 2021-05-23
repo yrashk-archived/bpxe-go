@@ -99,15 +99,15 @@ func TestTimeCycle(t *testing.T) {
 		<-timer
 
 		select {
-		case <-timer:
-			require.FailNow(t, "shouldn't happen")
+		case _, ok := <-timer:
+			require.False(t, ok)
 		default:
 		}
 	}
 
 	select {
-	case <-timer:
-		require.FailNow(t, "shouldn't happen")
+	case _, ok := <-timer:
+		require.False(t, ok)
 	default:
 	}
 
@@ -193,15 +193,15 @@ func TestTimeCycleStartDate(t *testing.T) {
 		<-timer
 
 		select {
-		case <-timer:
-			require.FailNow(t, "shouldn't happen")
+		case _, ok := <-timer:
+			require.False(t, ok)
 		default:
 		}
 	}
 
 	select {
-	case <-timer:
-		require.FailNow(t, "shouldn't happen")
+	case _, ok := <-timer:
+		require.False(t, ok)
 	default:
 	}
 

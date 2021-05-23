@@ -37,13 +37,38 @@ func WrapEventDefinition(def bpmn.EventDefinitionInterface) DefinitionInstance {
 // DefinitionInstanceBuilder allows supplying custom instance builders that interact with the
 // rest of the system and add context for further matching
 type DefinitionInstanceBuilder interface {
-	NewEventInstance(def bpmn.EventDefinitionInterface) DefinitionInstance
+	NewEventDefinitionInstance(def bpmn.EventDefinitionInterface) (definitionInstance DefinitionInstance, err error)
 }
 
 type wrappingDefinitionInstanceBuilder struct{}
 
 var WrappingDefinitionInstanceBuilder = wrappingDefinitionInstanceBuilder{}
 
-func (d wrappingDefinitionInstanceBuilder) NewEventInstance(def bpmn.EventDefinitionInterface) DefinitionInstance {
-	return WrapEventDefinition(def)
+func (d wrappingDefinitionInstanceBuilder) NewEventDefinitionInstance(def bpmn.EventDefinitionInterface) (DefinitionInstance, error) {
+	return WrapEventDefinition(def), nil
+}
+
+type fallbackDefinitionInstanceBuilder struct {
+	builders []DefinitionInstanceBuilder
+}
+
+func (f *fallbackDefinitionInstanceBuilder) NewEventDefinitionInstance(def bpmn.EventDefinitionInterface) (definitionInstance DefinitionInstance, err error) {
+	for i := range f.builders {
+		definitionInstance, err = f.builders[i].NewEventDefinitionInstance(def)
+		if err != nil {
+			return
+		}
+		if definitionInstance != nil {
+			return
+		}
+	}
+	return
+}
+
+// DefinitionInstanceBuildingChain creates a DefinitionInstanceBuilder that attempts supplied builders
+// from left to right, until a builder returns a non-nil DefinitionInstanceBuilder, which is then
+// returned from the call to DefinitionInstanceBuildingChain
+func DefinitionInstanceBuildingChain(builders ...DefinitionInstanceBuilder) DefinitionInstanceBuilder {
+	builder := &fallbackDefinitionInstanceBuilder{builders: builders}
+	return builder
 }
