@@ -9,6 +9,7 @@
 package clock
 
 import (
+	"context"
 	"time"
 )
 
@@ -35,4 +36,27 @@ type Clock interface {
 	// be a significant drift forward, or a drift backward; for
 	// mock clock, an explicit change)
 	Changes() <-chan time.Time
+}
+
+type contextKey string
+
+func (c contextKey) String() string {
+	return "clock package context key " + string(c)
+}
+
+// FromContext retrieves a Clock from a given context,
+// if there's any. If there's none, it'll create a Host
+// clock
+func FromContext(ctx context.Context) (c Clock, err error) {
+	val := ctx.Value(contextKey("clock"))
+	if val == nil {
+		return Host(ctx)
+	}
+	c = val.(Clock)
+	return
+}
+
+// ToContext saves Clock into a given context, returning a new one
+func ToContext(ctx context.Context, clock Clock) context.Context {
+	return context.WithValue(ctx, contextKey("clock"), clock)
 }

@@ -16,6 +16,7 @@ import (
 	"bpxe.org/pkg/event"
 	"bpxe.org/pkg/id"
 	"bpxe.org/pkg/process"
+	"bpxe.org/pkg/timer"
 	"bpxe.org/pkg/tracing"
 )
 
@@ -38,7 +39,7 @@ func WithIdGenerator(builder id.GeneratorBuilder) Option {
 	}
 }
 
-func WitheventDefinitionInstanceBuilder(builder event.DefinitionInstanceBuilder) Option {
+func WithEventDefinitionInstanceBuilder(builder event.DefinitionInstanceBuilder) Option {
 	return func(ctx context.Context, model *Model) context.Context {
 		model.eventDefinitionInstanceBuilder = builder
 		return ctx
@@ -77,12 +78,15 @@ func New(element *bpmn.Definitions, options ...Option) *Model {
 		model.idGeneratorBuilder = id.DefaultIdGeneratorBuilder
 	}
 
-	if model.eventDefinitionInstanceBuilder == nil {
-		model.eventDefinitionInstanceBuilder = event.WrappingDefinitionInstanceBuilder
-	}
-
 	if model.tracer == nil {
 		model.tracer = tracing.NewTracer(ctx)
+	}
+
+	if model.eventDefinitionInstanceBuilder == nil {
+		model.eventDefinitionInstanceBuilder = event.DefinitionInstanceBuildingChain(
+			timer.EventDefinitionInstanceBuilder(ctx, model, model.tracer),
+			event.WrappingDefinitionInstanceBuilder,
+		)
 	}
 
 	model.processes = make([]process.Process, len(*procs))
@@ -91,7 +95,7 @@ func New(element *bpmn.Definitions, options ...Option) *Model {
 		model.processes[i] = process.Make(&(*procs)[i], element,
 			process.WithIdGenerator(model.idGeneratorBuilder),
 			process.WithEventIngress(model), process.WithEventEgress(model),
-			process.WitheventDefinitionInstanceBuilder(model),
+			process.WithEventDefinitionInstanceBuilder(model),
 			process.WithContext(ctx),
 			process.WithTracer(model.tracer),
 		)
@@ -151,10 +155,10 @@ func (model *Model) RegisterEventConsumer(ev event.Consumer) (err error) {
 	return
 }
 
-func (model *Model) NewEventInstance(def bpmn.EventDefinitionInterface) event.DefinitionInstance {
+func (model *Model) NewEventDefinitionInstance(def bpmn.EventDefinitionInterface) (event.DefinitionInstance, error) {
 	if model.eventDefinitionInstanceBuilder != nil {
-		return model.eventDefinitionInstanceBuilder.NewEventInstance(def)
+		return model.eventDefinitionInstanceBuilder.NewEventDefinitionInstance(def)
 	} else {
-		return event.WrapEventDefinition(def)
+		return event.WrapEventDefinition(def), nil
 	}
 }

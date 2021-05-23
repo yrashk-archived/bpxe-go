@@ -1,0 +1,1420 @@
+positions: instr line
+events: cpu(ms)
+
+ob=(1) /tmp/nix-shell.F5pezG/go-build1433196800/b001/timer.test
+fl=(1) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/sys_linux_amd64.s
+fn=(1) runtime.epollwait
+0x4739a0 725 50
+
+ob=(1)
+fl=(1)
+fn=(2) runtime.futex
+-543 579 30
++2 580 30
+
+ob=(1)
+fl=(1)
+fn=(3) runtime.write1
+-1838 101 20
+
+ob=(1)
+fl=(1)
+fn=(4) runtime.usleep
++168 145 20
+
+ob=(1)
+fl=(2) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/chan.go
+fn=(5) runtime.empty
+-436235 431 10
+
+ob=(1)
+fl=(3) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/iface.go
+fn=(6) runtime.assertI2I2
++19438 466 10
+
+ob=(1)
+fl=(4) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/lock_futex.go
+fn=(7) runtime.notesleep
++2503 157 10
+
+ob=(1)
+fl=(5) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/malloc.go
+fn=(8) runtime.nextFreeFast
++5833 846 10
+
+ob=(1)
+fl=(6) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/map_fast64.go
+fn=(9) runtime.mapaccess2_fast64
++19395 57 10
+
+ob=(1)
+fl=(7) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/mbitmap.go
+fn=(10) runtime.heapBitsSetType
++17236 1164 10
+
+ob=(1)
+fl=(8) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/mspanset.go
+fn=(11) runtime.(*spanSet).push
++108666 129 10
+
+ob=(1)
+fl=(9) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/netpoll_epoll.go
+fn=(12) runtime.netpoll
++9201 126 10
+
+ob=(1)
+fl=(10) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/proc.go
+fn=(13) runtime.mDoFixup
++44805 2162 10
++11 2163 10
+
+ob=(1)
+fl=(10)
+fn=(14) runtime.findrunnable
++4722 2780 10
+
+ob=(1)
+fl=(11) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/time.go
+fn=(15) runtime.nobarrierWakeTime
++182 768 10
+
+ob=(1)
+fl=(12) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/time_nofake.go
+fn=(16) runtime.nanotime
++314 19 10
++5 19 10
+
+ob=(1)
+fl=(10)
+fn=(17) runtime.(*randomEnum).next
++2019 6194 10
+
+ob=(1)
+fl=(10)
+fn=(18) runtime.pMask.read
++129 5607 10
+
+ob=(1)
+fl=(10)
+fn=(19) runtime.checkTimers
++4226 3194 10
+
+ob=(1)
+fl=(10)
+fn=(20) runtime.park_m
++795 3263 10
+
+ob=(1)
+fl=(10)
+fn=(21) runtime.readgstatus
++6226 830 10
+
+ob=(1)
+fl=(10)
+fn=(22) runtime.runqgrab
++19973 5884 10
+
+ob=(1)
+fl=(10)
+fn=(23) runtime.runqsteal
++335 5937 10
+
+ob=(1)
+fl=(13) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/stack.go
+fn=(24) runtime.stackalloc
++37668 360 10
+
+ob=(1)
+fl=(13)
+fn=(25) runtime.adjustframe
++2856 676 10
+
+ob=(1)
+fl=(14) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/symtab.go
+fn=(26) runtime.pcvalue
++20471 794 10
+
+ob=(1)
+fl=(11)
+fn=(27) runtime.dodeltimer0
++6845 411 10
+
+ob=(1)
+fl=(11)
+fn=(28) runtime.runtimer
++3743 784 10
+
+ob=(1)
+fl=(11)
+fn=(29) runtime.siftupTimer
++2502 1097 10
+
+ob=(1)
+fl=(11)
+fn=(30) runtime.siftdownTimer
++274 1111 10
+
+ob=(1)
+fl=(15) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/traceback.go
+fn=(31) runtime.gentraceback
++22926 462 10
+
+ob=(1)
+fl=(16) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/asm_amd64.s
+fn=(32) runtime.mcall
++59043 326 10
+
+ob=(1)
+fl=(1)
+fn=(33) runtime.read
++13756 110 10
+
+ob=(1)
+fl=(1)
+fn=(34) runtime.nanotime1
++664 287 10
+
+ob=(1)
+fl=(1)
+fn=(35) runtime.madvise
++1099 566 10
+
+ob=(1)
+fl=(1)
+fn=(1)
++589 726 10
+
+ob=(1)
+fl=(17) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/time/format.go
+fn=(36) time.nextStdChunk
++55849 153 10
+
+ob=(1)
+fl=(18) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/time/time.go
+fn=(37) time.(*Time).addSec
++42361 193 10
+
+ob=(1)
+fl=(19) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/reflect/value.go
+fn=(38) reflect.Value.Elem
++201178 811 10
+
+ob=(1)
+fl=(20) /home/yrashk/Projects/bpxe/bpxe/vendor/github.com/benbjohnson/clock/clock.go
+fn=(39) github.com/benbjohnson/clock.(*Mock).After
++434889 144 10
+
+ob=(1)
+fl=(21) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/encoding/xml/read.go
+fn=(40) encoding/xml.(*Decoder).DecodeElement
++4843 151 10
+
+ob=(1)
+fl=(2)
+fn=(41) runtime.makechan
+0x4072be 105 0
+cfl=(5)
+cfn=(42) runtime.newobject
+calls=0 0x40fd77 1177
+* * 10
+
+ob=(1)
+fl=(2)
+fn=(43) runtime.chanrecv
++5684 471 0
+cfl=(2)
+cfn=(5)
+calls=0 +5684 431
+* * 10
+
+ob=(1)
+fl=(2)
+fn=(44) runtime.selectnbrecv
++871 708 0
+cfl=(2)
+cfn=(43)
+calls=0 * 471
+* * 10
+
+ob=(1)
+fl=(4)
+fn=(45) runtime.notewakeup
++20715 144 0
+cfl=(22) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/os_linux.go
+cfn=(46) runtime.futexwakeup
+calls=0 +182434 56
+* * 20
+
+ob=(1)
+fl=(4)
+fn=(7)
++314 159 0
+cfl=(22)
+cfn=(47) runtime.futexsleep
+calls=0 +161505 44
+* * 40
+
+ob=(1)
+fl=(5)
+fn=(48) runtime.mallocgc
++5874 1043 0
+cfl=(5)
+cfn=(8)
+calls=0 +5874 846
+* * 10
++788 1096 0
+cfl=(7)
+cfn=(10)
+calls=0 +36631 1164
+* * 10
+cfl=(7)
+cfn=(10)
+calls=0 +38100 815
+* * 10
+
+ob=(1)
+fl=(5)
+fn=(42)
++1267 1177 0
+cfl=(5)
+cfn=(48)
+calls=0 * 1096
+* * 20
+
+ob=(1)
+fl=(7)
+fn=(10)
++36045 815 0
+cfl=(13)
+cfn=(49) runtime.newstack
+calls=0 +279359 1078
+* * 10
+
+ob=(1)
+fl=(23) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/mcache.go
+fn=(50) runtime.(*mcache).releaseAll
++5137 276 0
+cfl=(24) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/mcentral.go
+cfn=(51) runtime.(*mcentral).uncacheSpan
+calls=0 +6694 214
+* * 10
+
+ob=(1)
+fl=(23)
+fn=(52) runtime.(*mcache).prepareForSweep
++208 310 0
+cfl=(23)
+cfn=(50)
+calls=0 * 276
+* * 10
+
+ob=(1)
+fl=(24)
+fn=(51)
++1349 214 0
+cfl=(25) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/mgcsweep.go
+cfn=(53) runtime.(*mspan).sweep
+calls=0 +53055 525
+* * 10
+
+ob=(1)
+fl=(26) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/mem_linux.go
+fn=(54) runtime.sysUnused
++2018 111 0
+cfl=(1)
+cfn=(35)
+calls=0 +365293 566
+* * 10
+
+ob=(1)
+fl=(27) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/mgc.go
+fn=(55) runtime.gcMarkDone
++13576 1623 0
+cfl=(27)
+cfn=(56) runtime.gcMarkTermination
+calls=0 +14792 1746
+* * 10
+
+ob=(1)
+fl=(27)
+fn=(56)
++1216 1746 0
+cfl=(16)
+cfn=(57) runtime.systemstack
+calls=0 +334353 379
+* * 10
+
+ob=(1)
+fl=(27)
+fn=(58) runtime.gcBgMarkWorker
++3158 2045 0
+cfl=(27)
+cfn=(55)
+calls=0 -1216 1623
+* * 10
+
+ob=(1)
+fl=(28) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/mgcscavenge.go
+fn=(59) runtime.bgscavenge
++20486 292 0
+cfl=(16)
+cfn=(57)
+calls=0 +329979 379
+* * 10
+
+ob=(1)
+fl=(28)
+fn=(60) runtime.(*pageAlloc).scavenge
++585 413 0
+cfl=(28)
+cfn=(61) runtime.(*pageAlloc).scavengeOne
+calls=0 +3255 622
+* * 10
+
+ob=(1)
+fl=(28)
+fn=(61)
++2670 622 0
+cfl=(28)
+cfn=(62) runtime.(*pageAlloc).scavengeRangeLocked
+calls=0 +3147 728
+* * 10
+
+ob=(1)
+fl=(28)
+fn=(62)
++477 728 0
+cfl=(26)
+cfn=(54)
+calls=0 -41691 111
+* * 10
+
+ob=(1)
+fl=(25)
+fn=(53)
++7520 525 0
+cfl=(8)
+cfn=(11)
+calls=0 +56317 129
+* * 10
+
+ob=(1)
+fl=(9)
+fn=(63) runtime.netpollBreak
++57696 85 0
+cfl=(12)
+cfn=(64) runtime.write
+calls=0 +57696 30
+* * 20
+
+ob=(1)
+fl=(12)
+fn=(64)
+* 30 0
+cfl=(1)
+cfn=(3)
+calls=0 +254097 101
+* * 20
+
+ob=(1)
+fl=(9)
+fn=(12)
++301 126 0
+cfl=(1)
+cfn=(1)
+calls=0 +256476 725
+* * 50
+cfl=(1)
+cfn=(1)
+calls=0 +256480 726
+* * 10
++197 156 0
+cfl=(1)
+cfn=(33)
+calls=0 +253827 110
+* * 10
+
+ob=(1)
+fl=(22)
+fn=(47)
++623 44 0
+cfl=(1)
+cfn=(2)
+calls=0 +255435 579
+* * 30
+cfl=(1)
+cfn=(2)
+calls=0 +255437 580
+* * 10
+
+ob=(1)
+fl=(22)
+fn=(46)
++214 56 0
+cfl=(1)
+cfn=(2)
+calls=0 +254814 580
+* * 20
+
+ob=(1)
+fl=(10)
+fn=(65) runtime.startTheWorldWithSema
++37705 1166 0
+cfl=(10)
+cfn=(66) runtime.procresize
+calls=0 +71017 4842
+* * 10
+
+ob=(1)
+fl=(10)
+fn=(67) runtime.mPark
++1044 1340 0
+cfl=(4)
+cfn=(7)
+calls=0 -199110 159
+* * 40
+cfl=(4)
+cfn=(7)
+calls=0 -199069 157
+* * 10
++25 1342 0
+cfl=(10)
+cfn=(13)
+calls=0 +5023 2162
+* * 10
+cfl=(10)
+cfn=(13)
+calls=0 +5034 2163
+* * 10
+
+ob=(1)
+fl=(10)
+fn=(68) runtime.stopm
++5600 2257 0
+cfl=(10)
+cfn=(67)
+calls=0 -25 1340
+* * 50
+cfl=(10)
+cfn=(67)
+calls=0 * 1342
+* * 20
+
+ob=(1)
+fl=(10)
+fn=(69) runtime.startm
++647 2353 0
+cfl=(4)
+cfn=(45)
+calls=0 -206093 144
+* * 20
+
+ob=(1)
+fl=(10)
+fn=(70) runtime.wakep
++1261 2433 0
+cfl=(10)
+cfn=(69)
+calls=0 * 2353
+* * 20
+
+ob=(1)
+fl=(10)
+fn=(14)
++2405 2802 0
+cfl=(11)
+cfn=(15)
+calls=0 +2405 768
+* * 10
++291 2879 0
+cfl=(9)
+cfn=(12)
+calls=0 -49721 126
+* * 60
+cfl=(9)
+cfn=(12)
+calls=0 -49720 126
+* * 10
+cfl=(9)
+cfn=(12)
+calls=0 -49524 156
+* * 10
++23 2881 0
+cfl=(12)
+cfn=(16)
+calls=0 +23 19
+* * 10
++4 2881 0
+cfl=(12)
+cfn=(16)
+calls=0 +4 19
+* * 10
+
+ob=(1)
+fl=(12)
+fn=(16)
+* 19 0
+cfl=(1)
+cfn=(34)
+calls=0 +204452 287
+* * 10
+
+ob=(1)
+fl=(10)
+fn=(14)
++1 2881 0
+cfl=(12)
+cfn=(16)
+calls=0 +1 19
+* * 10
++270 2571 0
+cfl=(10)
+cfn=(19)
+calls=0 +6374 3194
+* * 10
++534 2916 0
+cfl=(10)
+cfn=(68)
+calls=0 -4902 2257
+* * 70
++1215 2633 0
+cfl=(10)
+cfn=(17)
+calls=0 +1215 6194
+* * 10
++129 2678 0
+cfl=(10)
+cfn=(18)
+calls=0 +129 5607
+* * 10
++60 2679 0
+cfl=(10)
+cfn=(23)
+calls=0 +31593 5937
+* * 30
+cfl=(10)
+cfn=(23)
+calls=0 +31555 5937
+* * 10
++126 2656 0
+cfl=(10)
+cfn=(19)
+calls=0 +4528 3224
+* * 30
+
+ob=(1)
+fl=(10)
+fn=(71) runtime.wakeNetPoller
++1552 2952 0
+cfl=(9)
+cfn=(63)
+calls=0 -52675 85
+* * 20
+
+ob=(1)
+fl=(10)
+fn=(72) runtime.resetspinning
++129 2976 0
+cfl=(10)
+cfn=(70)
+calls=0 -6610 2433
+* * 20
+
+ob=(1)
+fl=(10)
+fn=(73) runtime.schedule
++1696 3132 0
+cfl=(10)
+cfn=(72)
+calls=0 * 2976
+* * 20
++30 3125 0
+cfl=(10)
+cfn=(14)
+calls=0 -5739 2879
+* * 80
+cfl=(10)
+cfn=(14)
+calls=0 -4907 2916
+* * 70
+cfl=(10)
+cfn=(14)
+calls=0 -3503 2679
+* * 40
+cfl=(10)
+cfn=(14)
+calls=0 -3377 2656
+* * 30
+cfl=(10)
+cfn=(14)
+calls=0 -6212 2780
+* * 10
+cfl=(10)
+cfn=(14)
+calls=0 -6030 2802
+* * 10
+cfl=(10)
+cfn=(14)
+calls=0 -5716 2881
+* * 10
+cfl=(10)
+cfn=(14)
+calls=0 -5712 2881
+* * 10
+cfl=(10)
+cfn=(14)
+calls=0 -5711 2881
+* * 10
+cfl=(10)
+cfn=(14)
+calls=0 -5441 2571
+* * 10
+cfl=(10)
+cfn=(14)
+calls=0 -3692 2633
+* * 10
+cfl=(10)
+cfn=(14)
+calls=0 -3563 2678
+* * 10
+
+ob=(1)
+fl=(10)
+fn=(19)
++995 3224 0
+cfl=(11)
+cfn=(28)
+calls=0 +99630 799
+* * 20
+cfl=(11)
+cfn=(28)
+calls=0 +99545 784
+* * 10
+
+ob=(1)
+fl=(10)
+fn=(20)
++419 3274 0
+cfl=(10)
+cfn=(73)
+calls=0 -995 3125
+* * 260
+cfl=(10)
+cfn=(73)
+calls=0 -1025 3132
+* * 20
++37 3263 0
+cfl=(11)
+cfn=(74) runtime.resetForSleep
+calls=0 +91976 202
+* * 30
+
+ob=(1)
+fl=(10)
+fn=(75) runtime.goexit0
++2652 3434 0
+cfl=(10)
+cfn=(73)
+calls=0 -1451 3125
+* * 40
+
+ob=(1)
+fl=(10)
+fn=(76) runtime.newproc
++3376 3978 0
+cfl=(16)
+cfn=(57)
+calls=0 +180360 379
+* * 10
+
+ob=(1)
+fl=(10)
+fn=(77) runtime.newproc1
++175 4029 0
+cfl=(10)
+cfn=(21)
+calls=0 +175 830
+* * 10
+
+ob=(1)
+fl=(10)
+fn=(78) runtime._System
++3236 4362 0
+cfl=(16)
+cfn=(32)
+calls=0 +176636 326
+* * 10
+
+ob=(1)
+fl=(10)
+fn=(66)
++5380 4842 0
+cfl=(23)
+cfn=(52)
+calls=0 -177723 310
+* * 10
+
+ob=(1)
+fl=(10)
+fn=(22)
++11469 5902 0
+cfl=(1)
+cfn=(4)
+calls=0 +181913 145
+* * 20
+
+ob=(1)
+fl=(10)
+fn=(23)
++261 5937 0
+cfl=(10)
+cfn=(22)
+calls=0 * 5902
+* * 20
+cfl=(10)
+cfn=(22)
+calls=0 -112 5884
+* * 10
+
+ob=(1)
+fl=(13)
+fn=(79) runtime.copystack
++41605 849 0
+cfl=(13)
+cfn=(24)
+calls=0 +37630 360
+* * 10
++629 908 0
+cfl=(15)
+cfn=(31)
+calls=0 +54489 322
+* * 10
+
+ob=(1)
+fl=(13)
+fn=(49)
++902 1078 0
+cfl=(13)
+cfn=(79)
+calls=0 -629 849
+* * 10
+cfl=(13)
+cfn=(79)
+calls=0 * 908
+* * 10
+
+ob=(1)
+fl=(29) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/string.go
+fn=(80) runtime.slicebytetostring
++7385 110 0
+cfl=(5)
+cfn=(48)
+calls=0 -281414 1043
+* * 10
+
+ob=(1)
+fl=(14)
+fn=(81) runtime.funcspdelta
++12949 902 0
+cfl=(14)
+cfn=(26)
+calls=0 +10436 794
+* * 10
+
+ob=(1)
+fl=(11)
+fn=(74)
++1920 202 0
+cfl=(11)
+cfn=(82) runtime.resettimer
+calls=0 +1920 544
+* * 30
+
+ob=(1)
+fl=(11)
+fn=(82)
+* 544 0
+cfl=(11)
+cfn=(83) runtime.modtimer
+calls=0 +3319 492
+* * 20
+cfl=(11)
+cfn=(83)
+calls=0 +3210 486
+* * 10
+
+ob=(1)
+fl=(11)
+fn=(84) runtime.doaddtimer
++660 290 0
+cfl=(11)
+cfn=(29)
+calls=0 +8657 1097
+* * 10
+
+ob=(1)
+fl=(11)
+fn=(27)
++1836 408 0
+cfl=(11)
+cfn=(30)
+calls=0 +8271 1111
+* * 10
+
+ob=(1)
+fl=(11)
+fn=(83)
++714 486 0
+cfl=(11)
+cfn=(84)
+calls=0 -1836 290
+* * 10
++109 492 0
+cfl=(10)
+cfn=(71)
+calls=0 -98455 2952
+* * 20
+
+ob=(1)
+fl=(11)
+fn=(28)
++2921 799 0
+cfl=(11)
+cfn=(85) runtime.runOneTimer
+calls=0 +3819 877
+* * 20
+
+ob=(1)
+fl=(11)
+fn=(85)
++898 877 0
+cfl=(11)
+cfn=(27)
+calls=0 -3828 411
+* * 10
+cfl=(11)
+cfn=(27)
+calls=0 -3744 408
+* * 10
+
+ob=(1)
+fl=(15)
+fn=(31)
++23566 322 0
+cfl=(13)
+cfn=(25)
+calls=0 -32042 676
+* * 10
++1224 208 0
+cfl=(14)
+cfn=(81)
+calls=0 -32624 902
+* * 10
+
+ob=(1)
+fl=(15)
+fn=(86) runtime.callers
++5822 799 0
+cfl=(16)
+cfn=(57)
+calls=0 +59145 379
+* * 20
+
+ob=(1)
+fl=(27)
+fn=(87) runtime.gcMarkTermination.func3
++23339 1746 0
+cfl=(10)
+cfn=(65)
+calls=0 -148182 1166
+* * 10
+
+ob=(1)
+fl=(28)
+fn=(88) runtime.bgscavenge.func2
++1675 304 0
+cfl=(28)
+cfn=(60)
+calls=0 -278924 413
+* * 10
+
+ob=(1)
+fl=(10)
+fn=(89) runtime.newproc.func1
++8674 3979 0
+cfl=(10)
+cfn=(77)
+calls=0 -148500 4029
+* * 10
+
+ob=(1)
+fl=(15)
+fn=(90) runtime.callers.func1
++1075 800 0
+cfl=(15)
+cfn=(31)
+calls=0 -39581 462
+* * 10
+cfl=(15)
+cfn=(31)
+calls=0 -39510 208
+* * 10
+
+ob=(1)
+fl=(16)
+fn=(32)
++18389 327 0
+cfl=(10)
+cfn=(20)
+calls=0 -164489 3274
+* * 280
+cfl=(10)
+cfn=(75)
+calls=0 -161800 3434
+* * 40
+cfl=(10)
+cfn=(20)
+calls=0 -164452 3263
+* * 30
+cfl=(10)
+cfn=(20)
+calls=0 -164475 3263
+* * 10
+
+ob=(1)
+fl=(16)
+fn=(57)
++171 379 0
+cfl=(15)
+cfn=(90)
+calls=0 -18389 800
+* * 20
+cfl=(27)
+cfn=(87)
+calls=0 -29813 1746
+* * 10
+cfl=(28)
+cfn=(88)
+calls=0 -28138 304
+* * 10
+cfl=(10)
+cfn=(89)
+calls=0 -19464 3979
+* * 10
+
+ob=(1)
+fl=(17)
+fn=(91) time.parse
++91662 851 0
+cfl=(17)
+cfn=(36)
+calls=0 +71784 153
+* * 10
+
+ob=(1)
+fl=(18)
+fn=(92) time.Time.Add
++25035 824 0
+cfl=(18)
+cfn=(37)
+calls=0 +22483 193
+* * 10
+
+ob=(1)
+fl=(18)
+fn=(93) time.Time.Sub
++487 857 0
+cfl=(18)
+cfn=(92)
+calls=0 * 824
+* * 10
+
+ob=(1)
+fl=(30) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/context/context.go
+fn=(94) context.WithCancel
++323385 236 0
+cfl=(5)
+cfn=(42)
+calls=0 -509870 1177
+* * 10
+
+ob=(1)
+fl=(31) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/runtime/extern.go
+fn=(95) runtime.Callers
++48186 229 0
+cfl=(15)
+cfn=(86)
+calls=0 -493892 799
+* * 10
+
+ob=(1)
+fl=(32) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/testing/testing.go
+fn=(96) testing.(*common).Helper
+* 869 0
+cfl=(31)
+cfn=(95)
+calls=0 * 229
+* * 10
++53 873 0
+cfl=(6)
+cfn=(9)
+calls=0 -864101 57
+* * 10
+
+ob=(1)
+fl=(31)
+fn=(95)
++682 229 0
+cfl=(15)
+cfn=(86)
+calls=0 -542131 799
+* * 10
+
+ob=(1)
+fl=(32)
+fn=(97) testing.callerName
+* 1016 0
+cfl=(31)
+cfn=(95)
+calls=0 * 229
+* * 10
+
+ob=(1)
+fl=(32)
+fn=(98) testing.tRunner
++589 1081 0
+cfl=(32)
+cfn=(97)
+calls=0 * 1016
+* * 10
++170 1194 0
+cfl=(33) /home/yrashk/Projects/bpxe/bpxe/pkg/timer/timer_test.go
+cfn=(99) bpxe.org/pkg/timer.TestTimeCycleIndefinitely
+calls=0 +849900 245
+* * 20
+cfl=(33)
+cfn=(100) bpxe.org/pkg/timer.TestTimeDate
+calls=0 +838784 32
+* * 10
+cfl=(33)
+cfn=(101) bpxe.org/pkg/timer.TestTimeCycleNoRep
+calls=0 +844384 127
+* * 10
+cfl=(33)
+cfn=(102) bpxe.org/pkg/timer.TestTimeCycleStartDate
+calls=0 +847392 189
+* * 10
+cfl=(33)
+cfn=(99)
+calls=0 +848201 218
+* * 10
+cfl=(33)
+cfn=(99)
+calls=0 +849152 226
+* * 10
+cfl=(33)
+cfn=(103) bpxe.org/pkg/timer.TestTimeCycleEndDate
+calls=0 +851346 269
+* * 10
+cfl=(33)
+cfn=(103)
+calls=0 +851514 272
+* * 10
+cfl=(33)
+cfn=(103)
+calls=0 +851727 277
+* * 10
+
+ob=(1)
+fl=(20)
+fn=(39)
++260006 145 0
+cfl=(20)
+cfn=(104) github.com/benbjohnson/clock.(*Mock).Timer
+calls=0 +261736 201
+* * 10
+
+ob=(1)
+fl=(20)
+fn=(104)
++1730 201 0
+cfl=(2)
+cfn=(41)
+calls=0 0x4072be 105
+* * 10
+
+ob=(1)
+fl=(21)
+fn=(40)
++3079 151 0
+cfl=(19)
+cfn=(38)
+calls=0 -436662 811
+* * 10
++54 151 0
+cfl=(21)
+cfn=(105) encoding/xml.(*Decoder).unmarshal
+calls=0 +17159 312
+* * 20
+
+ob=(1)
+fl=(21)
+fn=(105)
++17105 312 0
+cfl=(34) /nix/store/lm96gcrii9xgyh66c01y21hp95rrk8zp-go-1.16.2/share/go/src/encoding/xml/xml.go
+cfn=(106) encoding/xml.(*Decoder).Token
+calls=0 +38513 289
+* * 20
+
+ob=(1)
+fl=(34)
+fn=(106)
++21408 289 0
+cfl=(34)
+cfn=(107) encoding/xml.(*Decoder).rawToken
+calls=0 +24809 784
+* * 20
+
+ob=(1)
+fl=(34)
+fn=(107)
++3401 784 0
+cfl=(34)
+cfn=(108) encoding/xml.(*Decoder).nsname
+calls=0 +18442 1155
+* * 20
+
+ob=(1)
+fl=(34)
+fn=(108)
++15041 1155 0
+cfl=(34)
+cfn=(109) encoding/xml.(*Decoder).name
+calls=0 +15384 1174
+* * 10
+cfl=(34)
+cfn=(109)
+calls=0 +15750 1184
+* * 10
+
+ob=(1)
+fl=(34)
+fn=(109)
++343 1174 0
+cfl=(34)
+cfn=(110) encoding/xml.(*Decoder).readName
+calls=0 +1238 1190
+* * 10
++366 1184 0
+cfl=(29)
+cfn=(80)
+calls=0 -918358 110
+* * 10
+
+ob=(1)
+fl=(34)
+fn=(110)
++529 1190 0
+cfl=(13)
+cfn=(49)
+calls=0 -926109 1078
+* * 10
+
+ob=(1)
+fl=(35) /home/yrashk/Projects/bpxe/bpxe/vendor/github.com/qri-io/iso8601/iso8601.go
+fn=(111) github.com/qri-io/iso8601.ParseTime
++66721 30 0
+cfl=(17)
+cfn=(112) time.Parse
+calls=0 +66721 815
+* * 10
+
+ob=(1)
+fl=(17)
+fn=(112)
+* 815 0
+cfl=(17)
+cfn=(91)
+calls=0 -788370 851
+* * 10
+
+ob=(1)
+fl=(35)
+fn=(113) github.com/qri-io/iso8601.ParseInterval
++4500 228 0
+cfl=(35)
+cfn=(111)
+calls=0 * 30
+* * 10
+
+ob=(1)
+fl=(35)
+fn=(114) github.com/qri-io/iso8601.ParseRepeatingInterval
++1827 301 0
+cfl=(35)
+cfn=(113)
+calls=0 * 228
+* * 10
+
+ob=(1)
+fl=(36) /home/yrashk/Projects/bpxe/bpxe/vendor/github.com/stretchr/testify/require/require.go
+fn=(115) github.com/stretchr/testify/require.Nil
++435112 1175 0
+cfl=(3)
+cfn=(6)
+calls=0 0x40d4e0 466
+* * 10
++191 1176 0
+cfl=(32)
+cfn=(96)
+calls=0 -832716 869
+* * 10
+cfl=(32)
+cfn=(96)
+calls=0 -832663 873
+* * 10
+
+ob=(1)
+fl=(37) /home/yrashk/Projects/bpxe/bpxe/pkg/timer/timer.go
+fn=(116) bpxe.org/pkg/timer.New
++2721 39 0
+cfl=(35)
+cfn=(114)
+calls=0 -435303 301
+* * 10
+
+ob=(1)
+fl=(37)
+fn=(117) bpxe.org/pkg/timer.recurringTimer
++1306 89 0
+cfl=(20)
+cfn=(39)
+calls=0 -574171 144
+* * 10
+cfl=(20)
+cfn=(39)
+calls=0 -574128 145
+* * 10
++1145 69 0
+cfl=(10)
+cfn=(76)
+calls=0 0x44480d 3978
+* * 10
+
+ob=(1)
+fl=(37)
+fn=(118) bpxe.org/pkg/timer.dateTimeTimer
++365 124 0
+cfl=(18)
+cfn=(93)
+calls=0 0x48c525 857
+* * 10
+
+ob=(1)
+fl=(33)
+fn=(100)
++1664 32 0
+cfl=(21)
+cfn=(119) encoding/xml.(*Decoder).Decode
+calls=0 +1664 139
+* * 10
+
+ob=(1)
+fl=(21)
+fn=(119)
+* 139 0
+cfl=(21)
+cfn=(40)
+calls=0 -573808 151
+* * 10
+
+ob=(1)
+fl=(33)
+fn=(101)
++5600 127 0
+cfl=(21)
+cfn=(119)
+calls=0 +5600 139
+* * 10
+
+ob=(1)
+fl=(21)
+fn=(119)
+* 139 0
+cfl=(21)
+cfn=(40)
+calls=0 -579345 151
+* * 10
+
+ob=(1)
+fl=(33)
+fn=(102)
++3008 189 0
+cfl=(36)
+cfn=(115)
+calls=0 -12992 1175
+* * 10
+
+ob=(1)
+fl=(33)
+fn=(99)
++809 218 0
+cfl=(30)
+cfn=(94)
+calls=0 -896902 236
+* * 10
++951 226 0
+cfl=(21)
+cfn=(119)
+calls=0 +951 139
+* * 10
+
+ob=(1)
+fl=(21)
+fn=(119)
+* 139 0
+cfl=(21)
+cfn=(40)
+calls=0 -584113 151
+* * 10
+
+ob=(1)
+fl=(33)
+fn=(99)
++748 245 0
+cfl=(36)
+cfn=(115)
+calls=0 -17569 1176
+* * 20
+
+ob=(1)
+fl=(33)
+fn=(103)
++1446 269 0
+cfl=(21)
+cfn=(119)
+calls=0 +1446 139
+* * 10
+
+ob=(1)
+fl=(21)
+fn=(119)
+* 139 0
+cfl=(21)
+cfn=(40)
+calls=0 -586361 151
+* * 10
+
+ob=(1)
+fl=(33)
+fn=(103)
++168 272 0
+cfl=(37)
+cfn=(116)
+calls=0 -17042 39
+* * 10
++213 277 0
+cfl=(2)
+cfn=(44)
+calls=0 0x408c59 708
+* * 10
