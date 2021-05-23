@@ -24,6 +24,10 @@ type CatchEventSatisfier struct {
 	chains                   []*bitset.BitSet
 }
 
+func (satisfier *CatchEventSatisfier) EventDefinitionInstances() *[]event.DefinitionInstance {
+	return &satisfier.eventDefinitionInstances
+}
+
 func NewCatchEventSatisfier(catchEventElement bpmn.CatchEventInterface, eventDefinitionInstanceBuilder event.DefinitionInstanceBuilder) *CatchEventSatisfier {
 	satisfier := &CatchEventSatisfier{
 		CatchEventInterface: catchEventElement,

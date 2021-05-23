@@ -21,14 +21,28 @@ import (
 )
 
 type startEventConsumer struct {
-	process         *process.Process
-	parallel        bool
-	ctx             context.Context
-	consumptionLock sync.Mutex
-	tracer          *tracing.Tracer
-	events          [][]event.Event
-	element         bpmn.CatchEventInterface
-	satisfier       *logic.CatchEventSatisfier
+	process              *process.Process
+	parallel             bool
+	ctx                  context.Context
+	consumptionLock      sync.Mutex
+	tracer               *tracing.Tracer
+	events               [][]event.Event
+	element              bpmn.CatchEventInterface
+	satisfier            *logic.CatchEventSatisfier
+	eventInstanceBuilder event.DefinitionInstanceBuilder
+}
+
+func (s *startEventConsumer) NewEventDefinitionInstance(
+	def bpmn.EventDefinitionInterface,
+) (definitionInstance event.DefinitionInstance, err error) {
+	instances := s.satisfier.EventDefinitionInstances()
+	for i := range *instances {
+		if bpmn.Equal((*instances)[i].EventDefinition(), def) {
+			definitionInstance = (*instances)[i]
+			break
+		}
+	}
+	return
 }
 
 func newStartEventConsumer(
@@ -38,13 +52,14 @@ func newStartEventConsumer(
 	startEvent *bpmn.StartEvent,
 	eventDefinitionInstanceBuilder event.DefinitionInstanceBuilder) *startEventConsumer {
 	consumer := &startEventConsumer{
-		ctx:       ctx,
-		process:   process,
-		parallel:  startEvent.ParallelMultiple(),
-		tracer:    tracer,
-		events:    make([][]event.Event, 0, len(startEvent.EventDefinitions())),
-		element:   startEvent,
-		satisfier: logic.NewCatchEventSatisfier(startEvent, eventDefinitionInstanceBuilder),
+		ctx:                  ctx,
+		process:              process,
+		parallel:             startEvent.ParallelMultiple(),
+		tracer:               tracer,
+		events:               make([][]event.Event, 0, len(startEvent.EventDefinitions())),
+		element:              startEvent,
+		satisfier:            logic.NewCatchEventSatisfier(startEvent, eventDefinitionInstanceBuilder),
+		eventInstanceBuilder: eventDefinitionInstanceBuilder,
 	}
 	return consumer
 }
@@ -63,6 +78,10 @@ func (s *startEventConsumer) ConsumeEvent(ev event.Event) (result event.Consumpt
 		inst, err = s.process.Instantiate(
 			instance.WithContext(s.ctx),
 			instance.WithTracer(s.tracer),
+			instance.WithEventDefinitionInstanceBuilder(event.DefinitionInstanceBuildingChain(
+				s, // this will pass-through already existing event definition instance from this execution
+				s.eventInstanceBuilder,
+			)),
 		)
 		if err != nil {
 			result = event.ConsumptionError
