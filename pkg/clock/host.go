@@ -48,29 +48,11 @@ func (h *host) Changes() <-chan time.Time {
 	return h.changes
 }
 
-const hostForwardDriftTolerance = 3 * time.Second
-
 // Host is a clock source that uses time package as a source
 // of time.
-func Host(ctx context.Context) Clock {
+func Host(ctx context.Context) (c Clock, err error) {
 	changes := make(chan time.Time)
-	source := &host{changes: changes}
-	go func(ctx context.Context) {
-		t := source.Now()
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case t1 := <-source.After(time.Second * 1):
-				if t1.Before(t1) {
-					// backward drift
-					source.changes <- t1
-				} else if t1.Sub(t).Nanoseconds() > hostForwardDriftTolerance.Nanoseconds() {
-					// forward drift
-					source.changes <- t1
-				}
-			}
-		}
-	}(ctx)
-	return source
+	c = &host{changes: changes}
+	err = changeMonitor(ctx, changes)
+	return
 }
