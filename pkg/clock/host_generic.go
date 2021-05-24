@@ -19,13 +19,13 @@ const hostForwardDriftTolerance = 3 * time.Second
 
 func changeMonitor(ctx context.Context, changes chan time.Time) (err error) {
 	go func(ctx context.Context) {
-		t := time.Now()
 		for {
+			t := time.Now()
 			select {
 			case <-ctx.Done():
 				return
 			case t1 := <-time.After(time.Second * 1):
-				if t1.Before(t1) {
+				if t1.Before(t) {
 					// backward drift
 					changes <- t1
 				} else if t1.Sub(t).Nanoseconds() > hostForwardDriftTolerance.Nanoseconds() {
