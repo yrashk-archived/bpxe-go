@@ -150,8 +150,8 @@ func (model *Model) ConsumeEvent(ev event.Event) (result event.ConsumptionResult
 
 func (model *Model) RegisterEventConsumer(ev event.Consumer) (err error) {
 	model.eventConsumersLock.Lock()
+	defer model.eventConsumersLock.Unlock()
 	model.eventConsumers = append(model.eventConsumers, ev)
-	model.eventConsumersLock.Unlock()
 	return
 }
 

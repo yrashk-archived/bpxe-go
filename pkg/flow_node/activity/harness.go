@@ -48,17 +48,17 @@ type Harness struct {
 
 func (node *Harness) ConsumeEvent(ev event.Event) (result event.ConsumptionResult, err error) {
 	node.eventConsumersLock.RLock()
+	defer node.eventConsumersLock.RUnlock()
 	if atomic.LoadInt32(&node.active) == 1 {
 		result, err = event.ForwardEvent(ev, &node.eventConsumers)
 	}
-	node.eventConsumersLock.RUnlock()
 	return
 }
 
 func (node *Harness) RegisterEventConsumer(consumer event.Consumer) (err error) {
 	node.eventConsumersLock.Lock()
+	defer node.eventConsumersLock.Unlock()
 	node.eventConsumers = append(node.eventConsumers, consumer)
-	node.eventConsumersLock.Unlock()
 	return
 }
 

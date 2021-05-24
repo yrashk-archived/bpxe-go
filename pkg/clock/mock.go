@@ -44,36 +44,34 @@ type Mock struct {
 
 func (m *Mock) Now() time.Time {
 	m.RLock()
+	defer m.RUnlock()
 	now := m.now
-	m.RUnlock()
 	return now
 }
 
 func (m *Mock) After(duration time.Duration) <-chan time.Time {
 	m.Lock()
+	defer m.Unlock()
 	ch := make(chan time.Time, 1)
 	if duration.Nanoseconds() <= 0 {
-		m.Unlock()
 		ch <- m.now
 		close(ch)
 		return ch
 	}
 	m.timers = append(m.timers, after{Time: m.now.Add(duration), ch: ch})
-	m.Unlock()
 	return ch
 }
 
 func (m *Mock) Until(t time.Time) <-chan time.Time {
 	m.Lock()
+	defer m.Unlock()
 	ch := make(chan time.Time, 1)
 	if m.now.Equal(t) || m.now.After(t) {
-		m.Unlock()
 		ch <- m.now
 		close(ch)
 		return ch
 	}
 	m.timers = append(m.timers, after{Time: t, ch: ch})
-	m.Unlock()
 	return ch
 }
 
@@ -99,14 +97,14 @@ func NewMock() *Mock {
 
 func (m *Mock) Set(t time.Time) {
 	m.Lock()
+	defer m.Unlock()
 	m.lockedSet(t)
-	m.Unlock()
 }
 
 func (m *Mock) Add(duration time.Duration) {
 	m.Lock()
+	defer m.Unlock()
 	m.lockedSet(m.now.Add(duration))
-	m.Unlock()
 }
 
 // lockedSet should only be called when Mock is locked
