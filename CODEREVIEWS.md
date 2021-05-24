@@ -78,8 +78,7 @@ special chat roles or custom emojis, etc.
 
 ## How do I submit reviews?
 
-Simply [open an issue](https://github.com/bpxe/bpxe/issues/new) and
-assign the `code review` label to it. You'll hear back from the maintainer.
+Simply [open an issue](https://github.com/bpxe/bpxe/issues/new). You'll hear back from the maintainer.
 
 The reviews don't have to be done strictly on pull requests (in fact, these
 tend to flow from sent to merged fairly quickly at the moment). Any piece
