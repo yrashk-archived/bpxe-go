@@ -53,6 +53,7 @@ func (m *Mock) After(duration time.Duration) <-chan time.Time {
 	m.Lock()
 	ch := make(chan time.Time, 1)
 	if duration.Nanoseconds() <= 0 {
+		m.Unlock()
 		ch <- m.now
 		close(ch)
 		return ch
