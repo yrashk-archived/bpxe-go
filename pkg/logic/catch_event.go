@@ -103,7 +103,6 @@ func (satisfier *CatchEventSatisfier) Satisfy(ev event.Event) (matched bool, cha
 					// If no existing chain had this event not processed, create a new one
 					bitSet := bitset.New(satisfier.len)
 					bitSet.Set(uint(i))
-					// create the first one
 					satisfier.chains = append(satisfier.chains, bitSet)
 					chain = len(satisfier.chains) - 1
 				}
