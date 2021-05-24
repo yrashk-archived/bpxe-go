@@ -25,14 +25,14 @@ func NewFanOut() *FanOut {
 
 func (f *FanOut) ConsumeEvent(ev Event) (result ConsumptionResult, err error) {
 	f.eventConsumersLock.RLock()
+	defer f.eventConsumersLock.RUnlock()
 	result, err = ForwardEvent(ev, &f.eventConsumers)
-	f.eventConsumersLock.RUnlock()
 	return
 }
 
 func (f *FanOut) RegisterEventConsumer(ev Consumer) (err error) {
 	f.eventConsumersLock.Lock()
+	defer f.eventConsumersLock.Unlock()
 	f.eventConsumers = append(f.eventConsumers, ev)
-	f.eventConsumersLock.Unlock()
 	return
 }

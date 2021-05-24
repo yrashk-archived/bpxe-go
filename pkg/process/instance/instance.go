@@ -65,8 +65,8 @@ func (instance *Instance) ConsumeEvent(ev event.Event) (result event.Consumption
 
 func (instance *Instance) RegisterEventConsumer(ev event.Consumer) (err error) {
 	instance.eventConsumersLock.Lock()
+	defer instance.eventConsumersLock.Unlock()
 	instance.eventConsumers = append(instance.eventConsumers, ev)
-	instance.eventConsumersLock.Unlock()
 	return
 }
 
