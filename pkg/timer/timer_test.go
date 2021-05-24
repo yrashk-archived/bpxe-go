@@ -34,15 +34,12 @@ func TestTimeDate(t *testing.T) {
 	definition.SetTimeDate(&timestamp)
 	timer, err := New(context.Background(), c, definition)
 	require.Nil(t, err)
-	select {
-	case <-timer:
-		require.FailNow(t, "shouldn't happen")
-	default:
-	}
+	requireNoMoreMessages(t, timer, false)
 	time, err := iso8601.ParseTime(iso)
 	require.Nil(t, err)
 	c.Set(time)
 	<-timer
+	requireCompletion(t, timer)
 }
 
 func TestTimeDuration(t *testing.T) {
@@ -58,15 +55,12 @@ func TestTimeDuration(t *testing.T) {
 	definition.SetTimeDuration(&duration)
 	timer, err := New(context.Background(), c, definition)
 	require.Nil(t, err)
-	select {
-	case <-timer:
-		require.FailNow(t, "shouldn't happen")
-	default:
-	}
+	requireNoMoreMessages(t, timer, false)
 	dur, err := iso8601.ParseDuration(iso)
 	require.Nil(t, err)
 	c.Add(dur.Duration)
 	<-timer
+	requireCompletion(t, timer)
 }
 
 func TestTimeCycle(t *testing.T) {
@@ -84,11 +78,7 @@ func TestTimeCycle(t *testing.T) {
 	require.NotNil(t, timer)
 	require.Nil(t, err)
 
-	select {
-	case <-timer:
-		require.FailNow(t, "shouldn't happen")
-	default:
-	}
+	requireNoMoreMessages(t, timer, false)
 
 	interval, err := iso8601.ParseRepeatingInterval(iso)
 	require.Nil(t, err)
@@ -98,17 +88,7 @@ func TestTimeCycle(t *testing.T) {
 
 		<-timer
 
-		select {
-		case _, ok := <-timer:
-			require.False(t, ok)
-		default:
-		}
-	}
-
-	select {
-	case _, ok := <-timer:
-		require.False(t, ok)
-	default:
+		requireNoMoreMessages(t, timer, i+1 == interval.Repititions)
 	}
 
 }
@@ -128,22 +108,14 @@ func TestTimeCycleNoRep(t *testing.T) {
 	require.NotNil(t, timer)
 	require.Nil(t, err)
 
-	select {
-	case <-timer:
-		require.FailNow(t, "shouldn't happen")
-	default:
-	}
+	requireNoMoreMessages(t, timer, true)
 
 	interval, err := iso8601.ParseRepeatingInterval(iso)
 	require.Nil(t, err)
 
 	c.Add(interval.Interval.Duration.Duration)
 
-	select {
-	case <-timer:
-		require.FailNow(t, "shouldn't happen")
-	default:
-	}
+	requireCompletion(t, timer)
 
 }
 
@@ -163,46 +135,23 @@ func TestTimeCycleStartDate(t *testing.T) {
 	require.NotNil(t, timer)
 	require.Nil(t, err)
 
-	select {
-	case <-timer:
-		require.FailNow(t, "shouldn't happen")
-	default:
-	}
+	requireNoMoreMessages(t, timer, false)
 
 	interval, err := iso8601.ParseRepeatingInterval(iso)
 	require.Nil(t, err)
 
 	c.Add(interval.Interval.Duration.Duration)
-
-	select {
-	case <-timer:
-		require.FailNow(t, "shouldn't happen")
-	default:
-	}
+	requireNoMoreMessages(t, timer, false)
 
 	c.Set(*interval.Interval.Start)
-	select {
-	case <-timer:
-		require.FailNow(t, "shouldn't happen")
-	default:
-	}
+	requireNoMoreMessages(t, timer, false)
 
 	for i := 0; i < interval.Repititions; i++ {
 		c.Add(interval.Interval.Duration.Duration)
 
 		<-timer
 
-		select {
-		case _, ok := <-timer:
-			require.False(t, ok)
-		default:
-		}
-	}
-
-	select {
-	case _, ok := <-timer:
-		require.False(t, ok)
-	default:
+		requireNoMoreMessages(t, timer, i+1 == interval.Repititions)
 	}
 
 }
@@ -223,11 +172,7 @@ func TestTimeCycleIndefinitely(t *testing.T) {
 	require.NotNil(t, timer)
 	require.Nil(t, err)
 
-	select {
-	case <-timer:
-		require.FailNow(t, "shouldn't happen")
-	default:
-	}
+	requireNoMoreMessages(t, timer, false)
 
 	interval, err := iso8601.ParseRepeatingInterval(iso)
 	require.Nil(t, err)
@@ -238,11 +183,7 @@ func TestTimeCycleIndefinitely(t *testing.T) {
 
 		<-timer
 
-		select {
-		case <-timer:
-			require.FailNow(t, "shouldn't happen")
-		default:
-		}
+		requireNoMoreMessages(t, timer, i == 2)
 	}
 
 	cancel()
@@ -280,11 +221,7 @@ func TestTimeCycleEndDate(t *testing.T) {
 
 		<-timer
 
-		select {
-		case <-timer:
-			require.FailNow(t, "shouldn't happen")
-		default:
-		}
+		requireNoMoreMessages(t, timer, i == 2)
 	}
 
 	// Shift to the end
@@ -293,10 +230,31 @@ func TestTimeCycleEndDate(t *testing.T) {
 	c.Add(interval.Interval.Duration.Duration)
 
 	// No more repetitions
+	requireCompletion(t, timer)
+}
+
+// requireCompletion tests whether timer receives anything but channel
+// closure event; if it does, it'll fail the test
+func requireCompletion(t *testing.T, timer chan bpmn.TimerEventDefinition) {
 	select {
-	case <-timer:
-		require.FailNow(t, "shouldn't happen")
+	case _, ok := <-timer:
+		// only allow channel closure
+		require.False(t, ok)
 	default:
 	}
+}
 
+// requireNoMoreMessages tests whether timer receives anything; if it does,
+// it'll fail the test, unless `last` is set to true, then it will behave exactly
+// like requireCompletion.
+func requireNoMoreMessages(t *testing.T, timer chan bpmn.TimerEventDefinition, last bool) {
+	if last {
+		requireCompletion(t, timer)
+	} else {
+		select {
+		case <-timer:
+			require.FailNow(t, "no more messages expected")
+		default:
+		}
+	}
 }
