@@ -13,11 +13,13 @@
 //
 // $ CGO_ENABLED=0 go build -o bin ./pkg/clock/manual_test/
 //
-// And run ./bin/manual_test, preferably in a container where you can change
-// date:
+// And run ./bin/manual_test, preferably in a virtual machine:
 //
-// $ docker run --cap-add=SYS_TIME -v $(pwd):/test -w /test -ti ubuntu:latest
-// # ./bin/manual_test &
+// $ vagrant up
+// $ vagrant ssh
+// ...
+// $ sudo -s
+// # /bpxe/bin/manual_test &
 // ...
 // # date -s 10:00
 // # date -s 11:00
@@ -41,7 +43,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error: %s", err.Error())
 	}
-	fmt.Println("This program monitors time changes, it's advisable to run it in a container for testing.")
+	fmt.Println("This program monitors time changes, it's advisable to run it in a virtual machine for testing.")
 	fmt.Println("Try changing time and see if it'll generate any updates.")
 	fmt.Println("It'll automatically shutdown when you get three time changes.")
 	i := 0
