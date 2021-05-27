@@ -15,6 +15,7 @@ import (
 	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/errors"
 	"bpxe.org/pkg/event"
+	"bpxe.org/pkg/id"
 	"bpxe.org/pkg/sequence_flow"
 	"bpxe.org/pkg/tracing"
 )
@@ -23,13 +24,14 @@ import (
 // flow nodes: definitions, process, sequence flow, event management,
 // tracer, flow node mapping and a flow wait group
 type Wiring struct {
-	Id                             bpmn.Id
+	ProcessInstanceId              id.Id
+	FlowNodeId                     bpmn.Id
 	Definitions                    *bpmn.Definitions
 	Incoming                       []sequence_flow.SequenceFlow
 	Outgoing                       []sequence_flow.SequenceFlow
 	EventIngress                   event.Consumer
 	EventEgress                    event.Source
-	Tracer                         *tracing.Tracer
+	Tracer                         tracing.Tracer
 	Process                        *bpmn.Process
 	FlowNodeMapping                *FlowNodeMapping
 	FlowWaitGroup                  *sync.WaitGroup
@@ -56,12 +58,14 @@ func sequenceFlows(process *bpmn.Process,
 	return
 }
 
-func New(process *bpmn.Process,
+func NewWiring(
+	processInstanceId id.Id,
+	process *bpmn.Process,
 	definitions *bpmn.Definitions,
 	flowNode *bpmn.FlowNode,
 	eventIngress event.Consumer,
 	eventEgress event.Source,
-	tracer *tracing.Tracer,
+	tracer tracing.Tracer,
 	flowNodeMapping *FlowNodeMapping,
 	flowWaitGroup *sync.WaitGroup,
 	eventDefinitionInstanceBuilder event.DefinitionInstanceBuilder,
@@ -84,7 +88,8 @@ func New(process *bpmn.Process,
 		ownId = *ownIdPtr
 	}
 	node = &Wiring{
-		Id:                             ownId,
+		ProcessInstanceId:              processInstanceId,
+		FlowNodeId:                     ownId,
 		Definitions:                    definitions,
 		Incoming:                       incoming,
 		Outgoing:                       outgoing,
@@ -99,7 +104,7 @@ func New(process *bpmn.Process,
 	return
 }
 
-// CloneFor copies receiver, overriding Id, Incoming, Outgoing for a given flowNode
+// CloneFor copies receiver, overriding FlowNodeId, Incoming, Outgoing for a given flowNode
 func (wiring *Wiring) CloneFor(flowNode *bpmn.FlowNode) (result *Wiring, err error) {
 	incoming, err := sequenceFlows(wiring.Process, wiring.Definitions, flowNode.Incomings())
 	if err != nil {
@@ -119,7 +124,8 @@ func (wiring *Wiring) CloneFor(flowNode *bpmn.FlowNode) (result *Wiring, err err
 		ownId = *ownIdPtr
 	}
 	result = &Wiring{
-		Id:                             ownId,
+		ProcessInstanceId:              wiring.ProcessInstanceId,
+		FlowNodeId:                     ownId,
 		Definitions:                    wiring.Definitions,
 		Incoming:                       incoming,
 		Outgoing:                       outgoing,

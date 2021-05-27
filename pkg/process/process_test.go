@@ -57,6 +57,7 @@ func TestCancellation(t *testing.T) {
 		cancelledFlowNodes := make([]bpmn.FlowNodeInterface, 0)
 
 		for trace := range traces {
+			trace = tracing.Unwrap(trace)
 			switch trace := trace.(type) {
 			case flow_node.CancellationTrace:
 				cancelledFlowNodes = append(cancelledFlowNodes, trace.Node)

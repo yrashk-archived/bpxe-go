@@ -24,7 +24,7 @@ type eventDefinitionInstanceBuilder struct {
 	// through event.DefinitionInstance.NewEventDefinitionInstance. Time will tell.
 	context      context.Context
 	eventIngress event.Consumer
-	tracer       *tracing.Tracer
+	tracer       tracing.Tracer
 }
 
 type eventDefinitionInstance struct {
@@ -71,7 +71,7 @@ func (e *eventDefinitionInstanceBuilder) NewEventDefinitionInstance(def bpmn.Eve
 func EventDefinitionInstanceBuilder(
 	ctx context.Context,
 	eventIngress event.Consumer,
-	tracer *tracing.Tracer,
+	tracer tracing.Tracer,
 ) event.DefinitionInstanceBuilder {
 	return &eventDefinitionInstanceBuilder{
 		context:      ctx,

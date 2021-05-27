@@ -93,7 +93,7 @@ func testBoundaryEvent(t *testing.T, boundary string, test func(visited map[stri
 			if listening && activeBoundary {
 				break
 			}
-			trace := <-traces
+			trace := tracing.Unwrap(<-traces)
 			t.Logf("%#v", trace)
 			switch trace := trace.(type) {
 			case catch.ActiveListeningTrace:
@@ -126,7 +126,7 @@ func testBoundaryEvent(t *testing.T, boundary string, test func(visited map[stri
 		visited := make(map[string]bool)
 	loop1:
 		for {
-			trace := <-traces
+			trace := tracing.Unwrap(<-traces)
 			switch trace := trace.(type) {
 			case flow.VisitTrace:
 				if id, present := trace.Node.Id(); present {

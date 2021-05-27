@@ -26,7 +26,7 @@ type Process struct {
 	EventEgress                    event.Source
 	idGeneratorBuilder             id.GeneratorBuilder
 	eventDefinitionInstanceBuilder event.DefinitionInstanceBuilder
-	Tracer                         *tracing.Tracer
+	Tracer                         tracing.Tracer
 }
 
 type Option func(context.Context, *Process) context.Context
@@ -60,7 +60,7 @@ func WithEventDefinitionInstanceBuilder(builder event.DefinitionInstanceBuilder)
 }
 
 // WithTracer overrides process's tracer
-func WithTracer(tracer *tracing.Tracer) Option {
+func WithTracer(tracer tracing.Tracer) Option {
 	return func(ctx context.Context, process *Process) context.Context {
 		process.Tracer = tracer
 		return ctx

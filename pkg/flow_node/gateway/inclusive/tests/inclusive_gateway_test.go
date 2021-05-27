@@ -43,7 +43,7 @@ func TestInclusiveGateway(t *testing.T) {
 		endReached := 0
 	loop:
 		for {
-			trace := <-traces
+			trace := tracing.Unwrap(<-traces)
 			switch trace := trace.(type) {
 			case flow.FlowTrace:
 				for _, f := range trace.Flows {
@@ -57,7 +57,7 @@ func TestInclusiveGateway(t *testing.T) {
 								continue
 							}
 						} else {
-							t.Fatalf("can't find target's Id %#v", target)
+							t.Fatalf("can't find target's FlowNodeId %#v", target)
 						}
 
 					} else {
@@ -99,7 +99,7 @@ func TestInclusiveGatewayDefault(t *testing.T) {
 		endReached := 0
 	loop:
 		for {
-			trace := <-traces
+			trace := tracing.Unwrap(<-traces)
 			switch trace := trace.(type) {
 			case flow.FlowTrace:
 				for _, f := range trace.Flows {
@@ -114,7 +114,7 @@ func TestInclusiveGatewayDefault(t *testing.T) {
 								continue
 							}
 						} else {
-							t.Fatalf("can't find target's Id %#v", target)
+							t.Fatalf("can't find target's FlowNodeId %#v", target)
 						}
 
 					} else {
@@ -154,7 +154,7 @@ func TestInclusiveGatewayNoDefault(t *testing.T) {
 		}
 	loop:
 		for {
-			trace := <-traces
+			trace := tracing.Unwrap(<-traces)
 			switch trace := trace.(type) {
 			case tracing.ErrorTrace:
 				var target inclusive.NoEffectiveSequenceFlows

@@ -109,7 +109,7 @@ func testEvent(t *testing.T, filename string, nodeId string, eventDefinitionInst
 		resultChan := make(chan bool)
 		go func() {
 			for {
-				trace := <-traces
+				trace := tracing.Unwrap(<-traces)
 				switch trace := trace.(type) {
 				case ev.ActiveListeningTrace:
 					if id, present := trace.Node.Id(); present {
@@ -136,7 +136,7 @@ func testEvent(t *testing.T, filename string, nodeId string, eventDefinitionInst
 			defer inst.Tracer.Unsubscribe(traces)
 			eventsToObserve := events
 			for {
-				trace := <-traces
+				trace := tracing.Unwrap(<-traces)
 				switch trace := trace.(type) {
 				case ev.EventObservedTrace:
 					if eventObservationOnly {

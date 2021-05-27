@@ -15,8 +15,8 @@ import (
 )
 
 type GeneratorBuilder interface {
-	NewIdGenerator(ctx context.Context, tracer *tracing.Tracer) (Generator, error)
-	RestoreIdGenerator(ctx context.Context, serialized []byte, tracer *tracing.Tracer) (Generator, error)
+	NewIdGenerator(ctx context.Context, tracer tracing.Tracer) (Generator, error)
+	RestoreIdGenerator(ctx context.Context, serialized []byte, tracer tracing.Tracer) (Generator, error)
 }
 
 type Generator interface {

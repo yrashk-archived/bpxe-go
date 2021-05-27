@@ -36,8 +36,8 @@ func (sequenceFlow *SequenceFlow) resolveId(id *string) (result bpmn.FlowNodeInt
 	ownId, present := sequenceFlow.SequenceFlow.Id()
 	if !present {
 		err = errors.InvalidStateError{
-			Expected: "SequenceFlow to have an Id",
-			Actual:   "Id is not present",
+			Expected: "SequenceFlow to have an FlowNodeId",
+			Actual:   "FlowNodeId is not present",
 		}
 		return
 	}

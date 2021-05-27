@@ -39,7 +39,7 @@ func TestFindProcess(t *testing.T) {
 		if id, present := proc.Element.Id(); present {
 			assert.Equal(t, *id, "sample")
 		} else {
-			t.Fatalf("found a process but it has no Id")
+			t.Fatalf("found a process but it has no FlowNodeId")
 		}
 	} else {
 		t.Fatalf("can't find process `sample`")

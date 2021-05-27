@@ -39,6 +39,7 @@ loop:
 	for {
 		select {
 		case trace := <-traces:
+			trace = tracing.Unwrap(trace)
 			_, ok := trace.(flow.FlowTrace)
 			// Should not flow
 			require.False(t, ok)
@@ -51,7 +52,7 @@ loop:
 	require.Nil(t, err)
 loop1:
 	for {
-		trace := <-traces
+		trace := tracing.Unwrap(<-traces)
 		switch trace := trace.(type) {
 		case flow.VisitTrace:
 			if idPtr, present := trace.Node.Id(); present {
@@ -77,6 +78,7 @@ loop:
 	for {
 		select {
 		case trace := <-traces:
+			trace = tracing.Unwrap(trace)
 			_, ok := trace.(flow.FlowTrace)
 			// Should not flow
 			require.False(t, ok)
@@ -89,7 +91,7 @@ loop:
 	require.Nil(t, err)
 loop1:
 	for {
-		trace := <-traces
+		trace := tracing.Unwrap(<-traces)
 		switch trace := trace.(type) {
 		case flow.VisitTrace:
 			if idPtr, present := trace.Node.Id(); present {
@@ -115,6 +117,7 @@ loop:
 	for {
 		select {
 		case trace := <-traces:
+			trace = tracing.Unwrap(trace)
 			_, ok := trace.(flow.FlowTrace)
 			// Should not flow
 			require.False(t, ok)
@@ -129,7 +132,7 @@ loop:
 	sig3sent := false
 loop1:
 	for {
-		trace := <-traces
+		trace := tracing.Unwrap(<-traces)
 		switch trace := trace.(type) {
 		case model.EventInstantiationAttemptedTrace:
 			if !sig3sent && signalEvent == trace.Event {

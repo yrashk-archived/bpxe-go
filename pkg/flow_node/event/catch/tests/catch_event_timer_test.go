@@ -56,7 +56,7 @@ func TestCatchEvent_Timer(t *testing.T) {
 		advancedTime := false
 	loop:
 		for {
-			trace := <-traces
+			trace := tracing.Unwrap(<-traces)
 			switch trace := trace.(type) {
 			case catch.ActiveListeningTrace:
 				c.Add(1 * time.Minute)

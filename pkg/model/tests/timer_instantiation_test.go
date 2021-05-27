@@ -51,7 +51,7 @@ loop:
 	c.Add(1 * time.Minute)
 loop1:
 	for {
-		trace := <-traces
+		trace := tracing.Unwrap(<-traces)
 		switch trace := trace.(type) {
 		case flow.VisitTrace:
 			if idPtr, present := trace.Node.Id(); present {
@@ -84,6 +84,7 @@ loop:
 	for {
 		select {
 		case trace := <-traces:
+			trace = tracing.Unwrap(trace)
 			_, ok := trace.(flow.FlowTrace)
 			// Should not flow
 			require.False(t, ok)
@@ -97,7 +98,7 @@ loop:
 		c.Add(1 * time.Minute)
 	loop1:
 		for {
-			trace := <-traces
+			trace := tracing.Unwrap(<-traces)
 			switch trace := trace.(type) {
 			case flow.VisitTrace:
 				if idPtr, present := trace.Node.Id(); present {
