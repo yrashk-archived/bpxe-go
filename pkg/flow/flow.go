@@ -29,7 +29,7 @@ type Flow struct {
 	id                id.Id
 	definitions       *bpmn.Definitions
 	current           flow_node.FlowNodeInterface
-	tracer            *tracing.Tracer
+	tracer            tracing.Tracer
 	flowNodeMapping   *flow_node.FlowNodeMapping
 	flowWaitGroup     *sync.WaitGroup
 	idGenerator       id.Generator
@@ -65,7 +65,7 @@ func (flow *Flow) SetTerminate(terminate flow_node.Terminate) {
 //
 // The flow does nothing until it is explicitly started.
 func New(definitions *bpmn.Definitions,
-	current flow_node.FlowNodeInterface, tracer *tracing.Tracer,
+	current flow_node.FlowNodeInterface, tracer tracing.Tracer,
 	flowNodeMapping *flow_node.FlowNodeMapping, flowWaitGroup *sync.WaitGroup,
 	idGenerator id.Generator, actionTransformer flow_node.ActionTransformer,
 	itemAwareLocator data.ItemAwareLocator,

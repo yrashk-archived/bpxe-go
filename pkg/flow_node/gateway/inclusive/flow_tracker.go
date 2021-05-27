@@ -31,7 +31,7 @@ func (tracker *flowTracker) activity() <-chan struct{} {
 	return tracker.activityCh
 }
 
-func newFlowTracker(ctx context.Context, tracer *tracing.Tracer, element *bpmn.InclusiveGateway) *flowTracker {
+func newFlowTracker(ctx context.Context, tracer tracing.Tracer, element *bpmn.InclusiveGateway) *flowTracker {
 	tracker := flowTracker{
 		traces:     tracer.Subscribe(),
 		shutdownCh: make(chan bool),
@@ -107,6 +107,7 @@ func (tracker *flowTracker) run(ctx context.Context) {
 }
 
 func (tracker *flowTracker) handleTrace(locked bool, trace tracing.Trace, notify bool, reachedNode bool) (bool, bool, bool) {
+	trace = tracing.Unwrap(trace)
 	if !locked {
 		// Lock tracker records until messages are drained
 		tracker.lock.Lock()

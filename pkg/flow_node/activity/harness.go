@@ -85,7 +85,7 @@ func NewHarness(ctx context.Context,
 
 	for i := range *wiring.Process.BoundaryEvents() {
 		boundaryEvent := &(*wiring.Process.BoundaryEvents())[i]
-		if *boundaryEvent.AttachedToRef() == wiring.Id {
+		if *boundaryEvent.AttachedToRef() == wiring.FlowNodeId {
 			boundaryEvents = append(boundaryEvents, boundaryEvent)
 		}
 	}

@@ -33,8 +33,9 @@ import (
 )
 
 type Instance struct {
+	id                             id.Id
 	process                        *bpmn.Process
-	Tracer                         *tracing.Tracer
+	Tracer                         tracing.Tracer
 	flowNodeMapping                *flow_node.FlowNodeMapping
 	flowWaitGroup                  sync.WaitGroup
 	complete                       sync.RWMutex
@@ -51,6 +52,10 @@ type Instance struct {
 	eventDefinitionInstanceBuilder event.DefinitionInstanceBuilder
 	eventConsumersLock             sync.RWMutex
 	eventConsumers                 []event.Consumer
+}
+
+func (instance *Instance) Id() id.Id {
+	return instance.id
 }
 
 func (instance *Instance) ConsumeEvent(ev event.Event) (result event.ConsumptionResult, err error) {
@@ -130,7 +135,7 @@ ready:
 type Option func(ctx context.Context, instance *Instance) context.Context
 
 // WithTracer overrides instance's tracer
-func WithTracer(tracer *tracing.Tracer) Option {
+func WithTracer(tracer tracing.Tracer) Option {
 	return func(ctx context.Context, instance *Instance) context.Context {
 		instance.Tracer = tracer
 		return ctx
@@ -212,6 +217,8 @@ func NewInstance(element *bpmn.Process, definitions *bpmn.Definitions, options .
 
 	instance.idGenerator = idGenerator
 
+	instance.id = idGenerator.New()
+
 	err = instance.EventEgress.RegisterEventConsumer(instance)
 	if err != nil {
 		return
@@ -286,8 +293,19 @@ func NewInstance(element *bpmn.Process, definitions *bpmn.Definitions, options .
 
 	// Flow nodes
 
+	subTracer := tracing.NewTracer(ctx)
+
+	tracing.NewRelay(ctx, subTracer, instance.Tracer, func(trace tracing.Trace) []tracing.Trace {
+		return []tracing.Trace{Trace{
+			InstanceId: instance.id,
+			Trace:      trace,
+		}}
+	})
+
 	wiringMaker := func(element *bpmn.FlowNode) (*flow_node.Wiring, error) {
-		return flow_node.New(instance.process,
+		return flow_node.NewWiring(
+			instance.id,
+			instance.process,
 			definitions,
 			element,
 			// Event ingress/egress orchestration:
@@ -301,7 +319,8 @@ func NewInstance(element *bpmn.Process, definitions *bpmn.Definitions, options .
 			// events only to the instance (useful for things like event-based
 			// process instantiation)
 			instance.EventIngress, instance,
-			instance.Tracer, instance.flowNodeMapping,
+			subTracer,
+			instance.flowNodeMapping,
 			&instance.flowWaitGroup, instance.eventDefinitionInstanceBuilder)
 	}
 
@@ -449,7 +468,9 @@ func NewInstance(element *bpmn.Process, definitions *bpmn.Definitions, options .
 
 	// StartAll cease flow monitor
 	sender := instance.Tracer.RegisterSender()
-	go instance.ceaseFlowMonitor()(ctx, sender)
+	go instance.ceaseFlowMonitor(subTracer)(ctx, sender)
+
+	instance.Tracer.Trace(InstantiationTrace{InstanceId: instance.id})
 
 	return
 }
@@ -492,11 +513,11 @@ func (instance *Instance) StartAll(ctx context.Context) (err error) {
 	return
 }
 
-func (instance *Instance) ceaseFlowMonitor() func(ctx context.Context, sender tracing.SenderHandle) {
+func (instance *Instance) ceaseFlowMonitor(tracer tracing.Tracer) func(ctx context.Context, sender tracing.SenderHandle) {
 	// Subscribing to traces early as otherwise events produced
 	// after the goroutine below is started are not going to be
 	// sent to it.
-	traces := instance.Tracer.Subscribe()
+	traces := tracer.Subscribe()
 	instance.complete.Lock()
 	return func(ctx context.Context, sender tracing.SenderHandle) {
 		defer sender.Done()
@@ -529,6 +550,7 @@ func (instance *Instance) ceaseFlowMonitor() func(ctx context.Context, sender tr
 
 			select {
 			case trace := <-traces:
+				trace = tracing.Unwrap(trace)
 				switch t := trace.(type) {
 				case flow.FlowTerminationTrace:
 					switch flowNode := t.Source.(type) {
@@ -545,12 +567,12 @@ func (instance *Instance) ceaseFlowMonitor() func(ctx context.Context, sender tr
 				default:
 				}
 			case <-ctx.Done():
-				instance.Tracer.Unsubscribe(traces)
+				tracer.Unsubscribe(traces)
 				return
 			}
 		}
 
-		instance.Tracer.Unsubscribe(traces)
+		tracer.Unsubscribe(traces)
 
 		// Then, we're waiting for (2) to occur
 		waitIsOver := make(chan struct{})
@@ -561,7 +583,7 @@ func (instance *Instance) ceaseFlowMonitor() func(ctx context.Context, sender tr
 		select {
 		case <-waitIsOver:
 			// Send out a cease flow trace
-			instance.Tracer.Trace(flow.CeaseFlowTrace{})
+			tracer.Trace(flow.CeaseFlowTrace{})
 		case <-ctx.Done():
 		}
 

@@ -27,14 +27,14 @@ func GetSno() *Sno {
 
 type SnoGenerator struct {
 	*sno.Generator
-	tracer *tracing.Tracer
+	tracer tracing.Tracer
 }
 
-func (g *Sno) NewIdGenerator(ctx context.Context, tracer *tracing.Tracer) (result Generator, err error) {
+func (g *Sno) NewIdGenerator(ctx context.Context, tracer tracing.Tracer) (result Generator, err error) {
 	return g.RestoreIdGenerator(ctx, []byte{}, tracer)
 }
 
-func (g *Sno) RestoreIdGenerator(ctx context.Context, bytes []byte, tracer *tracing.Tracer) (result Generator, err error) {
+func (g *Sno) RestoreIdGenerator(ctx context.Context, bytes []byte, tracer tracing.Tracer) (result Generator, err error) {
 	var snapshot *sno.GeneratorSnapshot
 	if len(bytes) > 0 {
 		snapshot = new(sno.GeneratorSnapshot)

@@ -25,7 +25,7 @@ type startEventConsumer struct {
 	parallel             bool
 	ctx                  context.Context
 	consumptionLock      sync.Mutex
-	tracer               *tracing.Tracer
+	tracer               tracing.Tracer
 	events               [][]event.Event
 	element              bpmn.CatchEventInterface
 	satisfier            *logic.CatchEventSatisfier
@@ -47,7 +47,7 @@ func (s *startEventConsumer) NewEventDefinitionInstance(
 
 func newStartEventConsumer(
 	ctx context.Context,
-	tracer *tracing.Tracer,
+	tracer tracing.Tracer,
 	process *process.Process,
 	startEvent *bpmn.StartEvent,
 	eventDefinitionInstanceBuilder event.DefinitionInstanceBuilder) *startEventConsumer {

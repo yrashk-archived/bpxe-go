@@ -6,27 +6,28 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/LICENSE-Apache-2.0
 
-package id
+package instance
 
 import (
-	"context"
-
+	"bpxe.org/pkg/id"
 	"bpxe.org/pkg/tracing"
 )
 
-type GeneratorBuilder interface {
-	NewIdGenerator(ctx context.Context, tracer tracing.Tracer) (Generator, error)
-	RestoreIdGenerator(ctx context.Context, serialized []byte, tracer tracing.Tracer) (Generator, error)
+// InstantiationTrace denotes instantiation of a given process
+type InstantiationTrace struct {
+	InstanceId id.Id
 }
 
-type Generator interface {
-	Snapshot() ([]byte, error)
-	New() Id
+func (i InstantiationTrace) TraceInterface() {}
+
+// Trace wraps any trace with process instance id
+type Trace struct {
+	InstanceId id.Id
+	Trace      tracing.Trace
 }
 
-type Id interface {
-	Bytes() []byte
-	String() string
+func (t Trace) Unwrap() tracing.Trace {
+	return t.Trace
 }
 
-var DefaultIdGeneratorBuilder GeneratorBuilder
+func (t Trace) TraceInterface() {}

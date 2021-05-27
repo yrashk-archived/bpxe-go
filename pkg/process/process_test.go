@@ -41,9 +41,9 @@ func TestExplicitInstantiation(t *testing.T) {
 
 func TestCancellation(t *testing.T) {
 	if proc, found := sampleDoc.FindBy(bpmn.ExactId("sample")); found {
-		process := New(proc.(*bpmn.Process), &defaultDefinitions)
-
 		ctx, cancel := context.WithCancel(context.Background())
+
+		process := New(proc.(*bpmn.Process), &defaultDefinitions, WithContext(ctx))
 
 		tracer := tracing.NewTracer(ctx)
 		traces := tracer.SubscribeChannel(make(chan tracing.Trace, 128))
@@ -57,6 +57,7 @@ func TestCancellation(t *testing.T) {
 		cancelledFlowNodes := make([]bpmn.FlowNodeInterface, 0)
 
 		for trace := range traces {
+			trace = tracing.Unwrap(trace)
 			switch trace := trace.(type) {
 			case flow_node.CancellationTrace:
 				cancelledFlowNodes = append(cancelledFlowNodes, trace.Node)

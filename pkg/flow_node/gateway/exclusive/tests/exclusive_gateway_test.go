@@ -42,7 +42,7 @@ func TestExclusiveGateway(t *testing.T) {
 		}
 	loop:
 		for {
-			trace := <-traces
+			trace := tracing.Unwrap(<-traces)
 			switch trace := trace.(type) {
 			case flow.FlowTrace:
 				for _, f := range trace.Flows {
@@ -55,7 +55,7 @@ func TestExclusiveGateway(t *testing.T) {
 								break loop
 							}
 						} else {
-							t.Fatalf("can't find target's Id %#v", target)
+							t.Fatalf("can't find target's FlowNodeId %#v", target)
 						}
 
 					} else {
@@ -91,7 +91,7 @@ func TestExclusiveGatewayWithDefault(t *testing.T) {
 		}
 	loop:
 		for {
-			trace := <-traces
+			trace := tracing.Unwrap(<-traces)
 			switch trace := trace.(type) {
 			case flow.FlowTrace:
 				for _, f := range trace.Flows {
@@ -105,7 +105,7 @@ func TestExclusiveGatewayWithDefault(t *testing.T) {
 								break loop
 							}
 						} else {
-							t.Fatalf("can't find target's Id %#v", target)
+							t.Fatalf("can't find target's FlowNodeId %#v", target)
 						}
 
 					} else {
@@ -141,7 +141,7 @@ func TestExclusiveGatewayWithNoDefault(t *testing.T) {
 		}
 	loop:
 		for {
-			trace := <-traces
+			trace := tracing.Unwrap(<-traces)
 			switch trace := trace.(type) {
 			case flow.FlowTrace:
 				for _, f := range trace.Flows {
@@ -151,7 +151,7 @@ func TestExclusiveGatewayWithNoDefault(t *testing.T) {
 							assert.NotEqual(t, "task1", *id)
 							assert.NotEqual(t, "task2", *id)
 						} else {
-							t.Fatalf("can't find target's Id %#v", target)
+							t.Fatalf("can't find target's FlowNodeId %#v", target)
 						}
 
 					} else {
@@ -194,7 +194,7 @@ func TestExclusiveGatewayIncompleteJoin(t *testing.T) {
 		reached := make(map[string]int)
 	loop:
 		for {
-			trace := <-traces
+			trace := tracing.Unwrap(<-traces)
 			switch trace := trace.(type) {
 			case flow.VisitTrace:
 				t.Logf("%#v", trace)
@@ -205,7 +205,7 @@ func TestExclusiveGatewayIncompleteJoin(t *testing.T) {
 						reached[*id] = 1
 					}
 				} else {
-					t.Fatalf("can't find element with Id %#v", id)
+					t.Fatalf("can't find element with FlowNodeId %#v", id)
 				}
 			case flow.CeaseFlowTrace:
 				break loop

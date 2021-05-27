@@ -38,7 +38,7 @@ func TestTask(t *testing.T) {
 		}
 	loop:
 		for {
-			trace := <-traces
+			trace := tracing.Unwrap(<-traces)
 			switch trace := trace.(type) {
 			case flow.FlowTrace:
 				if id, present := trace.Source.Id(); present {

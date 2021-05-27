@@ -58,7 +58,7 @@ var executeCmd = &cobra.Command{
 				done := make(chan bool)
 				go func() {
 					for {
-						trace := <-traces
+						trace := tracing.Unwrap(<-traces)
 						switch trace := trace.(type) {
 						case flow.NewFlowTrace:
 							fmt.Printf("New flow %s\n", trace.FlowId.String())

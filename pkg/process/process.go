@@ -26,7 +26,8 @@ type Process struct {
 	EventEgress                    event.Source
 	idGeneratorBuilder             id.GeneratorBuilder
 	eventDefinitionInstanceBuilder event.DefinitionInstanceBuilder
-	Tracer                         *tracing.Tracer
+	Tracer                         tracing.Tracer
+	subTracerMaker                 func() tracing.Tracer
 }
 
 type Option func(context.Context, *Process) context.Context
@@ -60,7 +61,7 @@ func WithEventDefinitionInstanceBuilder(builder event.DefinitionInstanceBuilder)
 }
 
 // WithTracer overrides process's tracer
-func WithTracer(tracer *tracing.Tracer) Option {
+func WithTracer(tracer tracing.Tracer) Option {
 	return func(ctx context.Context, process *Process) context.Context {
 		process.Tracer = tracer
 		return ctx
@@ -106,6 +107,17 @@ func Make(element *bpmn.Process, definitions *bpmn.Definitions, options ...Optio
 		process.Tracer = tracing.NewTracer(ctx)
 	}
 
+	process.subTracerMaker = func() tracing.Tracer {
+		subTracer := tracing.NewTracer(ctx)
+		tracing.NewRelay(ctx, subTracer, process.Tracer, func(trace tracing.Trace) []tracing.Trace {
+			return []tracing.Trace{Trace{
+				Process: process.Element,
+				Trace:   trace,
+			}}
+		})
+		return subTracer
+	}
+
 	return process
 }
 
@@ -115,11 +127,14 @@ func New(element *bpmn.Process, definitions *bpmn.Definitions, options ...Option
 }
 
 func (process *Process) Instantiate(options ...instance.Option) (inst *instance.Instance, err error) {
+	subTracer := process.subTracerMaker()
+
 	options = append([]instance.Option{
 		instance.WithIdGenerator(process.idGeneratorBuilder),
 		instance.WithEventDefinitionInstanceBuilder(process.eventDefinitionInstanceBuilder),
 		instance.WithEventEgress(process.EventEgress),
 		instance.WithEventIngress(process.EventIngress),
+		instance.WithTracer(subTracer),
 	}, options...)
 	inst, err = instance.NewInstance(process.Element, process.Definitions, options...)
 	if err != nil {

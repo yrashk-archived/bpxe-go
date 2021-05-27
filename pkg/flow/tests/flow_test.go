@@ -39,7 +39,7 @@ func TestTrueFormalExpression(t *testing.T) {
 		}
 	loop:
 		for {
-			trace := <-traces
+			trace := tracing.Unwrap(<-traces)
 			switch trace := trace.(type) {
 			case flow.CompletionTrace:
 				if id, present := trace.Node.Id(); present {
@@ -78,7 +78,7 @@ func TestFalseFormalExpression(t *testing.T) {
 		}
 	loop:
 		for {
-			trace := <-traces
+			trace := tracing.Unwrap(<-traces)
 			switch trace := trace.(type) {
 			case flow.CompletionTrace:
 				if id, present := trace.Node.Id(); present {
@@ -126,7 +126,7 @@ func TestCondDataObject(t *testing.T) {
 				}
 			loop:
 				for {
-					trace := <-traces
+					trace := tracing.Unwrap(<-traces)
 					switch trace := trace.(type) {
 					case flow.VisitTrace:
 						if id, present := trace.Node.Id(); present {

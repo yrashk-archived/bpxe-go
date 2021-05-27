@@ -23,29 +23,33 @@ type unsubscription struct {
 	ok      chan bool
 }
 
-type Tracer struct {
+type tracer struct {
 	traces         chan Trace
 	subscription   chan subscription
 	unsubscription chan unsubscription
 	terminate      chan struct{}
+	done           chan struct{}
 	subscribers    []chan Trace
 	senders        sync.WaitGroup
 }
 
-func NewTracer(ctx context.Context) *Tracer {
-	tracer := Tracer{
+func NewTracer(ctx context.Context) Tracer {
+	tracer := tracer{
 		subscribers:    make([]chan Trace, 0),
 		traces:         make(chan Trace),
 		subscription:   make(chan subscription),
 		unsubscription: make(chan unsubscription),
 		terminate:      make(chan struct{}),
+		done:           make(chan struct{}),
 	}
 	go tracer.runner(ctx)
 	return &tracer
 }
 
-func (t *Tracer) runner(ctx context.Context) {
+func (t *tracer) runner(ctx context.Context) {
 	var termination sync.Once
+	defer close(t.done)
+
 	for {
 		select {
 		case subscription := <-t.subscription:
@@ -93,20 +97,11 @@ func (t *Tracer) runner(ctx context.Context) {
 	}
 }
 
-// Subscribe creates a new unbuffered channel and subscribes it to
-// traces from the Tracer
-//
-// Note that this channel should be continuously read from until unsubscribed
-// from, otherwise, the Tracer will block.
-func (t *Tracer) Subscribe() chan Trace {
+func (t *tracer) Subscribe() chan Trace {
 	return t.SubscribeChannel(make(chan Trace))
 }
 
-// SubscribeChannel subscribes a channel to traces from the Tracer
-//
-// Note that this channel should be continuously read from (modulo
-// buffering), otherwise, the Tracer will block.
-func (t *Tracer) SubscribeChannel(channel chan Trace) chan Trace {
+func (t *tracer) SubscribeChannel(channel chan Trace) chan Trace {
 	okChan := make(chan bool)
 	sub := subscription{channel: channel, ok: okChan}
 	t.subscription <- sub
@@ -114,12 +109,15 @@ func (t *Tracer) SubscribeChannel(channel chan Trace) chan Trace {
 	return channel
 }
 
-func (t *Tracer) Unsubscribe(c chan Trace) {
+func (t *tracer) Unsubscribe(c chan Trace) {
 	okChan := make(chan bool)
 	unsub := unsubscription{channel: c, ok: okChan}
 loop:
 	for {
 		select {
+		// If the tracer is done, it's as good as if we're unsubscribed
+		case <-t.Done():
+			return
 		case <-c:
 			continue loop
 		case t.unsubscription <- unsub:
@@ -130,21 +128,15 @@ loop:
 	}
 }
 
-func (t *Tracer) Trace(trace Trace) {
+func (t *tracer) Trace(trace Trace) {
 	t.traces <- trace
 }
 
-// SenderHandle is an interface for registered senders
-type SenderHandle interface {
-	// Done indicates that the sender has terminated
-	Done()
-}
-
-// RegisterSender registers a sender for termination purposes
-//
-// Once Sender is being terminated, before closing subscription channels,
-// it'll wait until all senders call SenderHandle.Done
-func (t *Tracer) RegisterSender() SenderHandle {
+func (t *tracer) RegisterSender() SenderHandle {
 	t.senders.Add(1)
 	return &t.senders
+}
+
+func (t *tracer) Done() chan struct{} {
+	return t.done
 }

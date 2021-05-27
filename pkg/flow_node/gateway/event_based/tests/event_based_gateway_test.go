@@ -58,6 +58,7 @@ func testEventBasedGateway(t *testing.T, test func(map[string]int), events ...ev
 			for {
 				select {
 				case trace := <-traces:
+					trace = tracing.Unwrap(trace)
 					switch trace := trace.(type) {
 					case ev.ActiveListeningTrace:
 						if id, present := trace.Node.Id(); present {
@@ -85,7 +86,7 @@ func testEventBasedGateway(t *testing.T, test func(map[string]int), events ...ev
 		go func() {
 			reached := make(map[string]int)
 			for {
-				trace := <-traces
+				trace := tracing.Unwrap(<-traces)
 				switch trace := trace.(type) {
 				case flow.VisitTrace:
 					if id, present := trace.Node.Id(); present {
@@ -95,7 +96,7 @@ func testEventBasedGateway(t *testing.T, test func(map[string]int), events ...ev
 							reached[*id] = 1
 						}
 					} else {
-						t.Errorf("can't find element with Id %#v", id)
+						t.Errorf("can't find element with FlowNodeId %#v", id)
 						ch <- reached
 						return
 					}

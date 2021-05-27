@@ -27,7 +27,7 @@ type Model struct {
 	eventConsumers                 []event.Consumer
 	idGeneratorBuilder             id.GeneratorBuilder
 	eventDefinitionInstanceBuilder event.DefinitionInstanceBuilder
-	tracer                         *tracing.Tracer
+	tracer                         tracing.Tracer
 }
 
 type Option func(context.Context, *Model) context.Context
@@ -55,7 +55,7 @@ func WithContext(newCtx context.Context) Option {
 }
 
 // WithTracer overrides model's tracer
-func WithTracer(tracer *tracing.Tracer) Option {
+func WithTracer(tracer tracing.Tracer) Option {
 	return func(ctx context.Context, model *Model) context.Context {
 		model.tracer = tracer
 		return ctx

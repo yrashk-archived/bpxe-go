@@ -42,7 +42,7 @@ func TestParallelGateway(t *testing.T) {
 		reached := make(map[string]int)
 	loop:
 		for {
-			trace := <-traces
+			trace := tracing.Unwrap(<-traces)
 			switch trace := trace.(type) {
 			case flow.VisitTrace:
 				t.Logf("%#v", trace)
@@ -53,7 +53,7 @@ func TestParallelGateway(t *testing.T) {
 						reached[*id] = 1
 					}
 				} else {
-					t.Fatalf("can't find element with Id %#v", id)
+					t.Fatalf("can't find element with FlowNodeId %#v", id)
 				}
 			case flow.CeaseFlowTrace:
 				break loop
@@ -92,7 +92,7 @@ func TestParallelGatewayMtoN(t *testing.T) {
 		reached := make(map[string]int)
 	loop:
 		for {
-			trace := <-traces
+			trace := tracing.Unwrap(<-traces)
 			switch trace := trace.(type) {
 			case flow.VisitTrace:
 				t.Logf("%#v", trace)
@@ -103,7 +103,7 @@ func TestParallelGatewayMtoN(t *testing.T) {
 						reached[*id] = 1
 					}
 				} else {
-					t.Fatalf("can't find element with Id %#v", id)
+					t.Fatalf("can't find element with FlowNodeId %#v", id)
 				}
 			case flow.CeaseFlowTrace:
 				break loop
@@ -141,7 +141,7 @@ func TestParallelGatewayNtoM(t *testing.T) {
 		reached := make(map[string]int)
 	loop:
 		for {
-			trace := <-traces
+			trace := tracing.Unwrap(<-traces)
 			switch trace := trace.(type) {
 			case flow.VisitTrace:
 				if id, present := trace.Node.Id(); present {
@@ -151,7 +151,7 @@ func TestParallelGatewayNtoM(t *testing.T) {
 						reached[*id] = 1
 					}
 				} else {
-					t.Fatalf("can't find element with Id %#v", id)
+					t.Fatalf("can't find element with FlowNodeId %#v", id)
 				}
 				t.Logf("%#v", reached)
 			case flow.CeaseFlowTrace:
@@ -191,6 +191,7 @@ func TestParallelGatewayIncompleteJoin(t *testing.T) {
 		reached := make(map[string]int)
 	loop:
 		for trace := range traces {
+			trace = tracing.Unwrap(trace)
 			switch trace := trace.(type) {
 			case parallel.IncomingFlowProcessedTrace:
 				t.Logf("%#v", trace)
@@ -222,7 +223,7 @@ func TestParallelGatewayIncompleteJoin(t *testing.T) {
 						reached[*id] = 1
 					}
 				} else {
-					t.Fatalf("can't find element with Id %#v", id)
+					t.Fatalf("can't find element with FlowNodeId %#v", id)
 				}
 			case tracing.ErrorTrace:
 				t.Fatalf("%#v", trace)

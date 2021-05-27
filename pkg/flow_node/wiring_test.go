@@ -29,11 +29,13 @@ func init() {
 	internal.LoadTestFile("testdata/sample.bpmn", testdata, &sampleDoc)
 }
 
-func TestNewFlowNode(t *testing.T) {
+func TestNewWiring(t *testing.T) {
 	var waitGroup sync.WaitGroup
 	if proc, found := sampleDoc.FindBy(bpmn.ExactId("sample")); found {
 		if flowNode, found := sampleDoc.FindBy(bpmn.ExactId("either")); found {
-			node, err := New(proc.(*bpmn.Process),
+			node, err := NewWiring(
+				nil,
+				proc.(*bpmn.Process),
 				&defaultDefinitions,
 				&flowNode.(*bpmn.ParallelGateway).FlowNode,
 				event.VoidConsumer{},

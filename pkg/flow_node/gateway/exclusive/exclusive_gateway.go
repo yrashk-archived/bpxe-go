@@ -149,7 +149,7 @@ func (node *Node) runner(ctx context.Context, sender tracing.SenderHandle) {
 						node.Wiring.Tracer.Trace(tracing.ErrorTrace{
 							Error: errors.InvalidArgumentError{
 								Expected: fmt.Sprintf("maximum 1 outgoing exclusive gateway (%s) flow",
-									node.Wiring.Id),
+									node.Wiring.FlowNodeId),
 								Actual: len(flow),
 							},
 						})
@@ -158,7 +158,7 @@ func (node *Node) runner(ctx context.Context, sender tracing.SenderHandle) {
 					node.Wiring.Tracer.Trace(tracing.ErrorTrace{
 						Error: errors.InvalidStateError{
 							Expected: fmt.Sprintf("probing[%s] is to be present (exclusive gateway %s)",
-								m.flowId.String(), node.Wiring.Id),
+								m.flowId.String(), node.Wiring.FlowNodeId),
 						},
 					})
 				}
