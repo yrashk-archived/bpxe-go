@@ -28,6 +28,7 @@ type tracer struct {
 	subscription   chan subscription
 	unsubscription chan unsubscription
 	terminate      chan struct{}
+	done           chan struct{}
 	subscribers    []chan Trace
 	senders        sync.WaitGroup
 }
@@ -39,6 +40,7 @@ func NewTracer(ctx context.Context) Tracer {
 		subscription:   make(chan subscription),
 		unsubscription: make(chan unsubscription),
 		terminate:      make(chan struct{}),
+		done:           make(chan struct{}),
 	}
 	go tracer.runner(ctx)
 	return &tracer
@@ -46,6 +48,8 @@ func NewTracer(ctx context.Context) Tracer {
 
 func (t *tracer) runner(ctx context.Context) {
 	var termination sync.Once
+	defer close(t.done)
+
 	for {
 		select {
 		case subscription := <-t.subscription:
@@ -111,6 +115,9 @@ func (t *tracer) Unsubscribe(c chan Trace) {
 loop:
 	for {
 		select {
+		// If the tracer is done, it's as good as if we're unsubscribed
+		case <-t.Done():
+			return
 		case <-c:
 			continue loop
 		case t.unsubscription <- unsub:
@@ -128,4 +135,8 @@ func (t *tracer) Trace(trace Trace) {
 func (t *tracer) RegisterSender() SenderHandle {
 	t.senders.Add(1)
 	return &t.senders
+}
+
+func (t *tracer) Done() chan struct{} {
+	return t.done
 }

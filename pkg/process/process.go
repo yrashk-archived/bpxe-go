@@ -120,6 +120,7 @@ func (process *Process) Instantiate(options ...instance.Option) (inst *instance.
 		instance.WithEventDefinitionInstanceBuilder(process.eventDefinitionInstanceBuilder),
 		instance.WithEventEgress(process.EventEgress),
 		instance.WithEventIngress(process.EventIngress),
+		instance.WithTracer(process.Tracer),
 	}, options...)
 	inst, err = instance.NewInstance(process.Element, process.Definitions, options...)
 	if err != nil {

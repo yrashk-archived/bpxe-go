@@ -44,4 +44,7 @@ type Tracer interface {
 	// Once Sender is being terminated, before closing subscription channels,
 	// it'll wait until all senders call SenderHandle.Done
 	RegisterSender() SenderHandle
+
+	// Done returns a channel that is closed when the tracer is done and terminated
+	Done() chan struct{}
 }

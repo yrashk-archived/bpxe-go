@@ -41,9 +41,9 @@ func TestExplicitInstantiation(t *testing.T) {
 
 func TestCancellation(t *testing.T) {
 	if proc, found := sampleDoc.FindBy(bpmn.ExactId("sample")); found {
-		process := New(proc.(*bpmn.Process), &defaultDefinitions)
-
 		ctx, cancel := context.WithCancel(context.Background())
+
+		process := New(proc.(*bpmn.Process), &defaultDefinitions, WithContext(ctx))
 
 		tracer := tracing.NewTracer(ctx)
 		traces := tracer.SubscribeChannel(make(chan tracing.Trace, 128))
