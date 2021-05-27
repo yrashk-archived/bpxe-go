@@ -470,7 +470,7 @@ func NewInstance(element *bpmn.Process, definitions *bpmn.Definitions, options .
 	sender := instance.Tracer.RegisterSender()
 	go instance.ceaseFlowMonitor(subTracer)(ctx, sender)
 
-	instance.Tracer.Trace(InstantiationTrace{InstanceId: instance.id, Process: instance.process})
+	instance.Tracer.Trace(InstantiationTrace{InstanceId: instance.id})
 
 	return
 }

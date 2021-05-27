@@ -6,24 +6,17 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/LICENSE-Apache-2.0
 
-package instance
+package process
 
 import (
-	"bpxe.org/pkg/id"
+	"bpxe.org/pkg/bpmn"
 	"bpxe.org/pkg/tracing"
 )
 
-// InstantiationTrace denotes instantiation of a given process
-type InstantiationTrace struct {
-	InstanceId id.Id
-}
-
-func (i InstantiationTrace) TraceInterface() {}
-
-// Trace wraps any trace with process instance id
+// Trace wraps any trace within a given process
 type Trace struct {
-	InstanceId id.Id
-	Trace      tracing.Trace
+	Process *bpmn.Process
+	Trace   tracing.Trace
 }
 
 func (t Trace) Unwrap() tracing.Trace {
